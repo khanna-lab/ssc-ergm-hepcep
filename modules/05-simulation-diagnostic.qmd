@@ -1,0 +1,107 @@
+---
+title: "Module 5: Simulation as Diagnostic"
+subtitle: "SSC 2026 ERGM Workshop"
+format: revealjs
+---
+
+## Overview
+
+**Goal:** Use simulated network distributions to assess alignment with empirical targets.
+
+**Key ideas:**
+- A converged model is not necessarily a well-aligned model
+- "Goodness of fit" means different things depending on your goal
+- In an ABM pipeline, the targets are the ground truth — not a single observed network
+
+---
+
+## Two approaches to assessing fit
+
+| Approach | What it compares to | When it fits |
+|----------|---------------------|--------------|
+| `gof()` | The fitted/observed network | Model fit to a single observed network |
+| Manual simulation | Your empirical target statistics | Model fit to multi-source summary data |
+
+**This pipeline:** targets come from empirical summaries (mixing matrices, degree distributions), not a single observed network. The manual approach is more directly interpretable.
+
+---
+
+## `gof()` — what it does
+
+```{r gof}
+# Standard ERGM goodness-of-fit
+gof_result <- gof(fit_final)
+plot(gof_result)
+```
+
+Compares simulated networks to the observed/fitted network on:
+degree distribution, geodesic distances, edgewise shared partners.
+
+Useful — but asks "does the model reproduce the observed network?"
+not "does the model reproduce our empirical targets?"
+
+---
+
+## Manual simulation — the approach here
+
+```{r simulate}
+# Simulate many networks from the fitted model
+nets <- simulate(fit_final, nsim = 100)
+```
+
+Then compute the same statistics you derived in Module 1 for each simulated network and compare to targets.
+
+---
+
+## Example: Out-degree distribution
+
+```{r violin-degree}
+library(ggplot2)
+
+sim_odeg0 <- sapply(nets, function(net) {
+  sum(degree(net, cmode = "outdegree") == 0) / network.size(net)
+})
+
+ggplot(data.frame(val = sim_odeg0), aes(x = "", y = val)) +
+  geom_violin() +
+  geom_hline(yintercept = target_odeg0, color = "red", linewidth = 1) +
+  labs(y = "Proportion with out-degree 0", x = "") +
+  theme_minimal()
+```
+
+Red line = empirical target. Does the simulated distribution cover it?
+
+---
+
+## Example: Racial mixing
+
+```{r violin-mixing}
+# For each simulated network, extract mixing matrix
+# Compare each cell to the corresponding target
+# TODO: example code
+```
+
+---
+
+## What good alignment looks like
+
+- Target falls within the bulk of the simulated distribution
+- No systematic bias (target not always at one tail)
+- Tight distributions = stable, low-variance model
+
+---
+
+## What poor alignment tells you
+
+- Target consistently outside the simulated distribution → misspecification
+- Which statistics are off? That points to which terms need revision
+- Loop back to Module 3 with a revised model
+
+---
+
+## Exercise
+
+1. Simulate 100 networks from your fitted model
+2. Plot violin plots for: out-degree distribution, racial mixing, edge count
+3. Identify any statistics where alignment is poor
+4. What would you change in the model to address it?

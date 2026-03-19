@@ -1,0 +1,18 @@
+project:
+  type: default
+  output-dir: _output
+
+format:
+  revealjs:
+    theme: simple
+    slide-number: true
+    chalkboard: false
+    code-fold: false
+    code-line-numbers: true
+    highlight-style: github
+    execute:
+      echo: true
+      eval: false   # participants run code themselves; set to true for instructor key
+      warning: false
+      message: false
+    footer: "SSC 2026 | ERGM Workshop | Khanna & Ozik"

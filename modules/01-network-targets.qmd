@@ -1,0 +1,98 @@
+---
+title: "Module 1: From Aggregate Summaries to Network Parameters"
+subtitle: "SSC 2026 ERGM Workshop"
+format: revealjs
+---
+
+## Learning Objectives
+
+By the end of this module, you will be able to:
+
+- Read in and summarize empirical network data
+- Translate social mixing summaries into ERGM target parameters
+- Specify the target network configuration for a synthetic population
+
+---
+
+## Setup
+
+```{r setup}
+library(network)
+library(ergm)
+library(dplyr)
+library(readr)
+library(ggplot2)
+
+# Load the synthetic workshop dataset
+nodes <- read_csv("../data/synthetic/nodes.csv")
+edges <- read_csv("../data/synthetic/edges.csv")
+```
+
+---
+
+## The Data: PWID Syringe-Sharing Network
+
+- **n = 1,000 nodes** (people who inject drugs, Chicago metro area)
+- **Attributes:** age, race/ethnicity, sex, geographic location
+- **Ties:** syringe-sharing partnerships (undirected)
+
+```{r inspect-data}
+glimpse(nodes)
+```
+
+---
+
+## Degree Distribution
+
+How many syringe-sharing partners does each person have?
+
+```{r degree-dist}
+# TODO: compute degree distribution from edges
+```
+
+---
+
+## Social Mixing: Race/Ethnicity
+
+Do people tend to share syringes within or across racial/ethnic groups?
+
+```{r mixing-matrix}
+# TODO: compute mixing matrix
+```
+
+---
+
+## Age Mixing
+
+```{r age-mixing}
+# TODO: compute age mixing summary
+```
+
+---
+
+## Geographic Patterns
+
+```{r geo-summary}
+# TODO: summarize geographic distribution
+```
+
+---
+
+## From Summaries to ERGM Targets
+
+| Summary Statistic | ERGM Term |
+|-------------------|-----------|
+| Mean degree | `edges` |
+| Degree distribution shape | `gwdegree` |
+| Race/ethnicity homophily | `nodematch("race")` |
+| Age mixing | `absdiff("age")` |
+| Geographic distance | `dist` (custom term) |
+
+---
+
+## Exercise
+
+1. Load the dataset
+2. Compute the mixing matrix for race/ethnicity
+3. Estimate the target number of edges from mean degree
+4. Record your targets — you'll use them in Module 3
