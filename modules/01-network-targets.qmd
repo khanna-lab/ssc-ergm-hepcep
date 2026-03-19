@@ -4,17 +4,26 @@ subtitle: "SSC 2026 ERGM Workshop"
 format: revealjs
 ---
 
-## Learning Objectives
+## What is social network analysis?
 
-By the end of this module, you will be able to:
+Taking a **relational perspective**
 
-- Read in and summarize empirical network data
-- Translate social mixing summaries into ERGM target parameters
-- Specify the target network configuration for a synthetic population
+- People influence each other
+- People who share attributes are more likely to be connected
+- When studying health, what is happening *around people* needs explicit attention
+
+In this workshop: syringe-sharing networks among people who inject drugs (PWID)
+in the Chicago metro area
 
 ---
 
-## Setup
+## The data
+
+**n = 1,000 nodes** — a synthetic population mirroring the HepCEP PWID network
+
+**Attributes:** sex, race/ethnicity, age, geographic location (zip code, lat/lon)
+
+**Ties:** directed syringe-sharing partnerships
 
 ```{r setup}
 library(network)
@@ -22,77 +31,138 @@ library(ergm)
 library(dplyr)
 library(readr)
 library(ggplot2)
+library(here)
 
-# Load the synthetic workshop dataset
-nodes <- read_csv("../data/synthetic/nodes.csv")
-edges <- read_csv("../data/synthetic/edges.csv")
+nodes   <- read_csv(here("data", "synthetic", "nodes.csv"))
+targets <- readRDS(here("data", "synthetic", "targets.rds"))
 ```
 
 ---
 
-## The Data: PWID Syringe-Sharing Network
+## Inspect the population
 
-- **n = 1,000 nodes** (people who inject drugs, Chicago metro area)
-- **Attributes:** age, race/ethnicity, sex, geographic location
-- **Ties:** syringe-sharing partnerships (undirected)
-
-```{r inspect-data}
+```{r inspect}
 glimpse(nodes)
+table(nodes$sex)
+table(nodes$race)
+mean(nodes$young)        # proportion age < 26
+mean(nodes$chicago == 1) # proportion in Chicago zip codes
 ```
 
 ---
 
-## Degree Distribution
+## What is an ERGM?
 
-How many syringe-sharing partners does each person have?
+ERGMs model **which ties exist** as a function of node attributes and network structure
 
-```{r degree-dist}
-# TODO: compute degree distribution from edges
+- Operationalized like a logistic regression
+- **Left-hand side:** the observed (or target) network
+- **Right-hand side:** terms capturing social processes
+- **Coefficients:** log-odds of a tie existing
+
+$$\text{logit}(P(y_{ij} = 1)) = \theta_1 g_1(y, X) + \theta_2 g_2(y, X) + \ldots$$
+
+The `edges` term is analogous to the intercept.
+
+---
+
+## Social processes → ERGM terms
+
+| Social process | ERGM term | What it captures |
+|----------------|-----------|-----------------|
+| Overall density | `edges` | Baseline tie probability |
+| Sex mixing | `nodemix("sex")` | Who shares with whom by sex |
+| Age mixing | `nodemix("young")` | Young vs. older mixing |
+| Racial/ethnic mixing | `nodemix("race.num")` | Within- vs. cross-race ties |
+| Degree distribution | `odegree`, `idegree` | How many partners each person has |
+| Geography | `dnf(...)` | Proximity shapes tie formation |
+
+---
+
+## Our research question
+
+**Can we identify social processes that generate the observed syringe-sharing
+structure in this population?**
+
+This is the question we'll answer — step by step — across this workshop.
+
+---
+
+## Exploring the network structure
+
+```{r net-init}
+# Initialize a directed network with node attributes
+n0 <- network.initialize(n = nrow(nodes), directed = TRUE)
+set.vertex.attribute(n0, colnames(nodes), nodes)
+n0
 ```
 
 ---
 
-## Social Mixing: Race/Ethnicity
+## Degree distribution: what are we trying to match?
 
-Do people tend to share syringes within or across racial/ethnic groups?
+```{r degree-targets}
+# Out-degree targets from empirical data (scaled to n=1000)
+targets$outdegree_data[1:6, ]
 
-```{r mixing-matrix}
-# TODO: compute mixing matrix
+# What proportion have no outgoing ties?
+targets$outdegree_data$mean_n[1] / nrow(nodes)
+```
+
+This distribution comes from a meta-analysis of empirical syringe-sharing studies —
+it is the structural target our ERGM must reproduce.
+
+---
+
+## Social mixing: sex
+
+```{r sex-mixing}
+# Target: of all edges, what fraction involve male vs. female endpoints?
+# And within those, how do they mix?
+targets$sex_mixing_align_order
+
+# Total edges target
+targets$edges_target
 ```
 
 ---
 
-## Age Mixing
+## Social mixing: race/ethnicity
 
-```{r age-mixing}
-# TODO: compute age mixing summary
+```{r race-mixing}
+# 4x4 mixing matrix (White=1, Black=2, Hispanic=3, Other=4)
+# Each cell = target number of directed edges
+matrix(targets$target_race_num,
+       nrow = 4, byrow = FALSE,
+       dimnames = list(
+         c("Wh","Bl","Hi","Ot"),  # sender
+         c("Bl","Hi","Ot","Wh","Bl","Hi","Ot","Wh","Hi","Ot","Wh","Bl","Ot","Wh","Bl","Hi")
+       ))
+# Note: diagonal (Wh→Wh) excluded — it is the reference level (levels2 = -1)
 ```
+
+What do these numbers tell us about racial homophily in this population?
 
 ---
 
-## Geographic Patterns
+## From summaries to targets
 
-```{r geo-summary}
-# TODO: summarize geographic distribution
+All of these — edges, sex mixing, age mixing, race mixing, degree distributions —
+become the `target.stats` vector we pass to `ergm()` in Module 3.
+
+```{r show-targets}
+# What we'll use as fitting targets
+cat("edges_target:", round(targets$edges_target), "\n")
+cat("sex mixing targets:", round(targets$sex_mixing_align_order), "\n")
+cat("age mixing targets:", round(targets$age_mixing_align_order), "\n")
 ```
-
----
-
-## From Summaries to ERGM Targets
-
-| Summary Statistic | ERGM Term |
-|-------------------|-----------|
-| Mean degree | `edges` |
-| Degree distribution shape | `gwdegree` |
-| Race/ethnicity homophily | `nodematch("race")` |
-| Age mixing | `absdiff("age")` |
-| Geographic distance | `dist` (custom term) |
 
 ---
 
 ## Exercise
 
-1. Load the dataset
-2. Compute the mixing matrix for race/ethnicity
-3. Estimate the target number of edges from mean degree
-4. Record your targets — you'll use them in Module 3
+1. Load the dataset and inspect the attribute distributions
+2. What proportion of nodes are young (age < 26)? What proportion are non-Hispanic White?
+3. Looking at the race mixing targets: which group shows the strongest within-group mixing?
+4. What is the target mean out-degree? *(Hint: use `edges_target` and `nrow(nodes)`)*
+5. Save your targets object — you'll use it in every subsequent module
