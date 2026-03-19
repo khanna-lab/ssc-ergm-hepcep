@@ -1,168 +1,188 @@
 ---
-title: "Module 1: From Aggregate Summaries to Network Parameters"
+title: "Module 1: Introduction to ERGMs"
 subtitle: "SSC 2026 ERGM Workshop"
 format: revealjs
 ---
 
-## What is social network analysis?
-
-Taking a **relational perspective**
+## The relational perspective
 
 - People influence each other
 - People who share attributes are more likely to be connected
 - When studying health, what is happening *around people* needs explicit attention
 
-In this workshop: syringe-sharing networks among people who inject drugs (PWID)
-in the Chicago metro area
+**Today's context:** syringe-sharing partnerships among people who inject drugs (PWID)
+in the Chicago metro area — a network that drives HCV and HIV transmission
 
 ---
 
-## The data
+## Nodes, edges, and network structure
 
-**n = 1,000 nodes** — a synthetic population mirroring the HepCEP PWID network
-
-**Attributes:** sex, race/ethnicity, age, geographic location (zip code, lat/lon)
-
-**Ties:** directed syringe-sharing partnerships
+- **Nodes** represent individual entities (here: people)
+- **Edges** represent connections (here: syringe-sharing partnerships)
+- **Structure** = the pattern of who is connected to whom
 
 ```{r setup}
 library(network)
 library(ergm)
 library(dplyr)
 library(readr)
-library(ggplot2)
 library(here)
 
 nodes   <- read_csv(here("data", "synthetic", "nodes.csv"))
 targets <- readRDS(here("data", "synthetic", "targets.rds"))
+
+# Initialize a directed network with node attributes
+net <- network.initialize(n = nrow(nodes), directed = TRUE)
+set.vertex.attribute(net, colnames(nodes), nodes)
+net
 ```
-
----
-
-## Inspect the population
-
-```{r inspect}
-glimpse(nodes)
-table(nodes$sex)
-table(nodes$race)
-mean(nodes$young)        # proportion age < 26
-mean(nodes$chicago == 1) # proportion in Chicago zip codes
-```
-
----
-
-## What is an ERGM?
-
-ERGMs model **which ties exist** as a function of node attributes and network structure
-
-- Operationalized like a logistic regression
-- **Left-hand side:** the observed (or target) network
-- **Right-hand side:** terms capturing social processes
-- **Coefficients:** log-odds of a tie existing
-
-$$\text{logit}(P(y_{ij} = 1)) = \theta_1 g_1(y, X) + \theta_2 g_2(y, X) + \ldots$$
-
-The `edges` term is analogous to the intercept.
-
----
-
-## Social processes → ERGM terms
-
-| Social process | ERGM term | What it captures |
-|----------------|-----------|-----------------|
-| Overall density | `edges` | Baseline tie probability |
-| Sex mixing | `nodemix("sex")` | Who shares with whom by sex |
-| Age mixing | `nodemix("young")` | Young vs. older mixing |
-| Racial/ethnic mixing | `nodemix("race.num")` | Within- vs. cross-race ties |
-| Degree distribution | `odegree`, `idegree` | How many partners each person has |
-| Geography | `dnf(...)` | Proximity shapes tie formation |
 
 ---
 
 ## Our research question
 
-**Can we identify social processes that generate the observed syringe-sharing
-structure in this population?**
+**What social processes generate the observed syringe-sharing structure
+in this population?**
 
-This is the question we'll answer — step by step — across this workshop.
+- Do people share syringes within racial/ethnic groups? With similar-age partners?
+- How many sharing partners does a typical person have?
+- Does geography shape who shares with whom?
+
+We need a model that can represent these processes formally and estimate their effects.
 
 ---
 
-## Exploring the network structure
+## What is an ERGM?
 
-```{r net-init}
-# Initialize a directed network with node attributes
-n0 <- network.initialize(n = nrow(nodes), directed = TRUE)
-set.vertex.attribute(n0, colnames(nodes), nodes)
-n0
+An **Exponential Random Graph Model** asks:
+
+> Given a set of nodes with known attributes, what is the probability of
+> observing a particular network?
+
+ERGMs are operationalized like logistic regression:
+
+- **Outcome:** does a tie exist between nodes *i* and *j*? (0/1)
+- **Predictors:** network statistics capturing structural and attribute-based processes
+- **Coefficients:** log-odds of a tie existing
+
+$$\text{logit}(P(y_{ij} = 1)) = \theta_1 g_1(\mathbf{y}, \mathbf{X}) + \theta_2 g_2(\mathbf{y}, \mathbf{X}) + \ldots$$
+
+---
+
+## The simplest ERGM: edges only
+
+The `edges` term is the intercept — it captures the baseline density of the network.
+
+```{r fit-edges}
+fit_edges <- ergm(net ~ edges,
+                  target.stats = targets$edges_target)
+summary(fit_edges)
 ```
 
+- The edges coefficient = log-odds of a random tie existing
+- Convert to probability: `plogis(coef(fit_edges)["edges"])`
+- What does this probability tell us?
+
 ---
 
-## Degree distribution: what are we trying to match?
+## Adding social processes: sex mixing
 
-```{r degree-targets}
-# Out-degree targets from empirical data (scaled to n=1000)
-targets$outdegree_data[1:6, ]
+Do men and women share syringes assortatively?
 
-# What proportion have no outgoing ties?
-targets$outdegree_data$mean_n[1] / nrow(nodes)
+```{r fit-sex}
+fit_sex <- ergm(net ~ edges +
+                  nodemix("sex", levels2 = -1),
+                target.stats = c(targets$edges_target,
+                                 targets$sex_mixing_align_order))
+summary(fit_sex)
 ```
 
-This distribution comes from a meta-analysis of empirical syringe-sharing studies —
-it is the structural target our ERGM must reproduce.
+- Positive coefficient → ties more likely between that combination
+- How does this compare to the null (random) mixing expectation?
 
 ---
 
-## Social mixing: sex
+## Interpretation
 
-```{r sex-mixing}
-# Target: of all edges, what fraction involve male vs. female endpoints?
-# And within those, how do they mix?
-targets$sex_mixing_align_order
+The `nodemix` coefficients are log-odds *relative to the reference category*.
 
-# Total edges target
+```{r interpret}
+# Convert to odds ratios
+exp(coef(fit_sex))
+```
+
+- Which sex combination is the reference?
+- How much more (or less) likely are within-sex ties vs. the reference?
+
+---
+
+## Adding more processes: age and race
+
+```{r fit-full-mixing}
+fit_mixing <- ergm(net ~ edges +
+                     nodemix("sex",      levels2 = -1) +
+                     nodemix("young",    levels2 = -1) +
+                     nodemix("race.num", levels2 = -1),
+                   target.stats = c(targets$edges_target,
+                                    targets$sex_mixing_align_order,
+                                    targets$age_mixing_align_order,
+                                    targets$target_race_num))
+summary(fit_mixing)
+```
+
+Each term answers a specific substantive question about tie formation.
+
+---
+
+## Simulating from a fitted model
+
+Once a model is fit, we can **generate networks** from it.
+
+```{r simulate}
+net_sim <- simulate(fit_mixing, nsim = 1)
+net_sim
+
+# Compare edge count to target
+network.edgecount(net_sim)
 targets$edges_target
 ```
 
+This is the key idea behind the rest of the workshop:
+*use simulation to assess whether the model reproduces what we care about.*
+
 ---
 
-## Social mixing: race/ethnicity
+## What makes a good model?
 
-```{r race-mixing}
-# 4x4 mixing matrix (White=1, Black=2, Hispanic=3, Other=4)
-# Each cell = target number of directed edges
-matrix(targets$target_race_num,
-       nrow = 4, byrow = FALSE,
-       dimnames = list(
-         c("Wh","Bl","Hi","Ot"),  # sender
-         c("Bl","Hi","Ot","Wh","Bl","Hi","Ot","Wh","Hi","Ot","Wh","Bl","Ot","Wh","Bl","Hi")
-       ))
-# Note: diagonal (Wh→Wh) excluded — it is the reference level (levels2 = -1)
+A converged ERGM that simulates networks matching the target structure.
+
+| Check | Tool |
+|-------|------|
+| Did the algorithm converge? | MCMC diagnostics |
+| Do simulated networks match targets? | Violin plots vs. target statistics |
+| Is the model missing a process? | Substantive judgment |
+
+Modules 3–5 work through each of these in depth.
+
+---
+
+## The workshop pipeline
+
 ```
-
-What do these numbers tell us about racial homophily in this population?
-
----
-
-## From summaries to targets
-
-All of these — edges, sex mixing, age mixing, race mixing, degree distributions —
-become the `target.stats` vector we pass to `ergm()` in Module 3.
-
-```{r show-targets}
-# What we'll use as fitting targets
-cat("edges_target:", round(targets$edges_target), "\n")
-cat("sex mixing targets:", round(targets$sex_mixing_align_order), "\n")
-cat("age mixing targets:", round(targets$age_mixing_align_order), "\n")
+Empirical data
+  → Module 1: Understand ERGMs, fit simple models    ← you are here
+  → Module 2: Geographic mixing term (Jonathan)
+  → Module 3: Sequential ERGM fitting
+  → Module 4: Diagnosing failure modes
+  → Module 5: Simulation as diagnostic
+  → Module 6: What do you do with a simulated network?
 ```
 
 ---
 
 ## Exercise
 
-1. Load the dataset and inspect the attribute distributions
-2. What proportion of nodes are young (age < 26)? What proportion are non-Hispanic White?
-3. Looking at the race mixing targets: which group shows the strongest within-group mixing?
-4. What is the target mean out-degree? *(Hint: use `edges_target` and `nrow(nodes)`)*
-5. Save your targets object — you'll use it in every subsequent module
+1. Load the dataset and initialize the network object
+2. Fit the `edges`-only model — what is the implied tie probability?
+3. Add `nodemix("sex", levels2 = -1)` — which sex combination shows the strongest tendency to share?
+4. Simulate one network from your fitted model — how close is the edge count to the target?
