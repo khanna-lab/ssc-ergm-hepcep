@@ -31,6 +31,7 @@ This workshop focuses on workflow design, diagnostics, and judgment in generatin
 
 | Module | File | Focus |
 |--------|------|-------|
+| 0 | `modules/00-ergm-intro.qmd` | Brief ERGM intro (Add Health friendships example) |
 | 1 | `modules/01-network-targets.qmd` | Aggregate summaries → network parameters |
 | 2 | `modules/02-geocoded-mixing.qmd` | Geocoded attributes → social mixing |
 | 3 | `modules/03-sequential-ergm.qmd` | Sequential ERGM specification |
@@ -47,3 +48,6 @@ The workshop uses a synthetic dataset (`data/synthetic/`) designed to mirror the
 This workshop pipeline is based on:
 - Boodram et al. (2022). *PLOS ONE*. [DOI: 10.1371/journal.pone.0270052]
 - The `hepcep/net-ergm-v4plus` repository
+
+The brief ERGM introduction (Module 0) condenses a longer talk, "Modeling Social Relations using ERGMs":
+- [Full slides (Google Slides)](https://docs.google.com/presentation/d/1sF-Py8mq_fNuZViK_IT7bEQB-f5hcjhid-fB4H1JiBg/edit)
