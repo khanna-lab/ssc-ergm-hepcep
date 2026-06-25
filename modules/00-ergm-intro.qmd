@@ -1,0 +1,358 @@
+---
+title: "A Brief Introduction to ERGMs"
+subtitle: "SSC 2026 ERGM Workshop · Module 0"
+format:
+  revealjs:
+    theme: [simple, theme.scss]
+    slide-number: true
+    fig-width: 7
+    fig-height: 3.6
+execute:
+  eval: true    # renv library is healthy; chunks run and bake in outputs + the GOF plot
+  echo: true
+  warning: false
+  message: false
+  cache: true
+---
+
+## Why this intro
+
+- **No ERGM experience needed**
+- Core ideas in 30 minutes, on a familiar example: **teen friendships**
+- Builds to the workshop's key concept: **network targets**
+
+::: notes
+Everything here runs on `faux.magnolia.high`, which ships with `statnet`, so no workshop
+data is required. Module 1 then applies the same ideas to syringe-sharing networks.
+:::
+
+---
+
+## The question
+
+**Micro-level processes → macro-level structure**
+
+- How do adolescents form friendships?
+- Can we name the processes that generate the patterns we see?
+
+::: notes
+Sometimes we care about people's attributes; here the *pattern of ties* is the point.
+We'll pin down three things: what a generative process is, what "structure" is, and how to
+tell if a process reproduces the structure.
+:::
+
+---
+
+## Where we're going
+
+1. **Describe** the network: what does the structure look like?
+2. **Summarize** it as numbers: these become our **targets**
+3. **Model** it: null vs. assortative mixing
+4. **Simulate**: does the model reproduce the targets?
+
+::: notes
+This arc (describe, summarize, model, check) is the workshop in miniature.
+:::
+
+---
+
+## The data
+
+```{r load}
+library(statnet)
+data("faux.magnolia.high")
+fmh <- faux.magnolia.high
+
+c(students = network.size(fmh),
+  ties     = network.edgecount(fmh))
+```
+
+Add Health friendships; directionality ignored for illustration.
+
+::: notes
+1,461 students, 974 undirected friendship ties. A to B and B to A are the same tie here.
+:::
+
+---
+
+## What does it look like?
+
+```{r netplot}
+#| echo: false
+#| fig-width: 9
+#| fig-height: 5.8
+#| out-width: "100%"
+#| fig-align: center
+set.seed(42)
+grade <- as.factor(fmh %v% "Grade")
+pal   <- hcl.colors(nlevels(grade), "Dark 3")
+par(mar = c(0, 0, 0, 0))
+plot(fmh,
+     vertex.col    = pal[grade],
+     vertex.border = pal[grade],
+     vertex.cex    = 0.7,
+     edge.col      = "#b9c6cc55")
+legend("topleft", legend = levels(grade), col = pal,
+       pch = 19, bty = "n", cex = 0.7, title = "Grade")
+```
+
+::: notes
+Colored by grade: ties visibly cluster within grade, with a fringe of isolates. Each point
+is a student; lines are friendships. The next two slides put numbers on both.
+:::
+
+---
+
+## Who's in the network?
+
+```{r attrs}
+table(fmh %v% "Grade")
+table(fmh %v% "Sex")
+```
+
+::: notes
+Each node carries attributes: Grade, Sex, Race. These are the ingredients for the
+"social processes" we'll hypothesize.
+:::
+
+---
+
+## Structure: who connects with whom?
+
+```{r mixing}
+mixingmatrix(fmh, "Sex")
+```
+
+Most ties sit on the diagonal: friendships cluster **within** sex.
+
+::: notes
+A mixing matrix counts ties by the sex of the two people. Heavy diagonal means assortative
+mixing. Same story for grade and race.
+:::
+
+---
+
+## Structure: how many friends?
+
+```{r degree}
+summary(fmh ~ degree(0:5))
+```
+
+Most students have **few** ties; a handful have many. A skewed degree
+distribution.
+
+::: notes
+`degree(0:5)` counts nodes with exactly 0, 1, ... 5 ties. This shape (many low-degree,
+few high-degree) is typical of social networks and will matter for model fit.
+:::
+
+---
+
+## These summaries *are* network statistics
+
+```{r targets}
+summary(fmh ~ edges +
+          nodematch("Grade") +
+          nodematch("Race") +
+          nodematch("Sex"))
+```
+
+Each number counts a feature of the observed network.
+
+::: notes
+`edges` is total ties; each `nodematch` is ties within that attribute. We just computed
+four numbers that describe the structure. Hold onto them: they're about to become
+*targets*.
+:::
+
+---
+
+## What is a "network target"?
+
+::: {.punch}
+A target is a summary statistic we want the model to reproduce.
+:::
+
+- `summary(net ~ terms)` **computes** them from data
+- `ergm(net ~ terms, target.stats = …)` **fits a model to those numbers**
+- So we can model a network with **only aggregate summaries**, no full
+  who-knows-whom matrix
+
+::: notes
+This is the crux of the workshop. Here we have the whole network, so the targets are the
+observed counts. In Module 1, the targets come from meta-analysis summaries (mixing
+matrices, degree distributions) and we never see one full observed network. ERGMs let us
+fit to the summaries regardless.
+:::
+
+---
+
+## What is an ERGM?
+
+**Logistic regression for ties.**
+
+- **Outcome:** does a tie exist between two people? (0/1)
+- **Predictors:** network statistics (the target terms)
+- **Coefficients:** log-odds of a tie, converted to probabilities
+
+::: notes
+The left-hand side is the observed network; the right-hand side is the terms, which are
+exactly the statistics we just computed. R and statnet run the estimation for us. Everything
+that follows is this one idea.
+:::
+
+---
+
+## Null model: ties form at random
+
+```{r null}
+random.m <- ergm(fmh ~ edges)
+plogis(coef(random.m))   # baseline tie probability
+```
+
+`edges` is the intercept: baseline density. Networks are overwhelmingly
+**non**-ties.
+
+::: notes
+Log-odds about −6.99, probability ≈ 0.0009. A random pair almost never shares a tie.
+:::
+
+---
+
+## Assortative mixing
+
+```{r assort}
+assort.m <- ergm(fmh ~ edges +
+                   nodematch("Grade") +
+                   nodematch("Race") +
+                   nodematch("Sex"))
+round(coef(assort.m), 2)
+```
+
+::: notes
+All terms here are dyad-independent, so this fits instantly via logistic regression, no
+MCMC. Positive coefficients mean ties are more likely within that attribute.
+:::
+
+---
+
+## Interpretation
+
+- Baseline log-odds ≈ −10.0 → probability 4.5 × 10⁻⁵
+- Same grade: −10.0 + 3.2 ≈ −6.8 → probability ≈ 0.001
+
+::: {.punch}
+A same-grade tie is ~22× more likely than a random pair.
+:::
+
+::: notes
+The `edges` term is the intercept; each `nodematch` shifts the log-odds when two people
+share that attribute. Log-likelihood also jumps (−7790 to −6528): a better fit.
+:::
+
+---
+
+## Is a better-fitting model *good enough*?
+
+- A higher log-likelihood says "better"
+- But does the model *reproduce* the structure we care about?
+- The test: simulate many networks, compare to the data
+
+::: notes
+A converged model is not necessarily a well-aligned one. We pick a structural property we
+care about and check whether the data sits inside the simulated spread.
+:::
+
+---
+
+## Goodness of fit: degree
+
+```{r gof}
+#| echo: false
+#| fig-width: 8.5
+#| fig-height: 5.2
+#| out-width: "92%"
+#| fig-align: center
+plot(gof(assort.m ~ degree))
+```
+
+::: notes
+Observed degree distribution (line) vs. 100 simulated networks (boxplots). Both models so
+far miss part of the structure: the observed line drifts outside the simulated spread.
+:::
+
+---
+
+## Observed vs. simulated
+
+```{r obs-sim}
+#| echo: false
+#| fig-width: 11
+#| fig-height: 5.4
+#| out-width: "100%"
+#| fig-align: center
+set.seed(7)
+sim   <- simulate(assort.m, nsim = 1)
+grade <- as.factor(fmh %v% "Grade")
+pal   <- hcl.colors(nlevels(grade), "Dark 3")
+
+op <- par(mfrow = c(1, 2), mar = c(0, 0, 2, 0))
+plot(fmh, vertex.col = pal[grade], vertex.border = pal[grade],
+     vertex.cex = 0.6, edge.col = "#b9c6cc55", main = "Observed")
+plot(sim, vertex.col = pal[grade], vertex.border = pal[grade],
+     vertex.cex = 0.6, edge.col = "#b9c6cc55", main = "Simulated")
+par(op)
+```
+
+::: notes
+The fitted model regenerates the within-grade clustering: same generative signature. Same
+node set and attributes; only the edges are re-drawn. It captures grade homophily and
+density, but (as the GOF showed) still misses higher-order structure like triadic closure.
+:::
+
+---
+
+## What's missing?
+
+- Friends of friends tend to connect: **triadic closure**
+- Captured with `gwesp(...)` → fit improves further
+- Raw triangle counts can cause **degeneracy** (revisited in Module 4)
+
+::: notes
+GWESP, the geometrically-weighted edgewise shared partner term, down-weights each
+additional shared friend, capturing the non-linear way closure works.
+:::
+
+---
+
+## Network targets, revisited
+
+::: {.punch}
+Targets are the bridge from data to model.
+:::
+
+- Every summary today (mixing, degree) is a candidate **target**
+- `target.stats` fits the model to those numbers
+- Simulation checks whether the model reproduces them
+- **Module 1:** targets come from aggregate data, no full network needed
+
+::: notes
+The one idea to carry out of this module. We computed targets from a full network here; the
+workshop's real setting is fitting to summary targets alone.
+:::
+
+---
+
+## Takeaway
+
+::: {.punch}
+Describe → summarize as targets → model → simulate to check.
+:::
+
+Same machinery in **Module 1**: syringe-sharing among people who inject drugs.
+
+::: notes
+That shift, fitting to summary targets rather than one observed network, is exactly why
+simulation-as-diagnostic (Module 5) replaces standard `gof()`. Further reading:
+Goodreau (2008); Robins et al. (2007).
+:::
