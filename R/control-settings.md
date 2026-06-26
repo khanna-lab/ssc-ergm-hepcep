@@ -5,6 +5,17 @@ Reference for the `control.ergm()` settings in the workshop pipeline
 override story comes from the statnet_help thread "Upgrading from ERGM v3.10 to
 v4.6" (Khanna / Butts / Krivitsky / Goodreau, 2024).
 
+## Takeaway
+
+On the n=1000 tutorial dataset, the ergm 4.x defaults converge fine through the
+mixing terms and a **single** degree type (in- or out-degree). Once **both in- and
+out-degree** terms are included, the defaults no longer converge cleanly, whereas
+the ergm-3.x-style overrides (Stochastic-Approximation + Hotelling termination +
+`MCMC.effectiveSize = NULL`) do. So those overrides appear **necessary for the full
+degree specification** — the in/out-degree combination is the threshold. That is
+one of the core messages of the tutorial, and it mirrors the n=32k experience in
+the email thread below.
+
 ## Comparison
 
 | Setting | ergm 4.x default | Workshop (`fit_control`) | Full pipeline | Controls |
@@ -44,6 +55,31 @@ lesson:
 - Fitting to **target stats** (not an observed network) adds a wrinkle: with
   estimation error in the targets, no ERGM in the family may match them exactly, so
   "expected stats = targets" can be an imperfect convergence test.
+
+## What we observed (n = 1000)
+
+Running `R/test-sequential-defaults.R` showed a more nuanced picture than "defaults
+just work":
+
+- The **mixing block** and **`+ odegree(0:1)`** converged cleanly with defaults
+  (step length held at 1.0; log-likelihood improvements shrank to ~0.02 before
+  convergence).
+- The **full final model (`idegree(0:1) + odegree(0:1)` together)** is the hard case
+  even at this scale: step lengths collapsed (1.0 -> ~0.02) while the log-likelihood
+  kept jumping by 2-3 per iteration and the estimating equations never entered the
+  tolerance region. That is the same wall hit at n = 32k, reproduced in miniature.
+
+So the message: defaults handle the mixing and single-degree models; the combined
+in/out-degree model is where the SA + Hotelling overrides earn their place. The test
+script now fits that final model both ways (A: defaults, B: override recipe) and
+compares simulated means to the targets.
+
+> **Observational note (not yet rigorously measured):** watching the console, the
+> defaults appeared to *struggle more* than the 3.x-style overrides on the full
+> degree model (erratic, collapsing step lengths; estimating equations not settling
+> into the tolerance region). This is an impression from the fitting output, not a
+> formal comparison; the A/B fit in `test-sequential-defaults.R` is what would
+> confirm it (compare convergence and simulated-mean-vs-target across the two).
 
 ## Try it (the experiment for n = 1000)
 
