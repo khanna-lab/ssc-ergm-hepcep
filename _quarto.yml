@@ -15,4 +15,4 @@ format:
       eval: false   # participants run code themselves; set to true for instructor key
       warning: false
       message: false
-    footer: "SSC 2026 | ERGM Workshop | Khanna & Ozik"
+    footer: "From Mixing Data to Networked Populations · SSC 2026"
