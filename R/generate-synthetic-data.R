@@ -3,7 +3,8 @@
 # Samples n=1000 nodes from the HepCEP synthetic population and computes
 # the target statistics used in the ERGM fitting modules.
 #
-# Inputs:  data/full/synthpop.csv  (copy of the full 32k-node synthpop here)
+# Inputs:  data/full/synthpop-2023-10-12 12_01_32.csv  (full 32k-node synthpop,
+#          from hepcep/net-ergm-v4plus; filename kept for provenance)
 # Outputs: data/synthetic/nodes.csv
 #          data/synthetic/targets.rds
 
@@ -20,10 +21,10 @@ set.seed(20260101)  # reproducible draw
 n_workshop <- 1000
 
 # --- Load full synthpop ---
-# Place a copy of synthpop-2023-10-12 12_01_32.csv in data/full/ and rename it.
-synthpop_path <- here("data", "full", "synthpop.csv")
+# Sourced from hepcep/net-ergm-v4plus; the dated filename is kept for provenance.
+synthpop_path <- here("data", "full", "synthpop-2023-10-12 12_01_32.csv")
 if (!file.exists(synthpop_path)) {
-  stop("synthpop.csv not found in data/full/. See data/full/README.md.")
+  stop("synthpop file not found in data/full/. See data/full/README.md.")
 }
 
 full_pop <- read_csv(synthpop_path, show_col_types = FALSE)
@@ -37,7 +38,7 @@ nodes <- full_pop |>
   select(id, sex, race, age, zipcode, lon, lat) |>
   mutate(
     young    = as.integer(age < 26),
-    race_num = recode(race, Wh = 1L, Bl = 2L, Hi = 3L, Ot = 4L),
+    race.num = recode(race, Wh = 1L, Bl = 2L, Hi = 3L, Ot = 4L),  # dotted name matches nodemix("race.num") in the modules
     chicago  = if_else(substr(as.character(zipcode), 1, 3) == "606", 1L, 2L)
   )
 
@@ -136,15 +137,20 @@ target_race_num <- c(
 write_csv(nodes, here("data", "synthetic", "nodes.csv"))
 cat("Saved data/synthetic/nodes.csv\n")
 
-saveRDS(
-  list(
-    edges_target           = edges_target,
-    indegree_data          = indegree_data,
-    outdegree_data         = outdegree_data,
-    sex_mixing_align_order = sex_mixing_align_order,
-    age_mixing_align_order = age_mixing_align_order,
-    target_race_num        = target_race_num
-  ),
-  here("data", "synthetic", "targets.rds")
+# Bundle all targets into one object so they can be inspected together
+# (e.g. `targets`, `str(targets)`, `targets$edges_target`).
+targets <- list(
+  edges_target           = edges_target,
+  indegree_data          = indegree_data,
+  outdegree_data         = outdegree_data,
+  sex_mixing_align_order = sex_mixing_align_order,
+  age_mixing_align_order = age_mixing_align_order,
+  target_race_num        = target_race_num
 )
+
+saveRDS(targets, here("data", "synthetic", "targets.rds"))
 cat("Saved data/synthetic/targets.rds\n")
+
+# Quick overview in the console
+str(targets)
+targets
