@@ -1,0 +1,361 @@
+---
+title: "From Aggregate Summaries to Network Targets"
+subtitle: "SSC 2026 ERGM Workshop · Module 2"
+format:
+  revealjs:
+    theme: [simple, theme.scss]
+    slide-number: true
+    fig-width: 7
+    fig-height: 3.6
+execute:
+  eval: false    # participants run code themselves; flip to true for the instructor key
+  echo: true
+  warning: false
+  message: false
+---
+
+## Where we left off
+
+In Module 1 we fit models to a network we could **see** — every friendship in
+`faux.magnolia.high`. Targets were easy:
+
+```r
+summary(fmh ~ edges + nodematch("Grade"))
+```
+
+::: {.lead}
+Compute the summaries straight from the observed graph.
+:::
+
+::: notes
+Recap in one breath: the intro had the whole adjacency matrix, so a "target" was
+just a number we read off the network with `summary()`. Everything today is about
+what happens when you *can't* do that.
+:::
+
+---
+
+## The problem
+
+Syringe-sharing among people who inject drugs is a **hidden network**.
+
+- You cannot enumerate the population and map every tie
+- Sharing is stigmatized, partnerships are transient
+- There is no observed graph to run `summary()` on
+
+::: {.punch}
+So where do the targets come from?
+:::
+
+::: notes
+This is the motivating gap. Unlike a classroom friendship survey, we can't observe
+the PWID sharing network. What we *do* have is survey and meta-analytic summaries:
+how many partners people report, and who shares with whom by sex, age, and race.
+:::
+
+---
+
+## The resolution
+
+ERGMs can be fit to **summary statistics**, not just an observed network.
+
+```r
+ergm(net ~ terms, target.stats = <numbers>)
+```
+
+- No adjacency matrix required
+- The task reduces to: turn survey numbers into a correctly-ordered vector
+
+::: {.punch}
+"From aggregate summaries to network parameters" — that vector is the whole job of this module.
+:::
+
+::: notes
+`target.stats` is the hinge of the workshop. Give ergm a set of numbers and it finds
+the model whose expected statistics equal them. Our remaining work is translation:
+survey summaries in, a target vector out. No fitting yet — that's Module 3.
+:::
+
+---
+
+## Our population
+
+```r
+library(network); library(ergm); library(dplyr); library(readr); library(here)
+
+nodes   <- read_csv(here("data", "synthetic", "nodes.csv"))
+targets <- readRDS(here("data", "synthetic", "targets.rds"))
+
+net <- network.initialize(nrow(nodes), directed = TRUE)
+for (col in names(nodes)) net %v% col <- nodes[[col]]
+```
+
+n = 1,000 PWID with attributes: `sex`, `race.num`, `young`, `chicago`. The network
+is **directed** — you name partners, and you get named.
+
+::: notes
+The nodes come from the HepCEP synthetic population. Attributes are the ingredients
+for the mixing terms. Directedness matters from here on and is the first real
+departure from the intro. (Footnote, only if asked: these summaries are prepared at
+our n = 1,000 working scale so ERGMs converge live in the room — the scaling isn't a
+lesson, just data prep.)
+:::
+
+---
+
+## We don't count ties — we count partners
+
+The survey gives a **degree distribution**: how many people report 0, 1, 2, …
+partners. Directed, so two of them:
+
+| degree | # people (in) | # people (out) |
+|:------:|:-------------:|:--------------:|
+| 0 | 646 | 606 |
+| 1 | 203 | 202 |
+| 2 |  83 |  93 |
+| 3 |  37 |  46 |
+| … |  …  |  …  |
+| ≥8 | ~1 | ~4 |
+
+::: notes
+This is our population of 1,000. Most people name few or no partners; a thin tail
+names many. That skew is the structure we want to preserve — and it returns in
+Module 3 as the `idegree`/`odegree` targets.
+:::
+
+---
+
+## Turn a degree distribution into an edge count
+
+Every tie is one partner-slot for someone, so
+**total ties = Σ (degree × # people at that degree)** — once for in, once for out.
+
+```r
+indeg  <- targets$indegree_data      # our population's in-degree distribution
+outdeg <- targets$outdegree_data
+
+inedges_target  <- sum(indeg$in_degree   * indeg$mean_n)     # 630.8
+outedges_target <- sum(outdeg$out_degree * outdeg$mean_n)    # 791.5
+```
+
+::: notes
+Pure bookkeeping — add up every partner-slot. No network required, just the
+distribution. The two sums count the *same* edges from two directions.
+:::
+
+---
+
+## Two estimates, one edge count → reconcile
+
+In-ties and out-ties count the same edges, so they should agree. They don't —
+`630.8` vs `791.5` — because they're separately estimated summaries, each with its
+own error. Pragmatic fix: average.
+
+```r
+edges_target <- mean(c(inedges_target, outedges_target))     # 711
+```
+
+::: {.punch}
+A target is a **count** — and the next step turns proportions *into* counts.
+:::
+
+::: notes
+`711` is load-bearing: every mixing target is `edges_target × proportion`, so it
+propagates through the whole vector. The in ≠ out gap is an honest preview —
+summaries don't always reconcile, which is why simulation (Module 5), not the fit
+object, is the real test of fit. (If asked about size/scale: the count and density
+are size-dependent, but mean degree ≈ 0.71 and the mixing proportions are not — those
+are what transfer across populations; Krivitsky, Handcock & Morris 2011.)
+:::
+
+---
+
+## Homophily is one number. Mixing is a matrix.
+
+The intro used `nodematch("Grade")` — a single count of within-group ties. But the
+survey gives the **whole matrix** (from → to). For race:
+
+| from \ to | White | Black | Hisp | Other |
+|:---------:|:-----:|:-----:|:----:|:-----:|
+| **White** | .76 | .09 | .11 | .04 |
+| **Black** | .33 | .50 | .16 | .01 |
+| **Hisp**  | .35 | .01 | .63 | .01 |
+| **Other** | .64 | .11 | .20 | .05 |
+
+::: {.punch}
+Black → White = .33, but White → Black = .09 — an asymmetry `nodematch` cannot see.
+:::
+
+::: notes
+`nodematch` sees only the diagonal, collapsed to one number. It can't tell that
+Whites are strongly homophilous (.76) while Others barely are (.05), and it discards
+every off-diagonal flow. Those between-group flows are where cross-community
+transmission lives — for an epidemic model, the opposite of noise.
+:::
+
+---
+
+## So we keep every cell: `nodemix`
+
+```r
+# intro:  one number  — within-group ties only
+net ~ nodematch("race.num")
+
+# here:   every from → to cell (reference cell dropped)
+net ~ nodemix("race.num", levels2 = -1)
+```
+
+Sex (2 groups) → **3** targets. Race (4 groups) → **15** targets.
+`levels2 = -1` drops the reference cell — the one all others are measured against.
+
+::: notes
+More cells = more faithful to the survey, but more parameters to fit. How you encode
+mixing — one `nodematch`, `nodematch + nodefactor` for group activity, or full
+`nodemix` — is itself a dial on model complexity. We reach for that dial in
+Modules 3–4 when convergence gets hard; here we just note it exists.
+:::
+
+---
+
+## Proportion → count: multiply by edges
+
+The matrix gives *proportions*; `ergm` wants *counts*. The bridge is `edges_target`.
+Sex, worked all the way through:
+
+```r
+M_to_M <- edges_target * 0.60 * 0.55   # 234.7
+M_to_F <- edges_target * 0.60 * 0.44   # 187.7
+F_to_M <- edges_target * 0.38 * 0.72   # 194.6
+F_to_F <- edges_target * 0.38 * 0.28   #  75.7   <- reference cell
+```
+
+::: {.punch}
+This is why the edge count mattered: no `edges_target`, no counts.
+:::
+
+::: notes
+0.60 / 0.38 are the shares of ties sent by males / females; the second factor is the
+within/between split. Four cells for a 2-group directed attribute.
+:::
+
+---
+
+## The order is not the obvious one
+
+`nodemix("sex", levels2 = -1)` expects the three cells in **`ergm`'s** order — not
+reading order, not the order you typed:
+
+```r
+sex_target <- c(M_to_F, F_to_M, M_to_M)   # c(187.7, 194.6, 234.7)
+#                 reference F_to_F is gone;  and M_to_F ≠ F_to_M
+```
+
+::: {.punch}
+`ergm` matches numbers to terms **by position**. Swap `F→M` and `M→F` and you fit a wrong model — silently.
+:::
+
+::: notes
+Two traps in one line. The reference cell (F→F) is dropped, so you have 3 numbers,
+not 4. And because the network is directed, M→F (187.7) and F→M (194.6) are different
+cells — swapping them produces a clean-looking, wrong fit with no warning.
+:::
+
+---
+
+## Race: same idea, 15 cells — where it bites
+
+Four groups, directed → 16 cells − 1 reference (White→White) = **15 targets**, each
+`edges × share × mixing-fraction`:
+
+| # | cell | target | | # | cell | target |
+|:-:|:----:|:-----:|--|:-:|:----:|:-----:|
+| 1 | Bl→Wh | 42.6 | | 8  | Wh→Hi | 46.6 |
+| 2 | Hi→Wh | 41.7 | | 10 | Hi→Hi | 76.4 |
+| 5 | Bl→Bl | 63.4 | | 15 | Ot→Ot | 1.1 |
+
+**Do not hand-order these.** Read the order `ergm` wants off the labels:
+
+```r
+summary(net ~ nodemix("race.num", levels2 = -1))   # prints cells in ergm's order
+```
+
+::: {.punch}
+Match your targets to *those* labels. Guessing the order is the most common way this pipeline goes silently wrong.
+:::
+
+::: notes
+The reference here is White→White — a *different* cell than sex's reference, because
+the reference is always the first cell in ergm's enumeration, which depends on the
+factor's levels. That's the whole argument for never hand-ordering: let `summary()`
+tell you the order and match labels to it.
+:::
+
+---
+
+## The backstop: count your statistics
+
+Labels are the discipline; the count-check is the seatbelt. It catches the most
+common slip — a vector of the wrong **length**:
+
+```r
+f_mix <- net ~ edges +
+  nodemix("sex",      levels2 = -1) +
+  nodemix("young",    levels2 = -1) +
+  nodemix("race.num", levels2 = -1)
+
+target_vec <- c(edges_target,
+                sex_target,
+                targets$age_mixing_align_order,
+                targets$target_race_num)
+
+stopifnot(length(summary(f_mix)) == length(target_vec))   # 1 + 3 + 3 + 15 = 22
+```
+
+::: {.punch}
+Length-match catches a wrong *count*, never a wrong *order*. Labels first, `stopifnot` last.
+:::
+
+::: notes
+`summary(f_mix)` returns one statistic per term-cell in ergm's order; its length is
+how many targets you owe. A mismatched length errors or silently recycles, so we stop
+first. Ordering errors pass this check — which is exactly why the `summary()`-label
+habit is the primary defense and this is only the backstop.
+:::
+
+---
+
+## The vector is assembled → hand off
+
+The whole job of this module: from a degree distribution and three mixing matrices to
+one correctly-ordered vector of **22** target statistics.
+
+```r
+target_vec   # length 22: 1 edges + 3 sex + 3 age + 15 race
+```
+
+::: {.punch}
+We have *parameters*, not yet a *model*. Module 3 fits an ERGM to these.
+:::
+
+::: notes
+Everything downstream — fitting (Module 3), diagnosing failure (Module 4),
+simulation-as-diagnostic (Module 5) — takes this vector as input. No network was ever
+observed. That is the payoff of the workshop's title: aggregate summaries in, network
+parameters out.
+:::
+
+---
+
+## Exercise
+
+1. Load `nodes.csv` and `targets.rds`; build the directed network
+2. Recompute `edges_target` from the in- and out-degree distributions — do the two
+   estimates agree?
+3. Build `sex_target` from the mixing proportions and confirm its order against
+   `summary(net ~ nodemix("sex", levels2 = -1))`
+4. Assemble the full 22-length `target_vec` and pass the `stopifnot` count-check
+
+::: notes
+The exercise is the module in miniature: derive the edge count, build one mixing
+block carefully, and assemble + check the whole vector. No fitting — that's next.
+:::
