@@ -1,21 +1,30 @@
 /*-- scss:defaults --*/
 
-// Fonts — clean, modern, high legibility from the back of the room
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap');
-
-$font-family-sans-serif: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif !default;
+// Fonts — Brown SPH brand guidelines: Georgia (headings/serif) + Arial (body) are
+// the only approved fonts. Code keeps a monospace face (not covered by the brand
+// guidelines, which only speak to presentation text).
+$font-family-sans-serif: Arial, Helvetica, "Liberation Sans", sans-serif !default;
 $font-family-monospace: "JetBrains Mono", "SF Mono", Menlo, monospace !default;
 
-// Palette — calm slate + teal accent
-$body-bg: #fcfdfe !default;
-$body-color: #20323f !default;
-$link-color: #0b6e7c !default;
-$selection-bg: #cdeef2 !default;
+// Palette — Brown School of Public Health brand colors
+// (source: SPH PowerPoint Template 2026, Brand Guidelines > "Brown Colors")
+$brown-primary:   #4E3629 !default; // Brown  — primary
+$brown-red:       #ED1C24 !default; // Red    — primary
+$brown-sky:       #59CBE8 !default; // Sky Blue — secondary
+$brown-emerald:   #00B398 !default; // Emerald  — secondary
+$brown-navy:      #003C71 !default; // Navy     — secondary
+$brown-taupe:     #B7B09C !default; // Taupe    — secondary
+$brown-bg-tint:   #F1EFEE !default; // Optional background
+
+$body-bg: #ffffff !default;
+$body-color: #000000 !default;
+$link-color: $brown-navy !default;
+$selection-bg: #d6f0f5 !default;
 
 // Headings
-$presentation-heading-font: "Inter", sans-serif !default;
-$presentation-heading-color: #0b5563 !default;
-$presentation-heading-font-weight: 600 !default;
+$presentation-heading-font: Georgia, "Times New Roman", serif !default;
+$presentation-heading-color: $brown-primary !default;
+$presentation-heading-font-weight: 700 !default;
 $presentation-h1-font-size: 2.0em !default;
 $presentation-h2-font-size: 1.45em !default;
 
@@ -36,7 +45,7 @@ $code-block-font-size: 0.6em !default;
 
 .reveal h2 {
   margin-bottom: 0.3em;
-  border-bottom: 2px solid #d7e8ea;
+  border-bottom: 2px solid $brown-red;
   padding-bottom: 0.18em;
   line-height: 1.2;
 }
@@ -68,21 +77,21 @@ $code-block-font-size: 0.6em !default;
   margin-bottom: 0.35em;
 }
 .reveal li::marker {
-  color: #0b6e7c;
+  color: $brown-red;
 }
 
 // Understated emphasis instead of heavy bold
 .reveal strong {
-  color: #0b5563;
-  font-weight: 600;
+  color: $brown-primary;
+  font-weight: 700;
 }
 
 // Code blocks — soft card, not a harsh slab
 .reveal pre {
   box-shadow: none;
-  border: 1px solid #e3ecee;
+  border: 1px solid #e2ddd3;
   border-radius: 8px;
-  background: #f6fafb;
+  background: $brown-bg-tint;
   margin: 0.3em 0;
   width: 100%;
 }
@@ -93,23 +102,23 @@ $code-block-font-size: 0.6em !default;
 
 // Lead/intro line under a heading
 .reveal .lead {
-  color: #486581;
+  color: $brown-navy;
   font-size: 0.95em;
 }
 
 // Footer + slide number, quieter
 .reveal .footer {
-  color: #829ab1;
+  color: $brown-taupe;
   font-size: 0.5em;
 }
 .reveal .slide-number {
   background-color: transparent;
-  color: #b4c4cc;
+  color: $brown-taupe;
 }
 
 // Big takeaway line
 .reveal .punch {
-  color: #0b5563;
-  font-weight: 600;
+  color: $brown-red;
+  font-weight: 700;
   font-size: 1.15em;
 }
