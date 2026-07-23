@@ -68,16 +68,18 @@ $code-block-font-size: 0.6em !default;
   margin-top: 0 !important;
 }
 
-// Breathing room between bullets; lighter weight
+// Breathing room between bullets; lighter weight; smaller than body/paragraph text
+// so lists take up less vertical room and are less likely to overflow a slide.
 .reveal ul,
 .reveal ol {
   line-height: 1.55;
+  font-size: 0.85em;
 }
 .reveal li {
   margin-bottom: 0.35em;
 }
 .reveal li::marker {
-  color: $brown-red;
+  color: $brown-primary;
 }
 
 // Understated emphasis instead of heavy bold
