@@ -22,7 +22,7 @@ They are directly generated from Claude.
 In Module 1 we fit models to a network we could **see** — every friendship in
 `faux.magnolia.high`. Targets were easy:
 
-```r
+```{.r code-line-numbers="false"}
 summary(fmh ~ edges + nodematch("Grade"))
 ```
 
@@ -62,7 +62,7 @@ how many partners people report, and who shares with whom by sex, age, and race.
 
 ERGMs can be fit to **summary statistics**, not just an observed network.
 
-```r
+```{.r code-line-numbers="false"}
 ergm(net ~ terms, target.stats = <numbers>)
 ```
 
@@ -87,6 +87,7 @@ survey summaries in, a target vector out. No fitting yet — that's Module 3.
 library(network); library(ergm); library(dplyr); library(readr); library(here)
 
 nodes   <- read_csv(here("data", "synthetic", "nodes.csv"))
+targets <- readRDS(here("data", "synthetic", "targets.rds"))
 
 net <- network.initialize(nrow(nodes), directed = TRUE)
 for (col in names(nodes)) net %v% col <- nodes[[col]]
@@ -108,16 +109,25 @@ lesson, just data prep.)
 ---
 
 ## Network "Features" of Interest
-Just as in the introductory example, we decide which network features (i.e., parameters) are of interest, at least to start
 
-How? 
-[concise argument]
+Just as in the intro, we choose which network features (parameters) matter before
+touching any code.
 
-In this case, these are
-[list form, by type, i.e., degree distribution, homphily terms, etc.] 
+This is driven by the *research question*, not the data on hand.
+
+For syringe-sharing, transmission risk depends on:
+
+- **How many partners people have** — degree distribution
+- **Who shares with whom** — homophily / mixing by sex, age, race
 
 ::: {.punch}
-Each of these will parameters converted to an equivalent network representation
+Each feature becomes one or more terms in the ERGM formula, each corresponding to one or more statistics in the target vector.
+:::
+
+::: notes
+Same move as the intro's null → assortative progression, just starting from survey
+summaries instead of an observed graph. Degree distribution and mixing are the two
+feature types this module builds targets for; Module 3 adds terms incrementally.
 :::
 
 
@@ -125,7 +135,9 @@ Each of these will parameters converted to an equivalent network representation
 ##  E.g, Degree Distribution
 
 The survey gives a **degree distribution**: how many people report 0, 1, 2, …
-partners. Directed, so two of them:
+partners. 
+
+Since this network is directed, we have in- and out-degrees as inputs. 
 
 | degree | # people (in) | # people (out) |
 |:------:|:-------------:|:--------------:|
@@ -149,7 +161,7 @@ Module 3 as the `idegree`/`odegree` targets.
 Every tie is one partner-slot for someone, so
 **total ties = Σ (degree × # people at that degree)** — once for in, once for out.
 
-```r
+```{.r code-line-numbers="false"}
 indeg  <- targets$indegree_data      # our population's in-degree distribution
 outdeg <- targets$outdegree_data
 
@@ -170,7 +182,7 @@ In-ties and out-ties count the same edges, so they should agree. They don't —
 `630.8` vs `791.5` — because they're separately estimated summaries, each with its
 own error. Pragmatic fix: average.
 
-```r
+```{.r code-line-numbers="false"}
 edges_target <- mean(c(inedges_target, outedges_target))     # 711
 ```
 
@@ -189,9 +201,118 @@ are what transfer across populations; Krivitsky, Handcock & Morris 2011.)
 
 ---
 
-## Explain Homophily using one concrete example
--includes conversion, ordering, specification (i.e., base terms)
--split into two slides if necessary 
+## Homophily, one example: sex mixing
+
+The survey gives mixing as **proportions**: share of ties sent by each sex, split
+within/between group.
+
+```{.r code-line-numbers="false"}
+# shares of ties SENT by each sex
+male_share <- 0.60; female_share <- 0.38
+
+# within-group share of each sex's ties
+male_within <- 0.55; female_within <- 0.72
+```
+
+::: {.punch}
+Four numbers describe the whole sex-mixing pattern — but `ergm` wants **counts**, not proportions.
+:::
+
+::: notes
+Same shape as `nodematch("sex")` in the intro, but unpacked: instead of one
+within-group count, the survey gives us shares that split by direction and by
+within/between group. That's the raw material — next slide turns it into targets.
+:::
+
+---
+
+## From proportions to an ordered target
+
+Multiply by `edges_target` to get counts, match `ergm`'s cell order, using
+`summary()`'s output *names* as the source of truth:
+
+```r
+M_to_M <- edges_target * male_share   * male_within        # within-group
+F_to_F <- edges_target * female_share * female_within       # within-group  <- reference
+M_to_F <- edges_target * male_share   * (1 - male_within)
+F_to_M <- edges_target * female_share * (1 - female_within)
+
+summary(net ~ nodemix("sex", levels2 = -1))
+#>   mix.sex.F.M mix.sex.M.F mix.sex.M.M
+#>         194.6       187.7       234.7   <- names tell you the order
+
+sex_target <- c(F_to_M, M_to_F, M_to_M)     # positions matched to the names above
+```
+
+::: {.punch}
+The rule: **build a named vector, then reorder it to match `summary()`'s names** — never
+type numbers in by eye. Base term `nodemix("sex", levels2 = -1)`
+:::
+
+::: notes
+How ordering actually works: ergm sorts factor levels (here F before M) and enumerates
+from→to combinations in that order, dropping the reference cell (`levels2 = -1`, the
+first one). You never need to derive this by hand — `summary()` on the *unfitted*
+formula returns the names before you fit anything, so the safest pattern is
+`sex_target <- setNames(c(F_to_M, M_to_F, M_to_M), c("F_to_M","M_to_F","M_to_M"))[names(summary(net ~ nodemix("sex", levels2=-1)))]`
+— match by name, not position, and a typo or mislabeled cell throws an error instead
+of silently fitting the wrong model.
+:::
+
+## Vector assembly
+
+Same conversion + ordering steps for `edges_target` and `sex_target` scale to age and
+race mixing — each is its own `nodemix` term, concatenated in formula order:
+
+```{.r code-line-numbers="false"}
+target_vec <- c(edges_target, sex_target, age_target, race_target)
+
+stopifnot(length(summary(f_mix)) == length(target_vec))   # count check, not order check
+```
+
+::: {.punch}
+The count check catches a wrong **length**. Only matching names catches a wrong **order**.
+:::
+
+::: notes
+We've fully worked edges and sex; age and race mixing follow the identical pattern
+and are left as the exercise. `stopifnot` is a seatbelt, not a substitute for the
+name-matching discipline from the last slide — a swapped pair of same-length cells
+passes this check silently.
+:::
+
+---
+
+## Handoff
+
+`target_vec` is the whole output of this module: aggregate summaries in, an
+ERGM-ready vector out. No network was ever observed.
+
+::: {.punch}
+We have *parameters*, not yet a *model*. Module 3 fits an ERGM to `target_vec`.
+:::
+
+::: notes
+This is the payoff of the module's title. Everything downstream — fitting (3),
+diagnosing failure (4), simulation (5) — takes this vector as input.
+:::
+
+---
+
+## Exercise
+
+Work in the Posit Cloud environment (linked at the start of the workshop):
+
+1. Recompute `edges_target` from the in/out-degree distributions in `targets`
+2. Build `sex_target` following the worked example; confirm the order against
+   `summary(net ~ nodemix("sex", levels2 = -1))`
+3. Repeat for age (`young`); race (`race.num`) if time allows
+4. Assemble `target_vec` and pass the `stopifnot` count check
+
+::: notes
+Posit Cloud avoids local setup friction; keep it open in a second tab from here
+through Module 5 so participants can run each module's code as we go.
+:::
 
 
 <!-- ## Explain which other terms follow the same example
@@ -201,10 +322,6 @@ are what transfer across populations; Krivitsky, Handcock & Morris 2011.)
 Include Sanity Check: Count Terms 
 
 ## Handoff
-
-## Exercise
-Will need to hand off to POSIT environment.
-Or, invoke POSIT at the very beginning of module 1 and keep referring to it as we go.
 
 
 ## Homophily is one number. Mixing is a matrix.
