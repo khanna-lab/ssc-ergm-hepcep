@@ -24,7 +24,7 @@ execute:
 
    * Targets were based on those observed freindships: 
 
-    ```{.r code-line-numbers="false"}
+    ```r
     summary(fmh ~ edges + nodematch("Grade"))
     ```
 
@@ -64,7 +64,7 @@ how many partners people report, and who shares with whom by sex, age, and race.
 
 ERGMs can be fit to **summary statistics**, not just an observed network.
 
-```{.r code-line-numbers="false"}
+```r
 ergm(net ~ terms, target.stats = <numbers>)
 ```
 
@@ -90,7 +90,7 @@ Network Characteristics:
   - The network is **directed**. 
   - That, is A naming B as a friend is distinct from B naming A.
 
-```{.r code-line-numbers="false"}
+```r
 library(network); library(ergm); library(dplyr); library(readr); library(here)
 
 nodes   <- read_csv(here("data", "synthetic", "nodes.csv"))
@@ -161,7 +161,7 @@ Module 3 as the `idegree`/`odegree` targets.
 - **total ties = Σ (degree × # people at that degree)** 
 - Computed separately for in- and out-degree reports
 
-```{.r code-line-numbers="false"}
+```r
 indeg  <- targets$indegree_data      # our population's in-degree distribution
 outdeg <- targets$outdegree_data
 
@@ -183,7 +183,7 @@ distribution. The two sums count the *same* edges from two directions.
 - Fixes possible based on availble data. 
 - Here, for simplicity, we take the mean.
 
-```{.r code-line-numbers="false"}
+```r
 edges_target <- mean(c(inedges_target, outedges_target))     # 711
 ```
 
@@ -208,7 +208,7 @@ are what transfer across populations; Krivitsky, Handcock & Morris 2011.)
 The survey gives mixing as **proportions**: share of ties sent by each sex, split
 within/between group.
 
-```{.r code-line-numbers="false"}
+```r
 # shares of ties SENT by each sex
 male_share <- 0.60; female_share <- 0.38
 
@@ -235,25 +235,17 @@ Multiply by `edges_target` to get counts, match `ergm`'s cell order, using
 `summary()`'s output *names* as the source of truth:
 
 ```r
-M_to_M <- edges_target * male_share   * male_within        # within-group
-F_to_F <- edges_target * female_share * female_within       # within-group  <- reference
+M_to_M <- edges_target * male_share   * male_within         # within-group
+F_to_F <- edges_target * female_share * female_within       # within-group, reference
 M_to_F <- edges_target * male_share   * (1 - male_within)
 F_to_M <- edges_target * female_share * (1 - female_within)
 
 summary(net ~ nodemix("sex", levels2 = -1))
 #>   mix.sex.F.M mix.sex.M.F mix.sex.M.M
-#>         194.6       187.7       234.7   <- names tell you the order
+#>         194.6       187.7       234.7
 
-sex_target <- c(F_to_M, M_to_F, M_to_M)     # positions matched to the names above
+sex_target <- c(F_to_M, M_to_F, M_to_M)   # order matched to names above
 ```
-
-
-Rule of Thumb:
-
-- Build a named vector
-- Reorder it to match `summary()`'s names 
-- Specify Base term `nodemix("sex", levels2 = -1)`
-
 
 ::: notes
 How ordering actually works: ergm sorts factor levels (here F before M) and enumerates
@@ -265,12 +257,25 @@ formula returns the names before you fit anything, so the safest pattern is
 of silently fitting the wrong model.
 :::
 
+---
+
+## Rule of thumb
+
+- Build a named vector
+- Reorder it to match `summary()`'s names
+- Specify the base term, e.g. `nodemix("sex", levels2 = -1)`
+
+::: notes
+This is the general recipe behind the worked example on the previous slide — it
+scales to any `nodemix` term, not just sex.
+:::
+
 ## Vector assembly
 
 - Same conversion + ordering steps for `sex_target` scale to age and race mixing. 
 - Each is its own `nodemix` term, concatenated in formula order:
 
-```{.r code-line-numbers="false"}
+```r
 target_vec <- c(edges_target, sex_target, age_target, race_target)
 stopifnot(length(summary(f_mix)) == length(target_vec))   # count check, not order check
 ```
