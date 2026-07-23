@@ -28,13 +28,35 @@ $code-block-font-size: 0.6em !default;
 
 .reveal {
   letter-spacing: 0.1px;
+  // Reveal.js's own block-spacing variable — governs the gap above/below every
+  // paragraph, list, and code block. Default is 12px; tighten it directly rather
+  // than fighting it with sibling-combinator overrides per element type.
+  --r-block-margin: 4px;
 }
 
 .reveal h2 {
-  margin-bottom: 0.6em;
+  margin-bottom: 0.3em;
   border-bottom: 2px solid #d7e8ea;
   padding-bottom: 0.18em;
   line-height: 1.2;
+}
+// Kill reveal.js's default top margin on the first block right after a heading
+.reveal h2 + ul,
+.reveal h2 + ol,
+.reveal h2 + p,
+.reveal h2 + pre,
+.reveal h2 + div.sourceCode {
+  margin-top: 0;
+}
+
+// Same gap, but after a plain paragraph acting as a mini-header (e.g. "N.B.")
+.reveal p {
+  margin-bottom: 0.15em;
+  margin-top: 0.15em;
+}
+.reveal p + ul,
+.reveal p + ol {
+  margin-top: 0 !important;
 }
 
 // Breathing room between bullets; lighter weight
@@ -61,9 +83,12 @@ $code-block-font-size: 0.6em !default;
   border: 1px solid #e3ecee;
   border-radius: 8px;
   background: #f6fafb;
+  margin: 0.3em 0;
+  width: 100%;
 }
 .reveal pre code {
-  padding: 0.8em 1em;
+  padding: 0.6em 0.9em;
+  max-height: none;
 }
 
 // Lead/intro line under a heading

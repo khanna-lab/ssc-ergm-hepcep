@@ -12,23 +12,25 @@ execute:
   echo: true
   warning: false
   message: false
+
+# NOTE TO JO: the speaker-notes fields (::: notes blocks) are not edited yet —
+# they're generated directly by Claude.
 ---
-<!-- NOTE TO JO: The notes fields are not edited. 
-They are directly generated from Claude.  
--->
 
 ## Where we left off
 
-In Module 1 we fit models to a network we could **see** — every friendship in
-`faux.magnolia.high`. Targets were easy:
 
-```{.r code-line-numbers="false"}
-summary(fmh ~ edges + nodematch("Grade"))
-```
+- In Module 1 we fit models to a network we could **see**. 
 
-::: {.lead}
-Compute the summaries straight from the observed graph.
-:::
+   * Targets were based on those observed freindships: 
+
+    ```{.r code-line-numbers="false"}
+    summary(fmh ~ edges + nodematch("Grade"))
+    ```
+
+- Often networks are less observable 
+- Or network data are not directly available
+- Then, available data are converted to ERGM-compatible network parameters
 
 ::: notes
 Recap in one breath: the intro had the whole adjacency matrix, so a "target" was
@@ -66,12 +68,11 @@ ERGMs can be fit to **summary statistics**, not just an observed network.
 ergm(net ~ terms, target.stats = <numbers>)
 ```
 
-- No adjacency matrix required
-- The task reduces to: turn survey numbers into a correctly-ordered vector
+- We build an adjacency matrix from the data we have
+- To do this, we turn survey numbers into a correctly-ordered vector
+- "From aggregate summaries to network parameters"...
+- We produce a vector of summaries to specify in the ERGM.
 
-::: {.punch}
-"From aggregate summaries to network parameters": We produce a vector of summaries to specify in the ERGM.
-:::
 
 ::: notes
 `target.stats` is the hinge of the workshop. Give ergm a set of numbers and it finds
@@ -81,7 +82,13 @@ survey summaries in, a target vector out. No fitting yet — that's Module 3.
 
 ---
 
-## Our population
+## Our Example
+
+Network Characteristics:
+
+  - n = 1,000 PWID with attributes: `sex`, `race.num`, `young`, `chicago`. 
+  - The network is **directed**. 
+  - That, is A naming B as a friend is distinct from B naming A.
 
 ```r
 library(network); library(ergm); library(dplyr); library(readr); library(here)
@@ -93,10 +100,6 @@ net <- network.initialize(nrow(nodes), directed = TRUE)
 for (col in names(nodes)) net %v% col <- nodes[[col]]
 ```
 
-Network Characteristics:
-
-  - n = 1,000 PWID with attributes: `sex`, `race.num`, `young`, `chicago`. 
-  - The network is **directed**. A naming B as a friend is distinct from B naming A as a friend.
 
 ::: notes
 The nodes come from the HepCEP synthetic population. Attributes are the ingredients
@@ -110,19 +113,15 @@ lesson, just data prep.)
 
 ## Network "Features" of Interest
 
-Just as in the intro, we choose which network features (parameters) matter before
-touching any code.
+- Just as in the intro, we choose which network features (parameters) matter 
 
-This is driven by the *research question*, not the data on hand.
+- This is driven by the *research question* 
 
-For syringe-sharing, transmission risk depends on:
+- For syringe-sharing, transmission risk depends arguably on:
+  - **How many partners people have** (degree distribution)
+  - **Who shares with whom** — (i.e., homophily)
 
-- **How many partners people have** — degree distribution
-- **Who shares with whom** — homophily / mixing by sex, age, race
-
-::: {.punch}
-Each feature becomes one or more terms in the ERGM formula, each corresponding to one or more statistics in the target vector.
-:::
+- Each feature becomes one or more terms in the ERGM specification
 
 ::: notes
 Same move as the intro's null → assortative progression, just starting from survey
@@ -132,7 +131,7 @@ feature types this module builds targets for; Module 3 adds terms incrementally.
 
 
 
-##  E.g, Degree Distribution
+## Degree Distribution
 
 The survey gives a **degree distribution**: how many people report 0, 1, 2, …
 partners. 
@@ -158,8 +157,9 @@ Module 3 as the `idegree`/`odegree` targets.
 
 ## Turn a degree distribution into an edge count
 
-Every tie is one partner-slot for someone, so
-**total ties = Σ (degree × # people at that degree)** — once for in, once for out.
+- Every tie is one partner-slot for someone, 
+- **total ties = Σ (degree × # people at that degree)** 
+- Computed separately for in- and out-degree reports
 
 ```{.r code-line-numbers="false"}
 indeg  <- targets$indegree_data      # our population's in-degree distribution
@@ -178,18 +178,20 @@ distribution. The two sums count the *same* edges from two directions.
 
 ## Two estimates, one edge count → reconcile
 
-In-ties and out-ties count the same edges, so they should agree. They don't —
-`630.8` vs `791.5` — because they're separately estimated summaries, each with its
-own error. Pragmatic fix: average.
+- In-ties and out-ties count the same edges. Should agree. 
+- They often don't in practice, because each is estimated separately. 
+- Fixes possible based on availble data. 
+- Here, for simplicity, we take the mean.
 
 ```{.r code-line-numbers="false"}
 edges_target <- mean(c(inedges_target, outedges_target))     # 711
 ```
 
+<!-- 
 ::: {.punch}
 A target is a **count** — and the next step turns proportions *into* counts.
 :::
-
+ -->
 ::: notes
 `711` is load-bearing: every mixing target is `edges_target × proportion`, so it
 propagates through the whole vector. The in ≠ out gap is an honest preview —
@@ -214,9 +216,10 @@ male_share <- 0.60; female_share <- 0.38
 male_within <- 0.55; female_within <- 0.72
 ```
 
-::: {.punch}
-Four numbers describe the whole sex-mixing pattern — but `ergm` wants **counts**, not proportions.
-:::
+ERGM specification
+
+- Four numbers describe the whole sex-mixing pattern 
+- The `ergm` function wants **counts** (not proportions).
 
 ::: notes
 Same shape as `nodematch("sex")` in the intro, but unpacked: instead of one
@@ -244,10 +247,13 @@ summary(net ~ nodemix("sex", levels2 = -1))
 sex_target <- c(F_to_M, M_to_F, M_to_M)     # positions matched to the names above
 ```
 
-::: {.punch}
-The rule: **build a named vector, then reorder it to match `summary()`'s names** — never
-type numbers in by eye. Base term `nodemix("sex", levels2 = -1)`
-:::
+
+Rule of Thumb:
+
+- Build a named vector
+- Reorder it to match `summary()`'s names 
+- Specify Base term `nodemix("sex", levels2 = -1)`
+
 
 ::: notes
 How ordering actually works: ergm sorts factor levels (here F before M) and enumerates
@@ -261,18 +267,18 @@ of silently fitting the wrong model.
 
 ## Vector assembly
 
-Same conversion + ordering steps for `edges_target` and `sex_target` scale to age and
-race mixing — each is its own `nodemix` term, concatenated in formula order:
+- Same conversion + ordering steps for `sex_target` scale to age and race mixing. 
+- Each is its own `nodemix` term, concatenated in formula order:
 
 ```{.r code-line-numbers="false"}
 target_vec <- c(edges_target, sex_target, age_target, race_target)
-
 stopifnot(length(summary(f_mix)) == length(target_vec))   # count check, not order check
 ```
 
-::: {.punch}
-The count check catches a wrong **length**. Only matching names catches a wrong **order**.
-:::
+N.B.
+
+- The count check catches a wrong **length**. 
+- Only matching names catches a wrong **order**.
 
 ::: notes
 We've fully worked edges and sex; age and race mixing follow the identical pattern
@@ -285,8 +291,9 @@ passes this check silently.
 
 ## Handoff
 
-`target_vec` is the whole output of this module: aggregate summaries in, an
-ERGM-ready vector out. No network was ever observed.
+- The `target_vec` vector is the output of this module 
+- It contains Aggregate summaries converted to an ERGM-compatible vector. 
+- Built off of partly observed data.
 
 ::: {.punch}
 We have *parameters*, not yet a *model*. Module 3 fits an ERGM to `target_vec`.
