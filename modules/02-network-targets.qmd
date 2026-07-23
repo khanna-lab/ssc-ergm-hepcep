@@ -90,7 +90,7 @@ Network Characteristics:
   - The network is **directed**. 
   - That, is A naming B as a friend is distinct from B naming A.
 
-```r
+```{.r code-line-numbers="false"}
 library(network); library(ergm); library(dplyr); library(readr); library(here)
 
 nodes   <- read_csv(here("data", "synthetic", "nodes.csv"))
