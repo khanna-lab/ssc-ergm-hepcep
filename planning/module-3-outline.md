@@ -23,6 +23,14 @@ background) also tries `odegree(0:2)` — degenerate, teaser for Module 4.
 `net_warm <- simulate(fit_k, nsim = 1)` → LHS for step k+1. Right low-order
 structure already present converges faster than empty/random start.
 
+**Teaching point:** name this as *network* warm-start vs. `ergm`'s other kind,
+*coefficient* warm-start (`control.ergm(init = coef(prev_fit))`, doc'd for
+resuming a stuck fit). Neither is "official" for staged model-building —
+`MCMLE.sequential=TRUE` (network, default, within-fit) and `init=` (coef,
+documented, same-model resume) target different problems; no stated statnet
+position on cross-stage term-growing specifically. Good discussion prompt, not
+a settled answer.
+
 ## Default vs. override
 Two knobs: **algorithm** (MCMLE → Stochastic-Approximation) and **convergence
 rule** (Hummel step-length → Hotelling T², + fixed MCMC thinning). Defaults hold
