@@ -34,8 +34,8 @@ execute:
 
 ::: notes
 Recap in one breath: the intro had the whole adjacency matrix, so a "target" was
-just a number we read off the network with `summary()`. Everything today is about
-what happens when you *can't* do that.
+just a number we read off the network with `summary()`. Everything in this module
+is about what happens when you *can't* do that.
 :::
 
 ---
