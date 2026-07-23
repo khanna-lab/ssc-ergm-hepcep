@@ -31,13 +31,12 @@ This workshop focuses on workflow design, diagnostics, and judgment in generatin
 
 | Module | File | Focus |
 |--------|------|-------|
-| 0 | `modules/00-ergm-intro.qmd` | Brief ERGM intro (Add Health friendships example) |
-| 1 | `modules/01-network-targets.qmd` | Aggregate summaries → network parameters |
-| 2 | `modules/02-geocoded-mixing.qmd` | Geocoded attributes → social mixing |
+| 1 | `modules/01-ergm-intro.qmd` | Brief ERGM intro (Add Health friendships example) |
+| 2 | `modules/01-network-targets.qmd` | Aggregate summaries → network parameters |
 | 3 | `modules/03-sequential-ergm.qmd` | Sequential ERGM specification |
-| 4 | `modules/04-failure-modes.qmd` | Assessing failure modes |
-| 5 | `modules/05-simulation-diagnostic.qmd` | Simulation as diagnostic |
-| 6 | `modules/06-networks-to-abms.qmd` | Networks → ABMs |
+| 4 | `modules/04-failure-modes-and-diagnostics.qmd` | Assessing failure modes via diagnostics |
+| 5 | `modules/05-simulation-and-translation-to-abms.qmd` | Simulation and translation to ABMs |
+| 6 | `modules/06-geocoded-mixing.qmd` | Geocoded attributes → social mixing |
 
 ## Data
 
