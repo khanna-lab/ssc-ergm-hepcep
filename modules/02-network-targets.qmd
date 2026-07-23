@@ -13,6 +13,9 @@ execute:
   warning: false
   message: false
 ---
+<!-- NOTE TO JO: The notes fields are not edited. 
+They are directly generated from Claude.  
+-->
 
 ## Where we left off
 
@@ -39,9 +42,9 @@ what happens when you *can't* do that.
 
 Syringe-sharing among people who inject drugs is a **hidden network**.
 
-- You cannot enumerate the population and map every tie
+- We cannot enumerate the population and map every tie (logistics, ethics)
 - Sharing is stigmatized, partnerships are transient
-- There is no observed graph to run `summary()` on
+- Hence, there is no observed graph to run `summary()` on
 
 ::: {.punch}
 So where do the targets come from?
@@ -67,7 +70,7 @@ ergm(net ~ terms, target.stats = <numbers>)
 - The task reduces to: turn survey numbers into a correctly-ordered vector
 
 ::: {.punch}
-"From aggregate summaries to network parameters" — that vector is the whole job of this module.
+"From aggregate summaries to network parameters": We produce a vector of summaries to specify in the ERGM.
 :::
 
 ::: notes
@@ -84,14 +87,15 @@ survey summaries in, a target vector out. No fitting yet — that's Module 3.
 library(network); library(ergm); library(dplyr); library(readr); library(here)
 
 nodes   <- read_csv(here("data", "synthetic", "nodes.csv"))
-targets <- readRDS(here("data", "synthetic", "targets.rds"))
 
 net <- network.initialize(nrow(nodes), directed = TRUE)
 for (col in names(nodes)) net %v% col <- nodes[[col]]
 ```
 
-n = 1,000 PWID with attributes: `sex`, `race.num`, `young`, `chicago`. The network
-is **directed** — you name partners, and you get named.
+Network Characteristics:
+
+  - n = 1,000 PWID with attributes: `sex`, `race.num`, `young`, `chicago`. 
+  - The network is **directed**. A naming B as a friend is distinct from B naming A as a friend.
 
 ::: notes
 The nodes come from the HepCEP synthetic population. Attributes are the ingredients
@@ -103,7 +107,22 @@ lesson, just data prep.)
 
 ---
 
-## We don't count ties — we count partners
+## Network "Features" of Interest
+Just as in the introductory example, we decide which network features (i.e., parameters) are of interest, at least to start
+
+How? 
+[concise argument]
+
+In this case, these are
+[list form, by type, i.e., degree distribution, homphily terms, etc.] 
+
+::: {.punch}
+Each of these will parameters converted to an equivalent network representation
+:::
+
+
+
+##  E.g, Degree Distribution
 
 The survey gives a **degree distribution**: how many people report 0, 1, 2, …
 partners. Directed, so two of them:
@@ -169,6 +188,24 @@ are what transfer across populations; Krivitsky, Handcock & Morris 2011.)
 :::
 
 ---
+
+## Explain Homophily using one concrete example
+-includes conversion, ordering, specification (i.e., base terms)
+-split into two slides if necessary 
+
+
+<!-- ## Explain which other terms follow the same example
+
+## Assemble the vector
+
+Include Sanity Check: Count Terms 
+
+## Handoff
+
+## Exercise
+Will need to hand off to POSIT environment.
+Or, invoke POSIT at the very beginning of module 1 and keep referring to it as we go.
+
 
 ## Homophily is one number. Mixing is a matrix.
 
@@ -359,3 +396,4 @@ parameters out.
 The exercise is the module in miniature: derive the edge count, build one mixing
 block carefully, and assemble + check the whole vector. No fitting — that's next.
 :::
+ -->
