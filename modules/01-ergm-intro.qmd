@@ -331,7 +331,7 @@ additional shared friend, capturing the non-linear way closure works.
 Targets are the bridge from data to model.
 :::
 
-- Every summary today (mixing, degree) is a candidate **target**
+- Every summary in this module (mixing, degree) is a candidate **target**
 - `target.stats` fits the model to those numbers
 - Simulation checks whether the model reproduces them
 - **Module 1:** targets come from aggregate data, no full network needed
