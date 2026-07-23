@@ -8,7 +8,7 @@ format:
     slide-number: true
     chalkboard: false
     code-fold: false
-    code-line-numbers: true
+    code-line-numbers: false
     highlight-style: github
     execute:
       echo: true
