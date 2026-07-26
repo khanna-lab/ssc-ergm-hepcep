@@ -53,9 +53,15 @@ the payoff — the mixing/warm-starting material exists to set it up.
 | Step | Terms added | Fit type |
 |:----:|-------------|----------|
 | 1–4 | `edges + nodemix(sex/young/race.num) + nodematch("chicago")` | Exact MLE |
-| 5 | `+ odegree(0)` | MCMLE/SA |
-| 6 | `+ odegree(0:1)` | MCMLE/SA |
-| 7 | `+ idegree(0:1) + odegree(0:1)` | SA — the hard step | # WHAT IS SA? 
+| 5 | `+ odegree(0)` | Stochastic-Approximation |
+| 6 | `+ odegree(0:1)` | Stochastic-Approximation |
+| 7 | `+ idegree(0:1) + odegree(0:1)` | Stochastic-Approximation — the hard step |
+
+**Stochastic-Approximation (SA)** is one of two algorithms `ergm` can use to
+find the MLE — an iterative method that solves the fitting equations by
+simulation rather than by direct likelihood maximization. It's an alternative
+to `ergm`'s default, MCMLE; both are covered on the "Default vs. override"
+slide shortly.
 
 
 ::: {.punch}
@@ -152,6 +158,13 @@ rather than presenting our pipeline's pattern as the only correct one.
 ## Degree terms: `odegree(0)` → `odegree(0:1)`
 
 ```r
+fit_control <- control.ergm(
+  main.method     = "Stochastic-Approximation",
+  MCMLE.maxit     = 60,
+  MCMC.interval   = 1e4,
+  MCMC.samplesize = 1e4
+)
+
 fit5 <- ergm(update(f_mix, net_warm ~ . + odegree(0)),
              target.stats = c(ts_mix, odeg_target(0)),
              control = fit_control, eval.loglik = FALSE)
@@ -163,14 +176,24 @@ fit6 <- ergm(update(f_mix, net_warm ~ . + odegree(0:1)),
 net_warm <- simulate(fit6, nsim = 1)
 ```
 
-Both stages still converge fine — with defaults or light controls.
-# Not clear to me what fit_control comprises here, and
-# if we are overwriting anything. 
+`fit_control` is **already** switched to Stochastic-Approximation, applied
+uniformly from step 5 onward — it does *not* leave `main.method` at its
+MCMLE default. That's a simplification for the demo script: separate
+experiments (`test-sequential-defaults.R`) show plain `ergm` defaults
+actually still converge fine through step 6 on their own. The production
+script just applies one consistent, slightly-heavier control set across every
+MCMC-based step rather than switching per stage — it isn't evidence that
+steps 5–6 *need* SA the way step 7 does.
+
+::: {.punch}
+"Converges fine" here means *with this control set* — not literally with
+`ergm`'s bare defaults. The real default-vs-override contrast is step 7.
+:::
 
 ::: notes
-On n=1000, single-direction degree terms (just out-degree here) aren't the
-hard case. That's deliberate: it isolates *what specifically* makes step 7
-hard, rather than blaming "degree terms" in general.
+This slide previously implied bare defaults were being used for steps 5–6;
+that's not what the code does. Worth being precise about this live — it's an
+easy point to get caught out on if someone reads the code closely.
 :::
 
 ---
@@ -238,15 +261,22 @@ this work?" and have an honest answer, not a hand-wave.
 ::: {.punch}
 Convergence diagnostics tell us the algorithm stopped — not that it stopped
 in the right place.
-
-## BUt the diagnostics also help us assess whether the stoppage was in the right place?
-
 :::
+
+**Don't MCMC diagnostics also tell us the stoppage was in the right place?**
+Only partly. They check the *sampler's* health — did the chain mix, did the
+estimating equations stabilize within this fitting run. They can't tell you
+whether the resulting model reproduces your actual target statistics,
+because that comparison is external to the fit — it needs the target vector,
+which the diagnostics never look at. A perfectly healthy chain can still
+converge to a model that doesn't match your targets.
 
 ::: notes
 The "diagnose via simulation" point is the one people skip under time
 pressure. It's the fix for the classic "it converged but doesn't match my
-targets" confusion.
+targets" confusion — MCMC diagnostics answer "did the algorithm behave," GOF
+answers "does the model match," and only the second one is checkable against
+`target_vec`.
 :::
 
 ---
