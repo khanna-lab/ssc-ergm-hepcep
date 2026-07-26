@@ -14,16 +14,15 @@ execute:
   message: false
 ---
 
-## Where we left off
+## Where Module 2 ended
 
-Module 2 ended with `target_vec` — a correctly-ordered vector of aggregate
-summaries — and no fitted model yet.
+- Module 2 ended with `target_vec` 
+- This is a correctly-ordered vector of aggregate
+summaries
 
-- We know *what* the model should reproduce (the numbers)
-- We don't yet know *how* to get `ergm` to reproduce them reliably
 
 ::: {.punch}
-This module: turn that vector into a **convergent** ERGM.
+This module will turn the target vector into a **convergent** ERGM.
 :::
 
 ::: notes
@@ -35,13 +34,12 @@ open question this module answers is entirely about fitting, not targets.
 
 ## This module's goal
 
-By the end of this module you should be able to:
+In this module, we will:
 
-- Explain why we build the model in **stages** instead of fitting everything
-  at once
+- Build complicated a ERGM following a **sequential** specification.
 - Use `simulate()` to **warm-start** the next stage from the current fit
 - Tell a fit that *runs* apart from a fit that *converges*
-- Know the practical rule for **when to override** `ergm`'s default controls
+- Account for practical considerations for **when to override** `ergm`'s default controls
 
 ::: notes
 Four outcomes, roughly in the order the module delivers them. The last one is
@@ -57,13 +55,11 @@ the payoff — the mixing/warm-starting material exists to set it up.
 | 1–4 | `edges + nodemix(sex/young/race.num) + nodematch("chicago")` | Exact MLE |
 | 5 | `+ odegree(0)` | MCMLE/SA |
 | 6 | `+ odegree(0:1)` | MCMLE/SA |
-| 7 | `+ idegree(0:1) + odegree(0:1)` | SA — the hard step |
+| 7 | `+ idegree(0:1) + odegree(0:1)` | SA — the hard step | # WHAT IS SA? 
 
-Geography (`nodematch("chicago")`) is already in the Module 2 mixing block —
-not a new stage here.
 
 ::: {.punch}
-Each row is a slightly harder model than the last — that's the point.
+Each row sequentially builds upon the simpler model in the previous row.
 :::
 
 ::: notes
@@ -77,7 +73,7 @@ save that for the Module 4 handoff, not here.
 
 ## Mixing block: steps 1–4
 
-Dyad-independent terms — no MCMC needed, fits **exactly**:
+Dyad-independent terms: no MCMC needed, fits **exactly**:
 
 ```r
 f_mix <- net ~ edges +
@@ -92,7 +88,7 @@ fit_mix <- ergm(f_mix, target.stats = ts_mix, eval.loglik = FALSE)
 `ts_mix` is exactly the `target_vec` pieces built in Module 2.
 
 ::: {.punch}
-No convergence worries yet — this block fits exactly, every time.
+No convergence worries yet. This block fits exactly, every time.
 :::
 
 ::: notes
@@ -168,6 +164,8 @@ net_warm <- simulate(fit6, nsim = 1)
 ```
 
 Both stages still converge fine — with defaults or light controls.
+# Not clear to me what fit_control comprises here, and
+# if we are overwriting anything. 
 
 ::: notes
 On n=1000, single-direction degree terms (just out-degree here) aren't the
@@ -177,7 +175,7 @@ hard, rather than blaming "degree terms" in general.
 
 ---
 
-## The hard step: full degree distribution
+## The hard step: simultaneous in- and out-degree spec
 
 ```r
 fit_final <- ergm(update(f_mix, net_warm ~ . + idegree(0:1) + odegree(0:1)),
@@ -189,7 +187,7 @@ With `ergm`'s defaults, this step **struggles**: step lengths collapse toward
 zero, the log-likelihood keeps jumping instead of settling.
 
 ::: {.punch}
-Adding in-degree *on top of* out-degree — not either alone — is the threshold.
+Adding in-degree *on top of* out-degree (as opposed to  either alone) is the threshold.
 :::
 
 ::: notes
@@ -238,8 +236,11 @@ this work?" and have an honest answer, not a hand-wave.
   isn't always achievable, even for a well-specified model.
 
 ::: {.punch}
-Convergence diagnostics tell you the algorithm stopped — not that it stopped
+Convergence diagnostics tell us the algorithm stopped — not that it stopped
 in the right place.
+
+## BUt the diagnostics also help us assess whether the stoppage was in the right place?
+
 :::
 
 ::: notes
