@@ -124,3 +124,13 @@ $code-block-font-size: 0.6em !default;
   font-weight: 700;
   font-size: 1.15em;
 }
+
+// Size utilities — revealjs equivalents of LaTeX \small / \tiny.
+// `.smaller` is built into reveal.js (~0.7em, the \small step). `.tiny` is our
+// smaller step for dense tables/text. Apply by wrapping content in a fenced div:
+//   ::: {.tiny}
+//   | ... table ... |
+//   :::
+.reveal .tiny {
+  font-size: 0.55em;
+}
