@@ -209,7 +209,9 @@ contrast is step 7 (next slide).
 
 ---
 
-## The hard step: simultaneous in- and out-degree spec
+## The harder step
+
+Simultaneous in- and out-degree specification
 
 ```r
 fit_final <- ergm(update(f_mix, net_warm ~ . + idegree(0:1) + odegree(0:1)),
@@ -217,12 +219,10 @@ fit_final <- ergm(update(f_mix, net_warm ~ . + idegree(0:1) + odegree(0:1)),
                   control = fit_control, eval.loglik = FALSE)
 ```
 
-With `ergm`'s defaults, this step **struggles**: step lengths collapse toward
-zero, the log-likelihood keeps jumping instead of settling.
+- With `ergm`'s defaults, this step **struggles** to converge.
+- In-degree *on top of* out-degree is the threshold where convergence breaks 
+-  To resolve this, we set "heavier" control parameters (next slide).
 
-::: {.punch}
-Adding in-degree *on top of* out-degree (as opposed to  either alone) is the threshold.
-:::
 
 ::: notes
 This mirrors the real n=32k pipeline's experience, reproduced in miniature at
@@ -234,13 +234,14 @@ scale comparison on a slide.
 
 ## Default vs. override: two knobs
 
-Two separate things change — name both, don't lump them into one vague
-"override":
+Two separate things change:
 
-1. **Algorithm** (`main.method`): MCMLE (default) → **Stochastic-Approximation**
-2. **Convergence rule** (`MCMLE.termination`): Hummel's adaptive step-length
-   rule (default) → **Hotelling**'s T² test, plus `MCMC.effectiveSize = NULL`
-   (fixed thinning instead of adaptive)
+1. **Algorithm** (`main.method`): MCMLE (default) already replaced by **Stochastic-Approximation**
+
+2. **Convergence rule** (`MCMLE.termination`):
+   - Hummel's adaptive step-length rule (default)
+   - Now replaced by **Hotelling**'s T² test
+   - And setting `MCMC.effectiveSize = NULL` (fixed thinning instead of adaptive)
 
 ```r
 control.ergm(
