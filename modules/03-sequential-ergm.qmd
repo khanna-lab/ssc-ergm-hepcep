@@ -323,22 +323,6 @@ matters less than the *process* for finding it.
 
 ---
 
-## Handoff to Module 4
-
-What if, instead of `odegree(0:1)`, we'd added `odegree(0:2)`?
-
-::: {.punch}
-That one doesn't converge at all — it's degenerate. Next module: what that
-looks like, and how to recognize it.
-:::
-
-::: notes
-Teaser only — don't resolve it here. This is the real pipeline's own
-experience (`fit-stepwise-ergms.R`), reproduced as the opening example of
-Module 4.
-:::
-
----
 
 ## Exercise
 
