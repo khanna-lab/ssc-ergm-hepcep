@@ -261,39 +261,26 @@ this work?" and have an honest answer, not a hand-wave.
 
 ## Decision rule
 
-- **Start with defaults.** They hold through the mixing block and either
-  degree direction alone.
-- **Override the smallest thing first** — don't reach for the whole recipe
-  at once.
-- **Diagnose with a second simulation** (`gof()`/`simulate()`), not the fit
-  object's own MCMC diagnostics.
-- Target stats carry estimation error — "expected stats == targets exactly"
-  isn't always achievable, even for a well-specified model.
+- **Start with defaults.** They hold through the mixing block and either degree direction alone.
+- Override one knob at a time
+    - Algorithm, 
+    - Tuning: (e.g., interva, binning) 
+    - Convergence Rule
 
-::: {.punch}
-Convergence diagnostics tell us the algorithm stopped — not that it stopped
-in the right place.
-:::
-
-**Don't MCMC diagnostics also tell us the stoppage was in the right place?**
-Only partly. They check the *sampler's* health — did the chain mix, did the
-estimating equations stabilize within this fitting run. They can't tell you
-whether the resulting model reproduces your actual target statistics,
-because that comparison is external to the fit — it needs the target vector,
-which the diagnostics never look at. A perfectly healthy chain can still
-converge to a model that doesn't match your targets.
 
 ::: notes
-The "diagnose via simulation" point is the one people skip under time
-pressure. It's the fix for the classic "it converged but doesn't match my
-targets" confusion — MCMC diagnostics answer "did the algorithm behave," GOF
-answers "does the model match," and only the second one is checkable against
-`target_vec`.
+The rule is about the control knobs from this module — algorithm (`main.method`),
+convergence rule (`MCMLE.termination`), iterations, and MCMC interval / sample size.
+Defaults carry you through the mixing block and single-direction degree terms; the
+in+out degree step is where you escalate. Escalate minimally — one knob at a time —
+rather than pasting the whole override recipe from the start. How you actually confirm
+a fit reproduced its targets (simulation / GOF) is Module 5; don't get pulled into that
+here.
 :::
 
 ---
 
-## Defaults vs. override: what happens
+<!-- ## Defaults vs. override: what happens
 
 Pre-baked comparison (`R/test-sequential-defaults.R`), fitting `fit_final`
 both ways:
@@ -320,14 +307,14 @@ timing in the room. Live fitting is offered as an optional extension, not the
 required path.
 :::
 
----
+--- -->
 
 ## Recap
 
 - Stage the model; **warm-start** each step from the last simulation
 - Dyad-independent terms fit exactly; degree terms need MCMC and can stall
-- Start with `ergm` defaults; override the **smallest thing first**
-- Diagnose convergence with a **second simulation**, not fit-object diagnostics
+- Start with `ergm` defaults; override sequentially**
+
 
 ::: notes
 This is the transferable takeaway — the specific recipe (SA + Hotelling)
