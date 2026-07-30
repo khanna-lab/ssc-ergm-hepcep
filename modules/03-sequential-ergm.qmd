@@ -144,9 +144,6 @@ control.ergm(init = coef(prev_fit))   # resume from previous estimates
 - Here we carry the **network**
 forward across fits to build our ERGM in stages. 
 
-::: {.punch}
-Neither is more "official" — just different tools.
-:::
 
 ::: notes
 Good discussion prompt: which would participants expect to converge faster,
@@ -158,6 +155,18 @@ rather than presenting our pipeline's pattern as the only correct one.
 
 ## Degree terms: `odegree(0)` → `odegree(0:1)`
 
+- **Building on steps 1–4:** take the mixing model `f_mix` and its warm-start
+  network, and add **out-degree terms** — `odegree(0)`, then `odegree(0:1)`.
+- These terms are **dyad-dependent**, so `ergm` now fits by **MCMC** instead of exactly solving.
+
+Control terms:
+
+- `main.method` specifies the algorithm
+- `MCMLE.maxit` sets max number of iterations
+- `MCMC.interval` thins the sample; `MCMC.samplesize` sets how many networks are drawn.
+
+Our configuration at the workshop scale (n = 1,000):
+
 ```r
 fit_control <- control.ergm(
   main.method     = "Stochastic-Approximation",
@@ -165,36 +174,37 @@ fit_control <- control.ergm(
   MCMC.interval   = 1e4,
   MCMC.samplesize = 1e4
 )
+```
 
+## Warm starting with the control parameters specified
+
+Out-degree 0 only:
+
+```r
 fit5 <- ergm(update(f_mix, net_warm ~ . + odegree(0)),
              target.stats = c(ts_mix, odeg_target(0)),
              control = fit_control, eval.loglik = FALSE)
 net_warm <- simulate(fit5, nsim = 1)
+```
 
+Out-degree: 0 + 1:
+
+```r
 fit6 <- ergm(update(f_mix, net_warm ~ . + odegree(0:1)),
              target.stats = c(ts_mix, odeg_target(0:1)),
              control = fit_control, eval.loglik = FALSE)
 net_warm <- simulate(fit6, nsim = 1)
 ```
 
-`fit_control` is **already** switched to Stochastic-Approximation, applied
-uniformly from step 5 onward — it does *not* leave `main.method` at its
-MCMLE default. That's a simplification for the demo script: separate
-experiments (`test-sequential-defaults.R`) show plain `ergm` defaults
-actually still converge fine through step 6 on their own. The production
-script just applies one consistent, slightly-heavier control set across every
-MCMC-based step rather than switching per stage — it isn't evidence that
-steps 5–6 *need* SA the way step 7 does.
 
-::: {.punch}
-"Converges fine" here means *with this control set* — not literally with
-`ergm`'s bare defaults. The real default-vs-override contrast is step 7.
-:::
 
 ::: notes
-This slide previously implied bare defaults were being used for steps 5–6;
-that's not what the code does. Worth being precise about this live — it's an
-easy point to get caught out on if someone reads the code closely.
+`fit_control` uses Stochastic-Approximation with a slightly heavier MCMC set,
+applied uniformly from step 5 on — a demo-script simplification, not a sign
+these steps *need* it. `test-sequential-defaults.R` shows plain `ergm` defaults
+converge fine through step 6. If asked, be precise: "converges fine" means with
+this control set, not `ergm`'s bare defaults. The real default-vs-override
+contrast is step 7 (next slide).
 :::
 
 ---
