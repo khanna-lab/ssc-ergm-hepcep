@@ -131,14 +131,16 @@ feature types this module builds targets for; Module 3 adds terms incrementally.
 
 
 
-## Degree Distribution
+## Degree Distribution {.smaller}
 
-The survey gives a **degree distribution**: how many people report 0, 1, 2, …
-partners. 
+Modeling distributions of reported synringe-sharing partners
 
-Since this network is directed, we have in- and out-degrees as inputs.
+- The survey gives a **degree distribution**: how many people report 0, 1, 2, … partners. 
 
-::: {.smaller}
+- Since this network is directed, we have in- and out-degrees as inputs.
+
+
+
 | degree | # people (in) | # people (out) |
 |:------:|:-------------:|:--------------:|
 | 0 | 646 | 606 |
@@ -147,7 +149,7 @@ Since this network is directed, we have in- and out-degrees as inputs.
 | 3 |  37 |  46 |
 | … |  …  |  …  |
 | ≥8 | ~1 | ~4 |
-:::
+
 
 ::: notes
 This is our population of 1,000. Most people name few or no partners; a thin tail
