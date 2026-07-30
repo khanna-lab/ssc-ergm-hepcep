@@ -56,7 +56,7 @@ Each row sequentially builds upon the simpler model in the previous row.
 | 1–4 | `edges + nodemix(sex/young/race.num) + nodematch("chicago")` | Exact MLE |
 | 5 | `+ odegree(0)` | Stochastic-Approximation |
 | 6 | `+ odegree(0:1)` | Stochastic-Approximation |
-| 7 | `+ idegree(0:1) + odegree(0:1)` | 
+| 7 | `+ idegree(0:1) + odegree(0:1)` | Stochastic-Approximation |
 
 
 **Stochastic-Approximation (SA)** 
@@ -93,7 +93,7 @@ fit_mix <- ergm(f_mix, target.stats = ts_mix, eval.loglik = FALSE)
 
 `ts_mix` is exactly the `target_vec` pieces built in Module 2.
 
-::: {.punch}
+::: {.accent}
 No convergence worries yet. This block fits exactly, every time.
 :::
 
@@ -115,7 +115,7 @@ net_warm <- simulate(fit_mix, nsim = 1)
 - A network with the right low-order structure already in place converges
   faster than starting from empty or random
 
-::: {.punch}
+::: {.accent}
 Each stage's fit becomes the next stage's starting point.
 :::
 
@@ -129,22 +129,23 @@ warm-starting from `net_warm` again."
 
 ## Two kinds of warm-starting
 
-We're warm-starting the **network** (via `simulate()`). `ergm` also supports
-warm-starting **coefficients**:
+- We are warm-starting the next **network** fit by  `simulate`-ing the previous fit.
+
+```r
+net_warm <- simulate(fit_mix, nsim = 1)   # simulated net seeds the next fit
+```
+
+- There is a separate strategy in `ergm`s, that allows warm-starting by specificying **coefficients** from previous fits.
 
 ```r
 control.ergm(init = coef(prev_fit))   # resume from previous estimates
 ```
 
-| | Network warm-start (ours) | Coefficient warm-start |
-|---|---|---|
-| What carries forward | The simulated network | The parameter estimates |
-| Built into `ergm` as | `MCMLE.sequential = TRUE` (the *default*, between MCMC draws within one fit) | `control.ergm(init = ...)`, documented for resuming a stuck fit |
-| Used here for | Bridging *across* stages (growing formula) | Not currently used |
+- Here we carry the **network**
+forward across fits to build our ERGM in stages. 
 
 ::: {.punch}
-Neither is "more official" — they solve different problems, and nothing in
-the docs picks one for staged model-building specifically.
+Neither is more "official" — just different tools.
 :::
 
 ::: notes
