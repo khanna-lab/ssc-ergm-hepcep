@@ -14,27 +14,20 @@ execute:
   message: false
 ---
 
-## Where Module 2 ended
+## This Module's Goal {.smaller}
+
+::: {.punch}
+Where Module 2 ended
+:::
 
 - Module 2 ended with `target_vec` 
 - This is a correctly-ordered vector of aggregate
 summaries
-
+- This module will turn the target vector into a **convergent** ERGM.
 
 ::: {.punch}
-This module will turn the target vector into a **convergent** ERGM.
-:::
-
-::: notes
-Short recap, not a re-derivation — target_vec is a given at this point. The
-open question this module answers is entirely about fitting, not targets.
-:::
-
----
-
-## This module's goal
-
 In this module, we will:
+:::
 
 - Build complicated a ERGM following a **sequential** specification.
 - Use `simulate()` to **warm-start** the next stage from the current fit
@@ -46,27 +39,34 @@ Four outcomes, roughly in the order the module delivers them. The last one is
 the payoff — the mixing/warm-starting material exists to set it up.
 :::
 
+
+::: notes
+Short recap, not a re-derivation — target_vec is a given at this point. The
+open question this module answers is entirely about fitting, not targets.
+:::
+
 ---
 
-## The fitting sequence
+## The Fitting Sequence {.smaller}
+
+Each row sequentially builds upon the simpler model in the previous row.
 
 | Step | Terms added | Fit type |
 |:----:|-------------|----------|
 | 1–4 | `edges + nodemix(sex/young/race.num) + nodematch("chicago")` | Exact MLE |
 | 5 | `+ odegree(0)` | Stochastic-Approximation |
 | 6 | `+ odegree(0:1)` | Stochastic-Approximation |
-| 7 | `+ idegree(0:1) + odegree(0:1)` | Stochastic-Approximation — the hard step |
-
-**Stochastic-Approximation (SA)** is one of two algorithms `ergm` can use to
-find the MLE — an iterative method that solves the fitting equations by
-simulation rather than by direct likelihood maximization. It's an alternative
-to `ergm`'s default, MCMLE; both are covered on the "Default vs. override"
-slide shortly.
+| 7 | `+ idegree(0:1) + odegree(0:1)` | 
 
 
-::: {.punch}
-Each row sequentially builds upon the simpler model in the previous row.
-:::
+**Stochastic-Approximation (SA)** 
+
+- Is one of two algorithms `ergm` can use tofind the MLE 
+- It is an alternative to `ergm`'s default MCMLE method  
+- Both are further discussed shortly. 
+
+
+
 
 ::: notes
 Steps 1–4 are dyad-independent (no MCMC needed — exact MLE). Steps 5–7 add
