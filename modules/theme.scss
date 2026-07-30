@@ -50,12 +50,15 @@ $code-block-font-size: 0.6em !default;
   line-height: 1.2;
 }
 // Kill reveal.js's default top margin on the first block right after a heading
-.reveal h2 + ul,
-.reveal h2 + ol,
 .reveal h2 + p,
 .reveal h2 + pre,
 .reveal h2 + div.sourceCode {
   margin-top: 0;
+}
+// Bare lists (no lead-in line) get a small gap so they don't hug the heading
+.reveal h2 + ul,
+.reveal h2 + ol {
+  margin-top: 0.4em;
 }
 
 // Same gap, but after a plain paragraph acting as a mini-header (e.g. "N.B.")
