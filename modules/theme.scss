@@ -134,3 +134,11 @@ $code-block-font-size: 0.6em !default;
 .reveal .tiny {
   font-size: 0.55em;
 }
+
+// Color utilities — color only, no size/weight change (unlike `.punch`).
+// Apply inline: [text]{.accent}   or to a block:  ::: {.accent} ... :::
+// Brand palette; pick the one that fits the emphasis.
+.reveal .accent  { color: $brown-red; }     // red — strongest
+.reveal .navy    { color: $brown-navy; }
+.reveal .emerald { color: $brown-emerald; }
+.reveal .sky     { color: $brown-sky; }
