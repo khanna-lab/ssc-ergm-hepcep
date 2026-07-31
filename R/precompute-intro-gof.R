@@ -41,9 +41,14 @@ res$assort_coef <- round(coef(assort.m), 2)
 res$gwesp_coef  <- round(coef(gwesp.m), 2)
 
 ## --- Goodness of fit on degree (the GOF code; seed-fixed) ------------------
-set.seed(100); res$gof_null   <- gof(random.m ~ degree)
-set.seed(101); res$gof_assort <- gof(assort.m ~ degree)
-set.seed(102); res$gof_gwesp  <- gof(gwesp.m  ~ degree)
+## Two gotchas in current ergm (4.6):
+##  1. `gof(fit ~ degree)` shorthand no longer restricts to degree.
+##  2. `GOF = ~ degree` silently APPENDS a "model" term (the docs: "By default a
+##     'model' term is added to the formula"), giving the edges/nodematch panel.
+## `GOF = ~ degree - model` gives the single degree-distribution panel (the PDF).
+set.seed(100); res$gof_null   <- gof(random.m, GOF = ~ degree - model)
+set.seed(101); res$gof_assort <- gof(assort.m, GOF = ~ degree - model)
+set.seed(102); res$gof_gwesp  <- gof(gwesp.m,  GOF = ~ degree - model)
 
 saveRDS(res, file.path(pre_dir, "intro.rds"))
 message("Saved: modules/precomputed/intro.rds")
