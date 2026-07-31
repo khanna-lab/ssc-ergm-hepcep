@@ -1,0 +1,162 @@
+---
+title: "Assessing Failure Modes"
+subtitle: "SSC 2026 ERGM Workshop · Module 4"
+format:
+  revealjs:
+    theme: [simple, theme.scss]
+    slide-number: true
+    fig-width: 7
+    fig-height: 3.6
+execute:
+  eval: false    # participants run code themselves; flip to true for the instructor key
+  echo: true
+  warning: false
+  message: false
+---
+
+<!-- Terse first-pass mockup. Speaker notes are minimal / placeholder for now. -->
+
+## Trying to Build Upon Module 3
+
+what if, building upon, Module 3, we tried to model `idegree(0:1) + odegree(0:2)`?
+
+::: {.accent}
+It doesn't converge: the model is **degenerate**.
+:::
+
+A **degenerate** model puts almost all its probability on a few extreme graphs — the empty or near-complete network — so no parameters reproduce the targets.
+
+- Not a tuning problem (no control setting fixes it)
+- A model specification problem
+- Recognize *why* a fit failed, not just *that* it did
+
+::: notes
+Build to where there is a failure, and then set up the three-failure taxonomy.
+:::
+
+---
+
+## Three kinds of failure {.smaller}
+
+| Failure | Symptom | Fix |
+|---|---|---|
+| **Non-convergence** | Chains don't mix; step lengths collapse | More iterations / switch algorithm (Module 3) |
+| **Degeneracy** | Simulated nets near-empty or near-complete; `ergm` may error | Reparameterize the term (not tuning) |
+| **Poor alignment** | Converges, but simulated stats ≠ targets | Revisit spec or targets |
+
+::: {.punch}
+Different fixes for different failures
+:::
+
+::: notes
+The whole module hangs on telling these apart; each demands a different response.
+:::
+
+---
+
+## Degeneracy: `odegree(0:2)`
+
+Add one more degree term to the converged mixing block:
+
+```r
+fit_degen <- tryCatch(
+  fit_to_targets(paste(rhs_mix, "+ odegree(0:2)"),
+                 c(ts_mix, odeg_target(0:2)), basis = net),
+  error = function(e) NULL       # an ergm() error can itself be a degeneracy signature
+)
+```
+
+- If it **errors**, that *is* the diagnosis
+- If it returns a fit, simulate and check the edge count
+
+```r
+network.edgecount(simulate(fit_degen, nsim = 1))   # near 0 or near-complete
+```
+
+::: notes
+Likely pre-baked (may error or hang). The error message is content, not a bug.
+:::
+
+---
+
+## MCMC diagnostics
+
+```r
+mcmc.diagnostics(fit_final)    # the converged Module 3 model
+```
+
+Look for:
+
+- Flat or drifting traces (non-mixing)
+- Autocorrelation that doesn't decay
+
+
+::: {.accent}
+- Diagnostics judge the **algorithm** 
+- But not whether the **model** is any good (as in the friendship example).
+:::
+
+::: notes
+Show one bad and one good traceplot; name the visual signature, skip the Geweke math.
+:::
+
+---
+
+## Is convergence enough?
+
+```r
+gof(fit_final, GOF = ~ idegree + odegree)   # simulate many nets, compare to targets
+```
+
+- A converged fit can still miss its targets
+- GOF simulates from the fit and checks the distributions
+
+::: {.punch}
+This *is* the "simulation"-based fit we saw in Module 1.
+:::
+
+::: notes
+Ties directly back to Module 3's decision rule. GOF answers "does the model match?"
+:::
+
+---
+
+## Recap
+
+- **Non-convergence** — algorithm can't settle → tune it (Module 3)
+- **Degeneracy** — the spec is broken → reparameterize
+- **Poor alignment** — converged but wrong → revisit spec or targets
+- Diagnostics check the algorithm; **GOF checks the model**
+
+::: notes
+The transferable skill is the triage, not any single fix.
+:::
+
+---
+
+## Handoff to Module 5
+
+This GOF was one check, done by hand.
+
+::: {.punch}
+Module 5: simulation as the *systematic* diagnostic (and the bridge to the ABM).
+:::
+
+::: notes
+Frame Module 5 as scaling up today's GOF check into the workflow.
+:::
+
+---
+
+## Exercise
+
+Work in the Posit Cloud environment:
+
+1. Fit `+ odegree(0:2)` on the mixing block — does it error, or return a degenerate fit?
+2. If it returns, compare simulated edges to `edges_target`
+3. Run `mcmc.diagnostics(fit_final)` — read the traces
+4. Run `gof(fit_final, GOF = ~ idegree + odegree)` — do the distributions match?
+
+::: notes
+Steps mirror the run sheet; cap time on any live fit that hangs.
+:::
