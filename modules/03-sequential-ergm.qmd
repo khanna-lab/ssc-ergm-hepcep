@@ -29,20 +29,15 @@ summaries
 In this module, we will:
 :::
 
-- Build complicated a ERGM following a **sequential** specification.
+- Build a complicated ERGM following a **sequential** specification.
 - Use `simulate()` to **warm-start** the next stage from the current fit
-- Tell a fit that *runs* apart from a fit that *converges*
 - Account for practical considerations for **when to override** `ergm`'s default controls
 
 ::: notes
-Four outcomes, roughly in the order the module delivers them. The last one is
-the payoff — the mixing/warm-starting material exists to set it up.
-:::
-
-
-::: notes
-Short recap, not a re-derivation — target_vec is a given at this point. The
-open question this module answers is entirely about fitting, not targets.
+The Module 2 recap is not a re-derivation — `target_vec` is a given here; the open
+question this module answers is entirely about fitting, not targets. Then: three
+outcomes, roughly in the order the module delivers them — the last is the payoff,
+and the mixing/warm-starting material exists to set it up.
 :::
 
 ---
@@ -61,7 +56,7 @@ Each row sequentially builds upon the simpler model in the previous row.
 
 **Stochastic-Approximation (SA)** 
 
-- Is one of two algorithms `ergm` can use tofind the MLE 
+- Is one of two algorithms `ergm` can use to find the MLE 
 - It is an alternative to `ergm`'s default MCMLE method  
 - Both are further discussed shortly. 
 
@@ -129,13 +124,13 @@ warm-starting from `net_warm` again."
 
 ## Two kinds of warm-starting
 
-- We are warm-starting the next **network** fit by  `simulate`-ing the previous fit.
+- We are warm-starting the next **network** fit by `simulate`-ing the previous fit.
 
 ```r
 net_warm <- simulate(fit_mix, nsim = 1)   # simulated net seeds the next fit
 ```
 
-- There is a separate strategy in `ergm`s, that allows warm-starting by specificying **coefficients** from previous fits.
+- There is a separate strategy in `ergm` that allows warm-starting by specifying **coefficients** from previous fits.
 
 ```r
 control.ergm(init = coef(prev_fit))   # resume from previous estimates
@@ -264,7 +259,7 @@ this work?" and have an honest answer, not a hand-wave.
 - **Start with defaults.** They hold through the mixing block and either degree direction alone.
 - Override one knob at a time
     - Algorithm, 
-    - Tuning: (e.g., interva, binning) 
+    - Tuning: (e.g., interval, binning) 
     - Convergence Rule
 
 
@@ -313,7 +308,7 @@ required path.
 
 - Stage the model; **warm-start** each step from the last simulation
 - Dyad-independent terms fit exactly; degree terms need MCMC and can stall
-- Start with `ergm` defaults; override sequentially**
+- Start with `ergm` defaults; override **sequentially**
 
 
 ::: notes
