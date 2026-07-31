@@ -8,12 +8,19 @@ format:
     fig-width: 7
     fig-height: 3.6
 execute:
-  eval: true    # renv library is healthy; chunks run and bake in outputs + the GOF plot
+  eval: false    # code shown for illustration; results are precomputed (R/precompute-intro.R)
   echo: true
   warning: false
   message: false
-  cache: true
 ---
+
+```{r setup}
+#| include: false
+#| eval: true
+library(statnet)
+library(here)
+pre <- readRDS(here::here("modules", "precomputed", "intro.rds"))
+```
 
 ## Why this intro
 
@@ -24,6 +31,8 @@ execute:
 ::: notes
 Everything here runs on `faux.magnolia.high`, which ships with `statnet`, so no workshop
 data is required. Module 1 then applies the same ideas to syringe-sharing networks.
+Code chunks are shown for illustration; every result is precomputed by
+`R/precompute-intro.R`, so the deck renders without re-fitting.
 :::
 
 ---
@@ -59,12 +68,19 @@ This arc (describe, summarize, model, check) is the workshop in miniature.
 ## The data
 
 ```{r load}
+#| eval: false
 library(statnet)
 data("faux.magnolia.high")
 fmh <- faux.magnolia.high
 
 c(students = network.size(fmh),
   ties     = network.edgecount(fmh))
+```
+
+```{r load-out}
+#| echo: false
+#| eval: true
+pre$size
 ```
 
 Add Health friendships; directionality ignored for illustration.
@@ -77,24 +93,7 @@ Add Health friendships; directionality ignored for illustration.
 
 ## What does it look like?
 
-```{r netplot}
-#| echo: false
-#| fig-width: 9
-#| fig-height: 5.8
-#| out-width: "100%"
-#| fig-align: center
-set.seed(42)
-grade <- as.factor(fmh %v% "Grade")
-pal   <- hcl.colors(nlevels(grade), "Dark 3")
-par(mar = c(0, 0, 0, 0))
-plot(fmh,
-     vertex.col    = pal[grade],
-     vertex.border = pal[grade],
-     vertex.cex    = 0.7,
-     edge.col      = "#b9c6cc55")
-legend("topleft", legend = levels(grade), col = pal,
-       pch = 19, bty = "n", cex = 0.7, title = "Grade")
-```
+![](precomputed/netplot.png){width="100%" fig-align="center"}
 
 ::: notes
 Colored by grade: ties visibly cluster within grade, with a fringe of isolates. Each point
@@ -106,8 +105,16 @@ is a student; lines are friendships. The next two slides put numbers on both.
 ## Who's in the network?
 
 ```{r attrs}
+#| eval: false
 table(fmh %v% "Grade")
 table(fmh %v% "Sex")
+```
+
+```{r attrs-out}
+#| echo: false
+#| eval: true
+pre$grade_tab
+pre$sex_tab
 ```
 
 ::: notes
@@ -120,7 +127,14 @@ Each node carries attributes: Grade, Sex, Race. These are the ingredients for th
 ## Structure: who connects with whom?
 
 ```{r mixing}
+#| eval: false
 mixingmatrix(fmh, "Sex")
+```
+
+```{r mixing-out}
+#| echo: false
+#| eval: true
+pre$sex_mix
 ```
 
 Most ties sit on the diagonal: friendships cluster **within** sex.
@@ -135,11 +149,19 @@ mixing. Same story for grade and race.
 ## Structure: how many friends?
 
 ```{r degree}
+#| eval: false
 summary(fmh ~ degree(0:5))
 ```
 
-Most students have **few** ties; a handful have many. A skewed degree
-distribution.
+```{r degree-out}
+#| echo: false
+#| eval: true
+pre$degree
+```
+
+- Most students have **few** ties
+- A few students have many.
+- The degree distribution is right-tailed.
 
 ::: notes
 `degree(0:5)` counts nodes with exactly 0, 1, ... 5 ties. This shape (many low-degree,
@@ -151,10 +173,17 @@ few high-degree) is typical of social networks and will matter for model fit.
 ## These summaries *are* network statistics
 
 ```{r targets}
+#| eval: false
 summary(fmh ~ edges +
           nodematch("Grade") +
           nodematch("Race") +
           nodematch("Sex"))
+```
+
+```{r targets-out}
+#| echo: false
+#| eval: true
+pre$targets
 ```
 
 Each number counts a feature of the observed network.
@@ -189,7 +218,7 @@ fit to the summaries regardless.
 
 ## What is an ERGM?
 
-**Logistic regression for ties.**
+**Similar to logistic regression for ties.**
 
 - **Outcome:** does a tie exist between two people? (0/1)
 - **Predictors:** network statistics (the target terms)
@@ -206,8 +235,15 @@ that follows is this one idea.
 ## Null model: ties form at random
 
 ```{r null}
+#| eval: false
 random.m <- ergm(fmh ~ edges)
 plogis(coef(random.m))   # baseline tie probability
+```
+
+```{r null-out}
+#| echo: false
+#| eval: true
+pre$null_prob
 ```
 
 `edges` is the intercept: baseline density. Networks are overwhelmingly
@@ -222,11 +258,18 @@ Log-odds about −6.99, probability ≈ 0.0009. A random pair almost never share
 ## Assortative mixing
 
 ```{r assort}
+#| eval: false
 assort.m <- ergm(fmh ~ edges +
                    nodematch("Grade") +
                    nodematch("Race") +
                    nodematch("Sex"))
 round(coef(assort.m), 2)
+```
+
+```{r assort-out}
+#| echo: false
+#| eval: true
+pre$assort_coef
 ```
 
 ::: notes
@@ -265,15 +308,16 @@ care about and check whether the data sits inside the simulated spread.
 
 ---
 
-## Goodness of fit: degree
+## Goodness of fit: degree{.smaller}
 
-```{r gof}
+```{r gof-assort}
 #| echo: false
+#| eval: true
 #| fig-width: 8.5
 #| fig-height: 5.2
 #| out-width: "92%"
 #| fig-align: center
-plot(gof(assort.m ~ degree))
+plot(pre$gof_assort)
 ```
 
 ::: notes
@@ -283,26 +327,9 @@ far miss part of the structure: the observed line drifts outside the simulated s
 
 ---
 
-## Observed vs. simulated
+<!-- ## Observed vs. simulated
 
-```{r obs-sim}
-#| echo: false
-#| fig-width: 11
-#| fig-height: 5.4
-#| out-width: "100%"
-#| fig-align: center
-set.seed(7)
-sim   <- simulate(assort.m, nsim = 1)
-grade <- as.factor(fmh %v% "Grade")
-pal   <- hcl.colors(nlevels(grade), "Dark 3")
-
-op <- par(mfrow = c(1, 2), mar = c(0, 0, 2, 0))
-plot(fmh, vertex.col = pal[grade], vertex.border = pal[grade],
-     vertex.cex = 0.6, edge.col = "#b9c6cc55", main = "Observed")
-plot(sim, vertex.col = pal[grade], vertex.border = pal[grade],
-     vertex.cex = 0.6, edge.col = "#b9c6cc55", main = "Simulated")
-par(op)
-```
+![](precomputed/obs-vs-sim.png){width="100%" fig-align="center"}
 
 ::: notes
 The fitted model regenerates the within-grade clustering: same generative signature. Same
@@ -310,7 +337,7 @@ node set and attributes; only the edges are re-drawn. It captures grade homophil
 density, but (as the GOF showed) still misses higher-order structure like triadic closure.
 :::
 
----
+--- -->
 
 ## What's missing?
 
@@ -321,6 +348,61 @@ density, but (as the GOF showed) still misses higher-order structure like triadi
 ::: notes
 GWESP, the geometrically-weighted edgewise shared partner term, down-weights each
 additional shared friend, capturing the non-linear way closure works.
+:::
+
+---
+
+## Fit the friend-of-a-friend model
+
+Add **GWESP** — geometrically-weighted edgewise shared partners — to the assortative model:
+
+```{r gwesp-code}
+#| eval: false
+gwesp.m <- ergm(fmh ~ edges +
+                  nodematch("Grade") +
+                  nodematch("Race") +
+                  nodematch("Sex") +
+                  gwesp(0.25, fixed = TRUE))
+round(coef(gwesp.m), 2)
+```
+
+```{r gwesp-out}
+#| echo: false
+#| eval: true
+pre$gwesp_coef
+```
+
+- GWESP down-weights each *additional* shared friend — closure without runaway triangles
+- Dyad-dependent → fit by **MCMC**; precomputed so the deck renders fast
+
+::: notes
+The `ergm()` call is shown for teaching but not run live — the fit is precomputed by
+`R/precompute-intro.R` into `modules/precomputed/intro.rds`. gwesp decay 0.25, fixed;
+gwesp coefficient ≈ 1.75, log-likelihood ≈ −6100 (null −7790, assortative ≈ −6528).
+:::
+
+---
+
+## Goodness of fit: improved {.smaller}
+
+```{r gof-gwesp}
+#| echo: false
+#| eval: true
+#| fig-width: 8.5
+#| fig-height: 5.2
+#| out-width: "92%"
+#| fig-align: center
+plot(pre$gof_gwesp)
+```
+
+::: {.punch}
+Much better — closure was the missing structure.
+:::
+
+::: notes
+Compare with the earlier assortative GOF: adding closure pulls the simulated degree
+distribution onto the observed line. A clear, checkable improvement — though, as the later
+modules stress, still not necessarily the whole story.
 :::
 
 ---
