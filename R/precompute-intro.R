@@ -47,6 +47,7 @@ gwesp.m         <- ergm(fmh ~ edges + nodematch("Grade") +
 res$gwesp_coef  <- round(coef(gwesp.m), 2)
 
 ## --- Goodness of fit on degree (seed-sensitive → fixed) -------------------
+set.seed(100); res$gof_null   <- gof(random.m ~ degree)
 set.seed(101); res$gof_assort <- gof(assort.m ~ degree)
 set.seed(102); res$gof_gwesp  <- gof(gwesp.m  ~ degree)
 

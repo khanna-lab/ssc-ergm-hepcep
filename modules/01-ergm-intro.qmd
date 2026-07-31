@@ -308,7 +308,26 @@ care about and check whether the data sits inside the simulated spread.
 
 ---
 
-## Goodness of fit: degree{.smaller}
+## Goodness of fit: null model{.smaller}
+
+```{r gof-null}
+#| echo: false
+#| eval: true
+#| fig-width: 8.5
+#| fig-height: 5.2
+#| out-width: "92%"
+#| fig-align: center
+plot(pre$gof_null)
+```
+
+::: notes
+Solid line = observed degree distribution; boxplots = 100 networks simulated from the
+edges-only model. It misfits badly: too few isolates (degree 0), too many degree-1 nodes.
+:::
+
+---
+
+## Goodness of fit: assortative model{.smaller}
 
 ```{r gof-assort}
 #| echo: false
@@ -321,8 +340,8 @@ plot(pre$gof_assort)
 ```
 
 ::: notes
-Observed degree distribution (line) vs. 100 simulated networks (boxplots). Both models so
-far miss part of the structure: the observed line drifts outside the simulated spread.
+Closer than the null model, but still off — the observed line drifts outside the simulated
+spread at low degrees. Mixing terms alone don't capture the degree structure.
 :::
 
 ---
@@ -383,7 +402,7 @@ gwesp coefficient ≈ 1.75, log-likelihood ≈ −6100 (null −7790, assortativ
 
 ---
 
-## Goodness of fit: improved {.smaller}
+## Goodness of fit: friend-of-a-friend model {.smaller}
 
 ```{r gof-gwesp}
 #| echo: false
