@@ -1,6 +1,6 @@
 ---
 title: "A Brief Introduction to ERGMs"
-subtitle: "SSC 2026 ERGM Workshop · Module 0"
+subtitle: "SSC 2026 ERGM Workshop · Module 1"
 format:
   revealjs:
     theme: [simple, theme.scss]
