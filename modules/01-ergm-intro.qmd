@@ -23,6 +23,10 @@ library(here)
 pre <- readRDS(here::here("modules", "precomputed", "intro.rds"))
 ```
 
+## Introducing the workshop
+- A slide of two explaining the outline and structure of the workshop
+- To Be Done
+
 ## Why this intro
 
 - **No ERGM experience needed**

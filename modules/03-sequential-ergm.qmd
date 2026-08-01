@@ -227,8 +227,7 @@ scale comparison on a slide.
 
 ## The knobs we ended up turning
 
-Two things changed from `ergm`'s defaults — **empirically**, this is what got the
-hard step to converge at scale:
+Two things changed from `ergm`'s defaults **empirically** to ensure convergence:
 
 1. **Algorithm** (`main.method`): MCMLE (default) → **Stochastic-Approximation**
 2. **Convergence rule** (`MCMLE.termination`): Hummel's step-length rule (default) →
@@ -243,7 +242,8 @@ control.ergm(
 ```
 
 ::: {.accent}
-We don't derive this recipe — the estimation theory is `ergm`'s (Hunter & Handcock 2006; Hummel et al. 2012).
+- Theoretical results are in XXX.
+- Conceptually (one liner here, point to the Appendix)
 :::
 
 ::: notes
@@ -258,7 +258,7 @@ step-length/stepping algorithm behind the default) — and `?control.ergm`.
 
 ## Decision rule
 
-- **Start with defaults.** They hold through the mixing block and either degree direction alone.
+- **Start with defaults.** They held through the mixing block and either degree direction alone.
 - Override one knob at a time
     - Algorithm, 
     - Tuning: (e.g., interval, binning) 
