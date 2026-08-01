@@ -446,11 +446,16 @@ workshop's real setting is fitting to summary targets alone.
 
 ## Takeaway
 
-::: {.punch}
-Describe → summarize as targets → model → simulate to check.
-:::
+<div class="flow">
+  <div class="flow-box">Explore</div>
+  <div class="flow-arrow">↓</div>
+  <div class="flow-box">Summarize as targets</div>
+  <div class="flow-arrow">↓</div>
+  <div class="flow-box">Model</div>
+  <div class="flow-arrow">↓</div>
+  <div class="flow-box">Simulate to check</div>
+</div>
 
-Same machinery in **Module 1**: syringe-sharing among people who inject drugs.
 
 ::: notes
 That shift, fitting to summary targets rather than one observed network, is exactly why
