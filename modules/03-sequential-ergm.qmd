@@ -148,7 +148,7 @@ rather than presenting our pipeline's pattern as the only correct one.
 
 ---
 
-## Degree terms: `odegree(0)` → `odegree(0:1)`
+## Degree terms: `odegree(0)` → `odegree(0:1)` {.smaller}
 
 - **Building on steps 1–4:** take the mixing model `f_mix` and its warm-start
   network, and add **out-degree terms** — `odegree(0)`, then `odegree(0:1)`.
