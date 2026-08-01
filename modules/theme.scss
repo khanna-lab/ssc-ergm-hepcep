@@ -146,3 +146,26 @@ $code-block-font-size: 0.6em !default;
 .reveal .navy    { color: $brown-navy; }
 .reveal .emerald { color: $brown-emerald; }
 .reveal .sky     { color: $brown-sky; }
+
+// Simple flowchart — boxes joined by arrows. Vertical by default; add a
+// `style="flex-direction:row"` on .flow for a horizontal version.
+.reveal .flow {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.3em;
+  margin: 0.6em 0;
+}
+.reveal .flow-box {
+  padding: 0.35em 1.1em;
+  border: 2px solid $brown-primary;
+  border-radius: 8px;
+  background: $brown-bg-tint;
+  color: $brown-primary;
+  font-weight: 700;
+}
+.reveal .flow-arrow {
+  color: $brown-red;
+  font-size: 1.3em;
+  line-height: 1;
+}
