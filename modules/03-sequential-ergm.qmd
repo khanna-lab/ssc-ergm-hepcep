@@ -54,11 +54,9 @@ Each row sequentially builds upon the simpler model in the previous row.
 | 7 | `+ idegree(0:1) + odegree(0:1)` | Stochastic-Approximation |
 
 
-**Stochastic-Approximation (SA)** 
-
-- Is one of two algorithms `ergm` can use to find the MLE 
-- It is an alternative to `ergm`'s default MCMLE method  
-- Both are further discussed shortly. 
+Steps 5–7 switch to **Stochastic-Approximation** — one of `ergm`'s simulation-based
+estimators (the default is MCMLE). We don't teach the algorithms here; we note which
+ran, and the settings we changed (shortly).
 
 
 
@@ -227,16 +225,14 @@ scale comparison on a slide.
 
 ---
 
-## Default vs. override: two knobs
+## The knobs we ended up turning
 
-Two separate things change:
+Two things changed from `ergm`'s defaults — **empirically**, this is what got the
+hard step to converge at scale:
 
-1. **Algorithm** (`main.method`): MCMLE (default) already replaced by **Stochastic-Approximation**
-
-2. **Convergence rule** (`MCMLE.termination`):
-   - Hummel's adaptive step-length rule (default)
-   - Now replaced by **Hotelling**'s T² test
-   - And setting `MCMC.effectiveSize = NULL` (fixed thinning instead of adaptive)
+1. **Algorithm** (`main.method`): MCMLE (default) → **Stochastic-Approximation**
+2. **Convergence rule** (`MCMLE.termination`): Hummel's step-length rule (default) →
+   **Hotelling**'s T², plus `MCMC.effectiveSize = NULL`
 
 ```r
 control.ergm(
@@ -246,10 +242,16 @@ control.ergm(
 )
 ```
 
+::: {.accent}
+We don't derive this recipe — the estimation theory is `ergm`'s (Hunter & Handcock 2006; Hummel et al. 2012).
+:::
+
 ::: notes
-⚠️ Currently this is an empirically-derived recipe, not a first-principles
-explanation — see the "before workshop" prep note. Be ready for "why does
-this work?" and have an honest answer, not a hand-wave.
+Honest posture: this is the knob combination we found empirically for the n=32k fit,
+not a first-principles result. If asked "why does this work?", point to the algorithm
+literature rather than hand-waving — Hunter & Handcock (2006), JCGS 15(3), 565–583
+(curved-ERGM MLE); Hummel, Hunter & Handcock (2012), JCGS 21(4), 920–939 (the
+step-length/stepping algorithm behind the default) — and `?control.ergm`.
 :::
 
 ---
