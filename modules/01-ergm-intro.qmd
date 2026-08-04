@@ -29,11 +29,10 @@ pre <- readRDS(here::here("modules", "precomputed", "intro.rds"))
 
 ## Why this intro
 
-- **No ERGM experience needed**
 - Core ideas in 30 minutes, on a familiar example: **teen friendships**
-- Builds to the workshop's key concept: **network targets**
-
-*Running example adapted from Goodreau et al. (2008), "A statnet Tutorial," Journal of Statistical Software 24(9), under CC‑BY.*
+- Builds to the workshop's key concepts end to end.
+- **No ERGM experience needed**
+- Running example adapted from: [Goodreau et al. (2008), "A statnet Tutorial," Journal of Statistical Software 24(9), under CC‑BY.]{.accent}
 
 ::: notes
 Everything here runs on `faux.magnolia.high`, which ships with `statnet`, so no workshop
@@ -46,12 +45,15 @@ JSS 24(9)); the article is CC‑BY, so adapting it here with attribution is fine
 
 ---
 
-## Based on the statnet tutorial
+## Based on the statnet tutorial{.smaller}
 
+::: {.smallish}
 ![](img/jss-title.png){width="70%" fig-align="center"}
+:::
 
-Goodreau, Handcock, Hunter, Butts & Morris (2008). *A statnet Tutorial.*
-*Journal of Statistical Software* 24(9) — reused under CC‑BY.
+::: {.center}
+[Reused under CC‑BY]{.smallish}
+:::
 
 ::: notes
 Showing the title page makes the provenance unmistakable: this module reproduces the
@@ -62,10 +64,11 @@ running example from this tutorial. CC‑BY permits reuse and adaptation with at
 
 ## The question
 
-**Micro-level processes → macro-level structure**
 
 - How do adolescents form friendships?
-- Can we name the processes that generate the patterns we see?
+- What processes that generate the network structures we see?
+
+**Micro-level processes → macro-level structure**
 
 ::: notes
 Sometimes we care about people's attributes; here the *pattern of ties* is the point.
