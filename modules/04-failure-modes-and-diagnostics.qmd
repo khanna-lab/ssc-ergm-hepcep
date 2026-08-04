@@ -152,18 +152,30 @@ version of eyeballing a simulated network — bridge to Module 5.
 :::
 
 
-## Solution to each indicator
+## Matching the fix to the failure {.smaller}
+
+The fix depends on which failure you have:
+
+- **Non-convergence** — the model is fine, the *fit* isn't → **tune the controls**
+  (Module 3: SA, Hotelling, heavier MCMC, warm-start; smallest knob first)
+- **Degeneracy** — no control setting helps → **change the specification**
+  (reparameterize; e.g. GWESP, not raw triangles)
+- **Poor alignment** — the fit converged → **revisit the spec or the targets**
+
+::: {.punch}
+Non-convergence is a *controls* problem; degeneracy and poor alignment are *model* problems.
+:::
 
 
 
 
 ## Recap
 
-Three failure modes we experienced, and how we told them apart:
+Three failures, told apart by how they show up:
 
-- **Non-convergence** — algorithm can't settle → tune it (Module 3)
-- **Degeneracy** — the spec is broken → reparameterize
-- **Poor alignment** — converged but wrong → revisit spec or targets
+- **Non-convergence** — errors out, or the traces drift
+- **Degeneracy** — near-empty / near-complete simulations
+- **Poor alignment** — converged, but simulated stats miss the targets
 
 ::: {.punch}
 Diagnostics check the algorithm; simulation checks the model.
