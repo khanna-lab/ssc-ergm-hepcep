@@ -81,9 +81,9 @@ tell if a process reproduces the structure.
 ## Where we're going
 
 1. **Describe** the network: what does the structure look like?
-2. **Summarize** it as numbers: these become our **targets**
-3. **Model** it: null vs. assortative mixing
-4. **Simulate**: does the model reproduce the targets?
+2. **Summarize** it numerically: these become our **targets**
+3. **Model** it: null vs. assortative mixing 
+4. **Simulate**: does the model reproduce the underlying empirical structures?
 
 ::: notes
 This arc (describe, summarize, model, check) is the workshop in miniature.
