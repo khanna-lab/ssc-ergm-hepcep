@@ -142,6 +142,10 @@ $code-block-font-size: 0.6em !default;
 .reveal .smallish {
   font-size: 0.85em;
 }
+// Center-align a block of text
+.reveal .center {
+  text-align: center;
+}
 
 // Color utilities — color only, no size/weight change (unlike `.punch`).
 // Apply inline: [text]{.accent}   or to a block:  ::: {.accent} ... :::
