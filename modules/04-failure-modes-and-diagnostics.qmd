@@ -14,122 +14,133 @@ execute:
   message: false
 ---
 
-<!-- Terse first-pass mockup. Speaker notes are minimal / placeholder for now. -->
+## What this module is
 
-## Trying to Build Upon Module 3
+From **our** pipeline 
+- Practical considerations on how fits failed 
+- How we diagnosed failure
+- Solutions that enabled recovery
 
-what if, building upon, Module 3, we tried to model `idegree(0:1) + odegree(0:2)`?
+- The general theory of how ERGMs are fit is well-studied. 
+
+  * Handcock (2003)
+  * Schweinberger (2011) 
+
+- Building upon that theory, we derive **practical** recovery steps
+
+
+::: notes
+Set the posture up front: this is experience, not a degeneracy tutorial. Defer the
+theory to the literature; the value-add is practical recognition and recovery.
+:::
+
+---
+
+## Some Ways in which ERGMs don't Fit
+
+Building further upon the converged Module 3, some specific terms further produced **non-convergent** models.
+
+Usually, in one of three ways:
+
+| What we saw | Symptom | 
+|---|---|
+| **Non-convergence** | Chains don't mix; `ergm` may error | 
+| **Degeneracy** | Simulated nets nearly empty or near-complete; `ergm` may error | 
+| **Poor alignment** | Converges, but simulated stats ≠ targets | 
+
+
+## Non-Convergence: Indicator #1
+
+In our **full pipeline** (n ≈ 32k, with a custom geographic term), adding
+`odegree(0:2)` produced an error in estimation:
+
+```
+Error in ergm.MCMLE(...):
+  Number of edges in a simulated network exceeds that in the observed by a
+  factor of more than 20. This is a strong indicator of model degeneracy or
+  a very poor starting parameter configuration.
+```
+
+- At this **simplified** n = 1,000 scale, `odegree(0:2)` fits fine.
+
+- So to reproduce the same failure, we specify up to `odegree(0:3)`
+
+::: notes
+Degeneracy is data- and scale-dependent, not a fixed property of a term. Honest story:
+the real degeneracy was odegree(0:2) at full scale; it doesn't reproduce at n=1000, so
+we push to 0:3 for a live, reproducible demo.
+:::
+
+
+## Non-Convergence: Indicator #2 
+
+`ergm` may report **"converged"** — that alone isn't reassurance.
+
+- "Converged" means the algorithm *stopped*, not that it sampled well
+
+- The **MCMC diagnostics** can still look poor
+
+- So we check `mcmc.diagnostics(fit)` 
+
+::: notes
+Indicator #2: don't take "converged" at face value — the sampler may not have mixed.
+mcmc.diagnostics is the check. Leads into "What we watched for."
+:::
+
+## Non-Convergence: Indicator #2 {.smaller}
+
+Visualize MCMC Diagnostics
+
+[example diagnostic]
+
+## Non-Convergence: Indicator #3 {.smaller}
+
+The subtlest case: 
+- MCMC diagnostics look fine
+- GOF may look reasonably **OK but not great**.
+
+- The summary statistics can pass while the network still isn't quite right
+
+- What we found practical: **look at an actual simulated network**, not just the
+  GOF output
+
+```r
+plot(simulate(fit_final, nsim = 1))   # does the simulated network actually look right?
+```
 
 ::: {.accent}
-It doesn't converge: the model is **degenerate**.
-:::
-
-A **degenerate** model puts almost all its probability on a few extreme graphs — the empty or near-complete network — so no parameters reproduce the targets.
-
-- Not a tuning problem (no control setting fixes it)
-- A model specification problem
-- Recognize *why* a fit failed, not just *that* it did
-
-::: notes
-Build to where there is a failure, and then set up the three-failure taxonomy.
-:::
-
----
-
-## Three kinds of failure {.smaller}
-
-| Failure | Symptom | Fix |
-|---|---|---|
-| **Non-convergence** | Chains don't mix; step lengths collapse | More iterations / switch algorithm (Module 3) |
-| **Degeneracy** | Simulated nets near-empty or near-complete; `ergm` may error | Reparameterize the term (not tuning) |
-| **Poor alignment** | Converges, but simulated stats ≠ targets | Revisit spec or targets |
-
-::: {.punch}
-Different fixes for different failures
+When the numbers look fine, comparing a set of simulated networks actually shows whether the structure we care about is reproduced.
 :::
 
 ::: notes
-The whole module hangs on telling these apart; each demands a different response.
+Experiential point: GOF is a summary; a borderline-OK GOF can still hide structure
+that's off. In practice we simulate a network and inspect it directly. Leads into Module 5.
 :::
 
----
-
-## Degeneracy: `odegree(0:2)`
-
-Add one more degree term to the converged mixing block:
-
-```r
-fit_degen <- tryCatch(
-  fit_to_targets(paste(rhs_mix, "+ odegree(0:2)"),
-                 c(ts_mix, odeg_target(0:2)), basis = net),
-  error = function(e) NULL       # an ergm() error can itself be a degeneracy signature
-)
-```
-
-- If it **errors**, that *is* the diagnosis
-- If it returns a fit, simulate and check the edge count
-
-```r
-network.edgecount(simulate(fit_degen, nsim = 1))   # near 0 or near-complete
-```
-
-::: notes
-Likely pre-baked (may error or hang). The error message is content, not a bug.
-:::
-
----
-
-## MCMC diagnostics
-
-```r
-mcmc.diagnostics(fit_final)    # the converged Module 3 model
-```
-
-Look for:
-
-- Flat or drifting traces (non-mixing)
-- Autocorrelation that doesn't decay
+## Non-Convergence: Indicator #3 (Example) {.smaller}
 
 
-::: {.accent}
-- Diagnostics judge the **algorithm** 
-- But not whether the **model** is any good (as in the friendship example).
-:::
+## Solution to each indicator
 
-::: notes
-Show one bad and one good traceplot; name the visual signature, skip the Geweke math.
-:::
 
----
 
-## Is convergence enough?
-
-```r
-gof(fit_final, GOF = ~ idegree + odegree)   # simulate many nets, compare to targets
-```
-
-- A converged fit can still miss its targets
-- GOF simulates from the fit and checks the distributions
-
-::: {.punch}
-This *is* the "simulation"-based fit we saw in Module 1.
-:::
-
-::: notes
-Ties directly back to Module 3's decision rule. GOF answers "does the model match?"
-:::
-
----
 
 ## Recap
+
+Three failure modes we experienced, and how we told them apart:
 
 - **Non-convergence** — algorithm can't settle → tune it (Module 3)
 - **Degeneracy** — the spec is broken → reparameterize
 - **Poor alignment** — converged but wrong → revisit spec or targets
-- Diagnostics check the algorithm; **GOF checks the model**
+
+::: {.punch}
+Diagnostics check the algorithm; simulation checks the model.
+:::
 
 ::: notes
-The transferable skill is the triage, not any single fix.
+The transferable skill is the triage, not any single fix — that judgment is what we're
+sharing. For the theory of degeneracy: Handcock (2003), CSSS Working Paper 39;
+Schweinberger (2011), JASA 106(496), 1361–1370.
 :::
 
 ---
@@ -152,10 +163,10 @@ Frame Module 5 as scaling up today's GOF check into the workflow.
 
 Work in the Posit Cloud environment:
 
-1. Fit `+ odegree(0:2)` on the mixing block — does it error, or return a degenerate fit?
+1. Fit `+ odegree(0:3)` on the mixing block — does it error, or return a degenerate fit?
 2. If it returns, compare simulated edges to `edges_target`
 3. Run `mcmc.diagnostics(fit_final)` — read the traces
-4. Run `gof(fit_final, GOF = ~ idegree + odegree)` — do the distributions match?
+4. Run `gof(fit_final, GOF = ~ idegree + odegree - model)` — do the distributions match?
 
 ::: notes
 Steps mirror the run sheet; cap time on any live fit that hangs.
