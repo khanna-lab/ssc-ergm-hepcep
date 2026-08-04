@@ -87,11 +87,23 @@ Indicator #2: don't take "converged" at face value — the sampler may not have 
 mcmc.diagnostics is the check. Leads into "What we watched for."
 :::
 
-## Non-Convergence: Indicator #2 {.smaller}
+## Non-Convergence: Indicator #2 (Example) {.smaller}
 
-Visualize MCMC Diagnostics
+A real MCMC diagnostic from our full pipeline  
 
-[example diagnostic]
+ - The traces **drift upward** (instead of
+settling around a stable mean) 
+ - Concurrently, the edge density plots are not centered at 0, indicating divergence between the targets and fitted values.
+ - Such plots can be produced for all specified terms in the ERGM
+
+
+![](img/mcmc-diag-edges.png){width="90%" fig-align="center"}
+
+::: notes
+Real `mcmc.diagnostics()` output from net-ergm-v4plus (all PLOS ONE terms). The tell:
+`edges` (and the mixing terms) trend up across iterations rather than hovering around a
+stable level — poor mixing / not converged. Contrast with a well-mixed "fuzzy caterpillar."
+:::
 
 ## Non-Convergence: Indicator #3 {.smaller}
 
