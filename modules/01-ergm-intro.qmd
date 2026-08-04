@@ -32,7 +32,7 @@ pre <- readRDS(here::here("modules", "precomputed", "intro.rds"))
 - Core ideas in 30 minutes, on a familiar example: **teen friendships**
 - Builds to the workshop's key concepts end to end.
 - **No ERGM experience needed**
-- Running example adapted from: [Goodreau et al. (2008), "A statnet Tutorial," Journal of Statistical Software 24(9), under CC‑BY.]{.accent}
+
 
 ::: notes
 Everything here runs on `faux.magnolia.high`, which ships with `statnet`, so no workshop
@@ -93,6 +93,10 @@ This arc (describe, summarize, model, check) is the workshop in miniature.
 
 ## The data
 
+- Network of 1,461 adolescent friendships (`faux.magnolia.high`)
+- 974 friendship "ties" (other common terms: "links", or "edges")
+- Directionality ignored for illustration
+
 ```{r load}
 #| eval: false
 library(statnet)
@@ -109,8 +113,6 @@ c(students = network.size(fmh),
 pre$size
 ```
 
-`faux.magnolia.high` — the 1,461-adolescent friendship network analyzed in the
-statnet tutorial (Goodreau et al. 2008). Directionality ignored for illustration.
 
 ::: notes
 1,461 students, 974 undirected friendship ties. A to B and B to A are the same tie here.
@@ -120,7 +122,11 @@ statnet tutorial (Goodreau et al. 2008). Directionality ignored for illustration
 
 ## What does it look like?
 
+:::{.smallish}
 ![](precomputed/netplot.png){width="100%" fig-align="center"}
+:::
+
+(Comments on structure are needed: what are we seeing?)
 
 ::: notes
 Colored by grade: ties visibly cluster within grade, with a fringe of isolates. Each point
@@ -129,7 +135,7 @@ is a student; lines are friendships. The next two slides put numbers on both.
 
 ---
 
-## Who's in the network?
+## Some Distributional Characteristics of Persons in the Network
 
 ```{r attrs}
 #| eval: false
@@ -164,7 +170,8 @@ mixingmatrix(fmh, "Sex")
 pre$sex_mix
 ```
 
-Most ties sit on the diagonal: friendships cluster **within** sex.
+- Most ties are in the diagonal cells. 
+- Indicates that friendships appear to cluster **within** sex (i.e., "homophily").
 
 ::: notes
 A mixing matrix counts ties by the sex of the two people. Heavy diagonal means assortative
@@ -213,7 +220,7 @@ summary(fmh ~ edges +
 pre$targets
 ```
 
-Each number counts a feature of the observed network.
+Each cell represents a feature of the observed network.
 
 ::: notes
 `edges` is total ties; each `nodematch` is ties within that attribute. We just computed
@@ -225,10 +232,11 @@ four numbers that describe the structure. Hold onto them: they're about to becom
 
 ## What is a "network target"?
 
-::: {.punch}
-A target is a summary statistic we want the model to reproduce.
-:::
+- A target is a summary statistic we want the model to reproduce.
+- Which targets to use is a question similar to considering model selection in regression.
+- Includes parameters that "sufficiently" explain the process we are trying to model.
 
+Code:
 - `summary(net ~ terms)` **computes** them from data
 - `ergm(net ~ terms, target.stats = …)` **fits a model to those numbers**
 - So we can model a network with **only aggregate summaries**, no full
@@ -273,8 +281,12 @@ plogis(coef(random.m))   # baseline tie probability
 pre$null_prob
 ```
 
-`edges` is the intercept: baseline density. Networks are overwhelmingly
-**non**-ties.
+Interpretation 
+
+- The above coefficient is the propbability any two persons are friends.
+- Modeled using the `edges` ERGM term.
+- Additional terms will adjust the probability that nodes are connected using the "attributes" 
+- The `edges` term is therefore analogous to the intercept in regression modeling.  
 
 ::: notes
 Log-odds about −6.99, probability ≈ 0.0009. A random pair almost never shares a tie.
@@ -373,59 +385,39 @@ spread at low degrees. Mixing terms alone don't capture the degree structure.
 
 ---
 
-<!-- ## Observed vs. simulated
+## Goodness of Fit
 
-![](precomputed/obs-vs-sim.png){width="100%" fig-align="center"}
+Observation
 
-::: notes
-The fitted model regenerates the within-grade clustering: same generative signature. Same
-node set and attributes; only the edges are re-drawn. It captures grade homophily and
-density, but (as the GOF showed) still misses higher-order structure like triadic closure.
-:::
+- While the [alternative assortative mixing]{.accent} model fit better, neither adequately captured the network.
 
---- -->
+Why might that be? 
 
-## What's missing?
+- Our alternative model might still be missing something
 
-- Friends of friends tend to connect: **triadic closure**
-- Captured with `gwesp(...)` → fit improves further
-- Raw triangle counts can cause **degeneracy** (revisited in Module 4)
+Likely Candidate:
 
-::: notes
-GWESP, the geometrically-weighted edgewise shared partner term, down-weights each
-additional shared friend, capturing the non-linear way closure works.
-:::
+- In social networks, individuals who have common friends, are more likely to be friends with each other. 
+- Let us specify this property within our generative model.
 
 ---
 
-## Fit the friend-of-a-friend model
+## Fit the friend-of-a-friend model{.smaller}
 
-Add **GWESP** — geometrically-weighted edgewise shared partners — to the assortative model:
+[Mechanism of interest: Triad Closure]{.accent}
 
-```{r gwesp-code}
-#| eval: false
-gwesp.m <- ergm(fmh ~ edges +
-                  nodematch("Grade") +
-                  nodematch("Race") +
-                  nodematch("Sex") +
-                  gwesp(0.25, fixed = TRUE))
-round(coef(gwesp.m), 2)
-```
+- Two people with a shared friend are likely to connect.
 
-```{r gwesp-out}
-#| echo: false
-#| eval: true
-pre$gwesp_coef
-```
+[Intuitive statistic to model this: Triangles]{.accent}
 
-- GWESP down-weights each *additional* shared friend — closure without runaway triangles
-- Dyad-dependent → fit by **MCMC**; precomputed so the deck renders fast
+- Estimates the increased likelihood of a tie forming between two nodes with a shared friend (triadic closure).
 
-::: notes
-The `ergm()` call is shown for teaching but not run live — the fit is precomputed by
-`R/precompute-intro.R` into `modules/precomputed/intro.rds`. gwesp decay 0.25, fixed;
-gwesp coefficient ≈ 1.75, log-likelihood ≈ −6100 (null −7790, assortative ≈ −6528).
-:::
+[But this does not account for the non-linearity in triad formation:]{.accent}
+
+- The probability of connecting two people increases as the number of their shared friends increases.
+- But this scaling is not linear. 
+- The probability of two people connecting is far greater if they know 2 vs. 4 people in common, than whether they know 100 vs. 102 people in common.
+- Using triangles in social networks leads to “degenerate” models
 
 ---
 
@@ -441,7 +433,7 @@ gwesp coefficient ≈ 1.75, log-likelihood ≈ −6100 (null −7790, assortativ
 plot(pre$gof_gwesp)
 ```
 
-::: {.punch}
+::: {.accent}
 Much better
 :::
 
@@ -453,15 +445,17 @@ modules stress, still not necessarily the whole story.
 
 ---
 
+
+
 ## Network targets, revisited
 
-::: {.punch}
-Targets are the bridge from data to model.
+::: {.accent}
+Target statistics are the bridge from data to model.
 :::
 
-- Every summary in this module (mixing, degree) is a candidate **target**
-- `target.stats` fits the model to those numbers
-- Simulation checks whether the model reproduces them
+- Every summary statistics in this module (mixing, degree) is a candidate **target**
+- `target.stats` specifies those statistics in a single vector
+- GOF Testing checks whether the model reproduces them
 - **Module 1:** targets come from aggregate data, no full network needed
 
 ::: notes
@@ -471,9 +465,9 @@ workshop's real setting is fitting to summary targets alone.
 
 ---
 
-## Takeaway
+## Most Importantly
 
-<div class="flow">
+<!-- <div class="flow">
   <div class="flow-box">Explore</div>
   <div class="flow-arrow">↓</div>
   <div class="flow-box">Summarize as targets</div>
@@ -481,7 +475,15 @@ workshop's real setting is fitting to summary targets alone.
   <div class="flow-box">Model</div>
   <div class="flow-arrow">↓</div>
   <div class="flow-box">Simulate to check</div>
-</div>
+</div> -->
+
+- Using numerical methods to compare model fits is useful. 
+
+- But even a better fitting model is not always adequate. 
+
+- Proposing alternate models that capture relevant theoretical mechanisms is important.
+
+- In practice, this process is often iterative and allows us to refine our understanding at each step. 
 
 
 ::: notes
