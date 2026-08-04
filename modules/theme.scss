@@ -138,6 +138,10 @@ $code-block-font-size: 0.6em !default;
 .reveal .tiny {
   font-size: 0.55em;
 }
+// Between regular (1em) and reveal's `.smaller` (~0.7em)
+.reveal .smallish {
+  font-size: 0.85em;
+}
 
 // Color utilities — color only, no size/weight change (unlike `.punch`).
 // Apply inline: [text]{.accent}   or to a block:  ::: {.accent} ... :::
