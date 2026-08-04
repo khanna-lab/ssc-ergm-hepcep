@@ -36,7 +36,7 @@ pre <- readRDS(here::here("modules", "precomputed", "intro.rds"))
 
 ::: notes
 Everything here runs on `faux.magnolia.high`, which ships with `statnet`, so no workshop
-data is required. Module 1 then applies the same ideas to syringe-sharing networks.
+data is required. Future modules then apply the same ideas to syringe-sharing networks.
 Code chunks are shown for illustration; every result is precomputed by
 `R/precompute-intro-fit.R` + `R/precompute-intro-gof.R`, so the deck renders without
 re-fitting. This module reproduces the statnet-tutorial example (Goodreau et al. 2008,
@@ -66,7 +66,7 @@ running example from this tutorial. CC‑BY permits reuse and adaptation with at
 
 
 - How do adolescents form friendships?
-- What processes that generate the network structures we see?
+- What processes generate the network structures we see?
 
 **Micro-level processes → macro-level structure**
 
@@ -244,7 +244,7 @@ Code:
 
 ::: notes
 This is the crux of the workshop. Here we have the whole network, so the targets are the
-observed counts. In Module 1, the targets come from meta-analysis summaries (mixing
+observed counts. In future modules, the targets come from meta-analysis summaries (mixing
 matrices, degree distributions) and we never see one full observed network. ERGMs let us
 fit to the summaries regardless.
 :::
@@ -283,7 +283,7 @@ pre$null_prob
 
 Interpretation 
 
-- The above coefficient is the propbability any two persons are friends.
+- The above coefficient is the probability any two persons are friends.
 - Modeled using the `edges` ERGM term.
 - Additional terms will adjust the probability that nodes are connected using the "attributes" 
 - The `edges` term is therefore analogous to the intercept in regression modeling.  
@@ -421,6 +421,38 @@ Likely Candidate:
 
 ---
 
+## The GWESP model {.smaller}
+
+**GWESP** (geometrically-weighted edgewise shared partners) model closure while
+down-weighting each *additional* shared friend .
+
+```{r gwesp-code}
+#| eval: false
+gwesp.m <- ergm(fmh ~ edges +
+                  nodematch("Grade") +
+                  nodematch("Race") +
+                  nodematch("Sex") +
+                  gwesp(0.25, fixed = TRUE))
+round(coef(gwesp.m), 2)
+```
+
+```{r gwesp-out}
+#| echo: false
+#| eval: true
+pre$gwesp_coef
+```
+
+- Dyad-dependent, so this one is fit by **MCMC** (unlike the models above)
+- Precomputed, so the deck renders without re-fitting
+
+::: notes
+gwesp decay 0.25, fixed. The gwesp coefficient is strongly positive; log-likelihood
+improves to ≈ −6100 (null −7790, assortative ≈ −6528). The fit is precomputed by
+`R/precompute-intro-fit.R`; the coefficients shown are read from `intro.rds`.
+:::
+
+---
+
 ## Goodness of fit: friend-of-a-friend model {.smaller}
 
 ```{r gof-gwesp}
@@ -453,10 +485,10 @@ modules stress, still not necessarily the whole story.
 Target statistics are the bridge from data to model.
 :::
 
-- Every summary statistics in this module (mixing, degree) is a candidate **target**
+- Every summary statistic in this module (mixing, degree) is a candidate **target**
 - `target.stats` specifies those statistics in a single vector
 - GOF Testing checks whether the model reproduces them
-- **Module 1:** targets come from aggregate data, no full network needed
+- **Future modules:** targets come from aggregate data, no full network needed
 
 ::: notes
 The one idea to carry out of this module. We computed targets from a full network here; the
@@ -464,6 +496,10 @@ workshop's real setting is fitting to summary targets alone.
 :::
 
 ---
+
+## Simulate 
+Show further how these fitted models behave upon simulation. 
+
 
 ## Most Importantly
 
