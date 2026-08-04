@@ -9,19 +9,11 @@ format:
     fig-height: 3.6
     footer: "Adapted from Goodreau et al. (2008)"
 execute:
-  eval: false    # code shown for illustration; results are precomputed (R/precompute-intro.R)
+  eval: false    # code is illustrative only; every result is precomputed — no R runs at render
   echo: true
   warning: false
   message: false
 ---
-
-```{r setup}
-#| include: false
-#| eval: true
-library(statnet)
-library(here)
-pre <- readRDS(here::here("modules", "precomputed", "intro.rds"))
-```
 
 ## Introducing the workshop
 - A slide of two explaining the outline and structure of the workshop
@@ -107,11 +99,7 @@ c(students = network.size(fmh),
   ties     = network.edgecount(fmh))
 ```
 
-```{r load-out}
-#| echo: false
-#| eval: true
-pre$size
-```
+{{< include precomputed/out-size.md >}}
 
 
 ::: notes
@@ -143,12 +131,9 @@ table(fmh %v% "Grade")
 table(fmh %v% "Sex")
 ```
 
-```{r attrs-out}
-#| echo: false
-#| eval: true
-pre$grade_tab
-pre$sex_tab
-```
+{{< include precomputed/out-grade.md >}}
+
+{{< include precomputed/out-sex.md >}}
 
 ::: notes
 Each node carries attributes: Grade, Sex, Race. These are the ingredients for the
@@ -164,11 +149,7 @@ Each node carries attributes: Grade, Sex, Race. These are the ingredients for th
 mixingmatrix(fmh, "Sex")
 ```
 
-```{r mixing-out}
-#| echo: false
-#| eval: true
-pre$sex_mix
-```
+{{< include precomputed/out-mixing.md >}}
 
 - Most ties are in the diagonal cells. 
 - Indicates that friendships appear to cluster **within** sex (i.e., "homophily").
@@ -187,11 +168,7 @@ mixing. Same story for grade and race.
 summary(fmh ~ degree(0:5))
 ```
 
-```{r degree-out}
-#| echo: false
-#| eval: true
-pre$degree
-```
+{{< include precomputed/out-degree.md >}}
 
 - Most students have **few** ties
 - A few students have many.
@@ -214,11 +191,7 @@ summary(fmh ~ edges +
           nodematch("Sex"))
 ```
 
-```{r targets-out}
-#| echo: false
-#| eval: true
-pre$targets
-```
+{{< include precomputed/out-targets.md >}}
 
 Each cell represents a feature of the observed network.
 
@@ -275,11 +248,7 @@ random.m <- ergm(fmh ~ edges)
 plogis(coef(random.m))   # baseline tie probability
 ```
 
-```{r null-out}
-#| echo: false
-#| eval: true
-pre$null_prob
-```
+{{< include precomputed/out-null.md >}}
 
 Interpretation 
 
@@ -305,11 +274,7 @@ assort.m <- ergm(fmh ~ edges +
 round(coef(assort.m), 2)
 ```
 
-```{r assort-out}
-#| echo: false
-#| eval: true
-pre$assort_coef
-```
+{{< include precomputed/out-assort.md >}}
 
 ::: notes
 All terms here are dyad-independent, so this fits instantly via logistic regression, no
@@ -349,15 +314,7 @@ care about and check whether the data sits inside the simulated spread.
 
 ## Goodness of fit: null model{.smaller}
 
-```{r gof-null}
-#| echo: false
-#| eval: true
-#| fig-width: 8.5
-#| fig-height: 5.2
-#| out-width: "92%"
-#| fig-align: center
-plot(pre$gof_null)
-```
+![](precomputed/gof-null.png){width="92%" fig-align="center"}
 
 ::: notes
 Solid line = observed degree distribution; boxplots = 100 networks simulated from the
@@ -368,15 +325,7 @@ edges-only model. It misfits badly: too few isolates (degree 0), too many degree
 
 ## Goodness of fit: assortative model{.smaller}
 
-```{r gof-assort}
-#| echo: false
-#| eval: true
-#| fig-width: 8.5
-#| fig-height: 5.2
-#| out-width: "92%"
-#| fig-align: center
-plot(pre$gof_assort)
-```
+![](precomputed/gof-assort.png){width="92%" fig-align="center"}
 
 ::: notes
 Closer than the null model, but still off — the observed line drifts outside the simulated
@@ -436,11 +385,7 @@ gwesp.m <- ergm(fmh ~ edges +
 round(coef(gwesp.m), 2)
 ```
 
-```{r gwesp-out}
-#| echo: false
-#| eval: true
-pre$gwesp_coef
-```
+{{< include precomputed/out-gwesp.md >}}
 
 - Dyad-dependent, so this one is fit by **MCMC** (unlike the models above)
 - Precomputed, so the deck renders without re-fitting
@@ -455,15 +400,7 @@ improves to ≈ −6100 (null −7790, assortative ≈ −6528). The fit is prec
 
 ## Goodness of fit: friend-of-a-friend model {.smaller}
 
-```{r gof-gwesp}
-#| echo: false
-#| eval: true
-#| fig-width: 8.5
-#| fig-height: 5.2
-#| out-width: "92%"
-#| fig-align: center
-plot(pre$gof_gwesp)
-```
+![](precomputed/gof-gwesp.png){width="92%" fig-align="center"}
 
 ::: {.accent}
 Much better

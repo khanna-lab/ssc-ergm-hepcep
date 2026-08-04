@@ -1,14 +1,13 @@
-# Module 1 (intro) — GOF + render-bundle step. Reads the saved fits, computes
-# the degree goodness-of-fit for each model, and assembles everything the slides
-# read. Fast to re-run (no re-fitting) when tweaking GOF seeds or figures.
+# Module 1 (intro) — GOF + render-bundle step. Reads the saved fits and writes
+# EVERYTHING the slides display: numeric outputs as text snippets and all plots as
+# PNGs. The .qmd then renders with zero R execution — it only reads these files.
 #
 # Run after R/precompute-intro-fit.R:
 #   Rscript R/precompute-intro-gof.R
 #
 # Outputs (committed, read by modules/01-ergm-intro.qmd):
-#   modules/precomputed/intro.rds        summaries, coefficients, degree GOF objects
-#   modules/precomputed/netplot.png      friendship network, colored by grade
-#   modules/precomputed/obs-vs-sim.png   observed vs. simulated (assortative model)
+#   modules/precomputed/out-*.md    numeric summaries as fenced text (searchable)
+#   modules/precomputed/*.png       network plots + degree GOF plots
 
 suppressPackageStartupMessages(library(statnet))
 library(here)
@@ -24,36 +23,43 @@ fmh <- faux.magnolia.high
 pre_dir <- here("modules", "precomputed")
 dir.create(pre_dir, showWarnings = FALSE, recursive = TRUE)
 
-res <- list()
+## Capture a printed R object as a fenced code block the .qmd can `include`.
+write_out <- function(x, name) {
+  txt <- capture.output(print(x))
+  writeLines(c("```", txt, "```"), file.path(pre_dir, paste0(name, ".md")))
+  message("Saved: modules/precomputed/", name, ".md")
+}
 
 ## --- Descriptive summaries (deterministic) --------------------------------
-res$size      <- c(students = network.size(fmh), ties = network.edgecount(fmh))
-res$grade_tab <- table(fmh %v% "Grade")
-res$sex_tab   <- table(fmh %v% "Sex")
-res$sex_mix   <- mixingmatrix(fmh, "Sex")
-res$degree    <- summary(fmh ~ degree(0:5))
-res$targets   <- summary(fmh ~ edges + nodematch("Grade") +
-                           nodematch("Race") + nodematch("Sex"))
+write_out(c(students = network.size(fmh), ties = network.edgecount(fmh)), "out-size")
+write_out(table(fmh %v% "Grade"), "out-grade")
+write_out(table(fmh %v% "Sex"),   "out-sex")
+write_out(mixingmatrix(fmh, "Sex"), "out-mixing")
+write_out(summary(fmh ~ degree(0:5)), "out-degree")
+write_out(summary(fmh ~ edges + nodematch("Grade") +
+                    nodematch("Race") + nodematch("Sex")), "out-targets")
 
 ## --- Coefficients (from the saved fits) -----------------------------------
-res$null_prob   <- plogis(coef(random.m))
-res$assort_coef <- round(coef(assort.m), 2)
-res$gwesp_coef  <- round(coef(gwesp.m), 2)
+write_out(plogis(coef(random.m)), "out-null")
+write_out(round(coef(assort.m), 2), "out-assort")
+write_out(round(coef(gwesp.m), 2),  "out-gwesp")
 
-## --- Goodness of fit on degree (the GOF code; seed-fixed) ------------------
-## Two gotchas in current ergm (4.6):
-##  1. `gof(fit ~ degree)` shorthand no longer restricts to degree.
-##  2. `GOF = ~ degree` silently APPENDS a "model" term (the docs: "By default a
-##     'model' term is added to the formula"), giving the edges/nodematch panel.
-## `GOF = ~ degree - model` gives the single degree-distribution panel (the PDF).
-set.seed(100); res$gof_null   <- gof(random.m, GOF = ~ degree - model)
-set.seed(101); res$gof_assort <- gof(assort.m, GOF = ~ degree - model)
-set.seed(102); res$gof_gwesp  <- gof(gwesp.m,  GOF = ~ degree - model)
+## --- Goodness of fit on degree, rendered straight to PNG ------------------
+## `GOF = ~ degree - model`: degree only. `- model` suppresses the model-stats
+## panel that current ergm (4.6) otherwise appends.
+gof_png <- function(fit, name, seed) {
+  set.seed(seed)
+  g <- gof(fit, GOF = ~ degree - model)
+  png(file.path(pre_dir, name), width = 1600, height = 980, res = 150)
+  plot(g)
+  dev.off()
+  message("Saved: modules/precomputed/", name)
+}
+gof_png(random.m, "gof-null.png",   100)
+gof_png(assort.m, "gof-assort.png", 101)
+gof_png(gwesp.m,  "gof-gwesp.png",  102)
 
-saveRDS(res, file.path(pre_dir, "intro.rds"))
-message("Saved: modules/precomputed/intro.rds")
-
-## --- Network figures (PNG; embedded as images) ----------------------------
+## --- Network figures ------------------------------------------------------
 grade <- as.factor(fmh %v% "Grade")
 pal   <- hcl.colors(nlevels(grade), "Dark 3")
 
@@ -79,4 +85,4 @@ par(op)
 dev.off()
 message("Saved: modules/precomputed/obs-vs-sim.png")
 
-message("Done. Module 1 renders from modules/precomputed/.")
+message("Done. Module 1 now renders with no R execution — pure includes + images.")

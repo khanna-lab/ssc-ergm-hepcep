@@ -1,29 +1,24 @@
-# Precomputed fits
+# Precomputed outputs
 
-Generated artifacts that the module slides read/embed instead of computing
-results at render time. Rendering stays fast and fully reproducible — all
-seed-sensitive output (network layouts, simulations, MCMC fits, GOF) is fixed
-here, and the slides' code chunks are illustrative only.
+Everything Module 1's slides display, generated ahead of time so the deck renders
+with **zero R execution** — it only reads these files (text includes + images).
+`statnet` never loads at render.
 
-## Two-step build (fitting separated from GOF)
-
-Fitting is the slow part (GWESP is MCMC), so it's split from goodness-of-fit:
-run the fit once, then re-run GOF as often as you like without re-fitting.
+## Two-step build (fitting separated from output)
 
 ```bash
 Rscript R/precompute-intro-fit.R    # 1. fit the 3 models  -> out/intro-fits.rds (gitignored)
-Rscript R/precompute-intro-gof.R    # 2. GOF + assemble     -> the files below
+Rscript R/precompute-intro-gof.R    # 2. write all outputs  -> the files below
 ```
 
-| File | Produced by | Read by |
-|------|-------------|---------|
-| `out/intro-fits.rds` *(intermediate, gitignored)* | `R/precompute-intro-fit.R` | `R/precompute-intro-gof.R` |
-| `intro.rds` | `R/precompute-intro-gof.R` | `modules/01-ergm-intro.qmd` (summaries, coefficients, null/assortative/GWESP degree GOF) |
-| `netplot.png` | `R/precompute-intro-gof.R` | `modules/01-ergm-intro.qmd` ("What does it look like?") |
-| `obs-vs-sim.png` | `R/precompute-intro-gof.R` | `modules/01-ergm-intro.qmd` ("Observed vs. simulated") |
+Re-run step 2 whenever you tweak GOF seeds or figures; re-run step 1 only when a
+model spec changes.
 
-Re-run only the GOF step (step 2) when tweaking GOF seeds, terms, or figures.
-Re-run the fit step (step 1) only when a model spec changes.
+| File(s) | What | Read by (in `01-ergm-intro.qmd`) |
+|---------|------|----------------------------------|
+| `out-size/grade/sex/mixing/degree/targets/null/assort/gwesp.md` | numeric summaries as fenced text (searchable) | `{{< include … >}}` |
+| `gof-null/assort/gwesp.png` | degree goodness-of-fit plots | `![](…)` |
+| `netplot.png` | friendship network, colored by grade | `![](…)` |
+| `obs-vs-sim.png` | observed vs. simulated (assortative) | `![](…)` |
 
-The `intro.rds` and `.png` files are committed so the slides render on any
-machine (and on Posit Cloud) without running the fits.
+All committed, so the slides render on any machine (and Posit Cloud) with no R.
