@@ -105,31 +105,51 @@ Real `mcmc.diagnostics()` output from net-ergm-v4plus (all PLOS ONE terms). The 
 stable level — poor mixing / not converged. Contrast with a well-mixed "fuzzy caterpillar."
 :::
 
-## Non-Convergence: Indicator #3 {.smaller}
+## Poor alignment: does it reproduce the targets? {.smaller}
 
-The subtlest case: 
-- MCMC diagnostics look fine
-- GOF may look reasonably **OK but not great**.
+A fit can converge cleanly — diagnostics fine — and still not reproduce the structure
+you care about.
 
-- The summary statistics can pass while the network still isn't quite right
-
-- What we found practical: **look at an actual simulated network**, not just the
-  GOF output
+- A GOF summary can look **OK, or questionable** — either way, it's only a summary
+- What we found practical: **simulate and look at the networks**, then compare the
+  statistics that matter to their targets
 
 ```r
 plot(simulate(fit_final, nsim = 1))   # does the simulated network actually look right?
 ```
 
 ::: {.accent}
-When the numbers look fine, comparing a set of simulated networks actually shows whether the structure we care about is reproduced.
+Comparing a set of simulated networks — not the GOF summary — shows whether the
+structure we care about is reproduced.
 :::
 
 ::: notes
-Experiential point: GOF is a summary; a borderline-OK GOF can still hide structure
-that's off. In practice we simulate a network and inspect it directly. Leads into Module 5.
+The third failure mode from the table: a converged, well-mixed fit that still misses its
+targets. Simulate and compare — sometimes it exposes a gap, sometimes (as in our example)
+it reassures. Bridge to Module 5.
 :::
 
-## Non-Convergence: Indicator #3 (Example) {.smaller}
+## Poor alignment (Example) — simulation holds {.smaller}
+
+Simulate many networks and compare the structure we care about to its **target**
+(black line):
+
+![](img/outdeg-violin.png){width="60%" fig-align="center"}
+
+- The out-degree **targets fall within the simulated spread** — the model reproduces
+  these counts (the violins straddle each target)
+- The questionable-looking GOF didn't mean a broken model
+
+::: {.accent}
+Look at the simulated networks — they often hold the story the GOF summary muddies.
+:::
+
+::: notes
+Real output from net-ergm-v4plus (simulate-from-ergms). Each violin is a statistic's
+distribution across many simulated networks; the line is the target. The out-degree
+targets sit inside the spread (modes just above), so the structure holds. The systematic
+version of eyeballing a simulated network — bridge to Module 5.
+:::
 
 
 ## Solution to each indicator
