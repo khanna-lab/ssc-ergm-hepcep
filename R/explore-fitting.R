@@ -115,3 +115,24 @@ fit_sa_5 <- ergm(f_hard, target.stats = ts_hard, eval.loglik = FALSE,
 fit_sa_5
 sim_sa_5 <- simulate(fit_sa_4, nsim=1)
 sim_sa_5
+
+# ============================================================================
+# What the fit_sa_2 .. fit_sa_5 ablation shows (watch "Phase 1 ... interval =")
+# ============================================================================
+# main.method = "Stochastic-Approximation" throughout; vary the other knobs:
+#
+#   fit    MCMC.interval   termination        -> SA interval
+#   sa_2   default         (none)                1024
+#   sa_3   default         Hotelling+effSize     1024   <- termination inert
+#   sa     1e4             (none)                10000  <- MCMC.* tunes the chain
+#   sa_4   1e4             Hotelling             10000  <- identical to sa
+#   sa_5   1e4             Hummel                10000  <- coeffs match sa_4 up to MC noise
+#
+# RESOLVED: under SA the sampler is governed by the SA.* family, and
+# SA.interval/SA.samplesize DEFAULT to MCMC.interval/MCMC.samplesize -- so MCMC.* are
+# NOT inert under SA; they set the chain length/thinning (burnin and SAN steps scale
+# too). What IS inert under SA: MCMLE.termination (Hummel vs Hotelling -> same fit) and
+# MCMC.effectiveSize. So the real pipeline's recipe = switch to SA (the lever) + heavy
+# MCMC sizes (real, for n=32k); Hotelling/effectiveSize rode along doing nothing.
+# Still not isolated: MCMLE.maxit may feed SA.nsubphases (Phase-2 length) under SA --
+# to test, compare MCMLE.maxit = 4 vs 60 with all else equal.
