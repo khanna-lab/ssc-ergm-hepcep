@@ -48,31 +48,34 @@ Each row sequentially builds upon the simpler model in the previous row.
 
 | Step | Terms added | Fit type |
 |:----:|-------------|----------|
-| 1–4 | `edges + nodemix(sex/young/race.num) + nodematch("chicago")` | Exact MLE |
-| 5 | `+ odegree(0)` | Stochastic-Approximation |
-| 6 | `+ odegree(0:1)` | Stochastic-Approximation |
+| 1–4 | `edges + nodemix(sex/young/race.num) + nodematch("chicago")` | MCMC (defaults) |
+| 5 | `+ odegree(0)` | MCMC (defaults) |
+| 6 | `+ odegree(0:1)` | MCMC (defaults) |
 | 7 | `+ idegree(0:1) + odegree(0:1)` | Stochastic-Approximation |
 
 
-- Exact MLE: Computed in dyadic independent models, when such computation is possible. 
+- The mixing block is **dyad-independent** — easy to fit, MPLE gives a good start.
 
-- For dyadic dependent models, the default is MCMLE
+- But we fit to **non-integer target statistics** (e.g. `edges_target = 711.1`),
+  which no single network realizes exactly — so `ergm` matches them *in expectation*
+  via MCMC (default MCMLE), not by closed-form MLE.
 
-- We used **Stochastic Approximation** in our full pipeline to ensure convergence
+- Only the final step needed **Stochastic Approximation** to converge.
 
 
 ::: notes
-Steps 1–4 are dyad-independent (no MCMC needed — exact MLE). Steps 5–7 add
-degree terms, which are dyad-*dependent* and need MCMC-based fitting. The real
+Steps 1–4 are dyad-independent, so they fit *easily* — but because we fit to
+non-integer `target.stats`, ergm still matches them via MCMC (MCMLE), not closed-form
+MLE. Steps 5–7 add dyad-*dependent* degree terms, a harder MCMC problem. The real
 pipeline also tries `odegree(0:2)` between steps 6 and 7, which is degenerate —
 save that for the Module 4 handoff, not here.
 :::
 
 ---
 
-## Mixing block: steps 1–4
+## Mixing block: steps 1–4 {.smallish}
 
-Dyad-independent terms: no MCMC needed, fits **exactly**:
+Dyad-independent terms — **easy** to fit, but still fit by MCMC:
 
 ```r
 f_mix <- net ~ edges +
@@ -86,14 +89,23 @@ fit_mix <- ergm(f_mix, target.stats = ts_mix, eval.loglik = FALSE)
 
 `ts_mix` is exactly the `target_vec` pieces built in Module 2.
 
+- Fitting to `target.stats`, `ergm` runs SAN → MPLE → MCMLE (you'll see this in the log).
+- The targets are **non-integer** expected counts (`edges_target = 711.1`), so no
+  network hits them exactly — `ergm` matches them **in expectation** via MCMC.
+
 ::: {.accent}
-No convergence worries yet. This block fits exactly, every time.
+No convergence worries here — dyad-independent terms fit easily, even though MCMC
+is still doing the work.
 :::
 
 ::: notes
-Worth naming explicitly: "dyad-independent" is why this is exact MLE rather
-than MCMC-based. That distinction is what makes steps 5–7 categorically
-different, not just "more terms."
+The subtlety, confirmed by running it: dyad-independence would give an *exact* MLE if we
+fit to an observed network (MPLE = MLE, no MCMC). But we fit to non-integer `target.stats`,
+so SAN can't realize them, ergm prints "Unable to match target stats. Using MCMLE
+estimation," and falls back to MCMC to match in expectation. So don't claim "exact MLE,
+no MCMC" — the honest point is that these terms are *easy*, not that they skip MCMC.
+Steps 5–7 add dyad-*dependent* degree terms, which is a harder MCMC problem, not a
+categorical MCMC-vs-not switch.
 :::
 
 ---
@@ -146,113 +158,93 @@ rather than presenting our pipeline's pattern as the only correct one.
 
 ---
 
-## Degree terms: `odegree(0)` → `odegree(0:1)` {.smaller}
+## Degree terms: `odegree(0)` → `odegree(0:1)` {.smallish}
 
 - **Building on steps 1–4:** take the mixing model `f_mix` and its warm-start
   network, and add **out-degree terms** — `odegree(0)`, then `odegree(0:1)`.
-- These terms are **dyad-dependent**, so `ergm` now fits by **MCMC** instead of exactly solving.
+- These terms are **dyad-dependent** — a **harder MCMC** problem than the mixing block, where the sampler can stall.
+- `ergm`'s default handles these — it **auto-tunes** the sampler (chain length,
+  thinning, sample size) as it runs. No control settings needed here.
 
-Control terms:
+::: notes
+These out-degree steps converge under plain `ergm` defaults (`test-sequential-defaults.R`).
+In verbose output you watch it adapt — "New interval = …", "increasing sample size."
+The default-vs-override contrast only appears at step 7 (in + out degree).
+:::
 
-- `main.method` specifies the algorithm
-- `MCMLE.maxit` sets max number of iterations
-- `MCMC.interval` thins the sample; `MCMC.samplesize` sets how many networks are drawn.
+## Adding the out-degree terms {.smallish}
 
-Our configuration at the workshop scale (n = 1,000):
-
-```r
-fit_control <- control.ergm(
-  main.method     = "Stochastic-Approximation",
-  MCMLE.maxit     = 60,
-  MCMC.interval   = 1e4,
-  MCMC.samplesize = 1e4
-)
-```
-
-## Warm starting with the control parameters specified
-
-Out-degree 0 only:
+Warm-started, fit with `ergm`'s defaults:
 
 ```r
 fit5 <- ergm(update(f_mix, net_warm ~ . + odegree(0)),
-             target.stats = c(ts_mix, odeg_target(0)),
-             control = fit_control, eval.loglik = FALSE)
+             target.stats = c(ts_mix, odeg_target(0)), eval.loglik = FALSE)
 net_warm <- simulate(fit5, nsim = 1)
-```
 
-Out-degree: 0 + 1:
-
-```r
 fit6 <- ergm(update(f_mix, net_warm ~ . + odegree(0:1)),
-             target.stats = c(ts_mix, odeg_target(0:1)),
-             control = fit_control, eval.loglik = FALSE)
+             target.stats = c(ts_mix, odeg_target(0:1)), eval.loglik = FALSE)
 net_warm <- simulate(fit6, nsim = 1)
 ```
 
-
-
 ::: notes
-`fit_control` uses Stochastic-Approximation with a slightly heavier MCMC set,
-applied uniformly from step 5 on — a demo-script simplification, not a sign
-these steps *need* it. `test-sequential-defaults.R` shows plain `ergm` defaults
-converge fine through step 6. If asked, be precise: "converges fine" means with
-this control set, not `ergm`'s bare defaults. The real default-vs-override
-contrast is step 7 (next slide).
+Default (MCMLE) fitting, warm-started each step. These converge fine on defaults; the
+override only becomes necessary at step 7. `eval.loglik = FALSE` skips the expensive
+log-likelihood — we only need the fit for simulating the next warm start.
 :::
 
 ---
 
 ## The harder step
 
-Simultaneous in- and out-degree specification
+Simultaneous in- and out-degree specification, on `ergm`'s **defaults**:
 
 ```r
 fit_final <- ergm(update(f_mix, net_warm ~ . + idegree(0:1) + odegree(0:1)),
                   target.stats = c(ts_mix, ideg_target(0:1), odeg_target(0:1)),
-                  control = fit_control, eval.loglik = FALSE)
+                  eval.loglik = FALSE)
 ```
 
-- With `ergm`'s defaults, this step **struggles** to converge.
-- In-degree *on top of* out-degree is the threshold where convergence breaks 
--  To resolve this, we set "heavier" control parameters (next slide).
-
+- With the default algorithm (MCMLE), this step **struggles** to converge.
+- In-degree *on top of* out-degree is the threshold where convergence breaks.
+- The fix (next slide): switch the fitting **algorithm**.
 
 ::: notes
-This mirrors the real n=32k pipeline's experience, reproduced in miniature at
-n=1000. Don't show the n=32k numbers — the point transfers without needing the
-scale comparison on a slide.
+This mirrors the real n=32k pipeline's experience, reproduced in miniature at n=1000.
+Don't show the n=32k numbers — the point transfers without the scale comparison.
 :::
 
 ---
 
-## The parameters we specified {.smallish}
+## The override: switch the algorithm {.smallish}
 
-Two things changed from `ergm`'s defaults **empirically** to ensure convergence:
-
-1. **Algorithm** (`main.method`): MCMLE (default) → **Stochastic-Approximation**
-2. **Convergence rule** (`MCMLE.termination`): 
-  * Hummel's step-length rule (default) → **Hotelling**'s T²
-  * `MCMC.effectiveSize = NULL`
+The one change that made step 7 converge — swap MCMLE for **Stochastic-Approximation**:
 
 ```r
-control.ergm(
-  main.method        = "Stochastic-Approximation",
-  MCMLE.termination  = "Hotelling",
-  MCMC.effectiveSize = NULL
-)
+fit_final <- ergm(update(f_mix, net_warm ~ . + idegree(0:1) + odegree(0:1)),
+                  target.stats = c(ts_mix, ideg_target(0:1), odeg_target(0:1)),
+                  control = control.ergm(main.method = "Stochastic-Approximation"),
+                  eval.loglik = FALSE)
 ```
 
+- MCMLE (default) → **Stochastic-Approximation** (Robbins–Monro; Snijders 2002)
+- `ergm` auto-tunes the SA sampling — nothing else to set
+
 ::: {.accent}
-- Theoretical results are in XXX.
-- Conceptually (one liner here, point to the Appendix)
+The algorithm switch is the lever. The pipeline's `MCMC.interval`/`samplesize` still
+tune the SA sampler — but `MCMLE.termination` (Hummel/Hotelling) and `MCMC.effectiveSize`
+are **MCMLE** controls that do nothing under SA.
 :::
 
 ::: notes
-Honest posture: this is the knob combination we found empirically for the n=32k fit,
-not a first-principles result. If asked "why does this work?", point to the algorithm
-literature rather than hand-waving — Hunter & Handcock (2006), JCGS 15(3), 565–583
-(curved-ERGM MLE); Hummel, Hunter & Handcock (2012), JCGS 21(4), 920–939 (the
-step-length/stepping algorithm behind the default) — and `?control.ergm`.
+Confirmed empirically (a 2×2 ablation in `explore-fitting.R`) and against the docs
+(ergm 4.12): under SA the sampler is set by `SA.interval`/`SA.samplesize`, which default
+to the `MCMC.*` values — so `MCMC.interval = 1e6` really did give heavy sampling (setting
+`MCMC.interval = 1e4` moves the SA interval 1024 → 10000). But `MCMLE.termination` (Hummel
+vs Hotelling) and `MCMC.effectiveSize` leave the fit unchanged — matched coefficients up
+to Monte Carlo noise. So the recipe reduces to: switch the algorithm, optionally set the
+MCMC sizes; the termination rule is decoration. Why SA is robust far from the solution:
+Snijders (2002); also Hunter & Handcock (2006), Hummel, Hunter & Handcock (2012);
+`?control.ergm`.
 :::
 
 ---
@@ -260,20 +252,22 @@ step-length/stepping algorithm behind the default) — and `?control.ergm`.
 ## Decision rule
 
 - **Start with defaults.** They held through the mixing block and either degree direction alone.
-- Override one knob at a time
-    - Algorithm, 
-    - Tuning: (e.g., interval, binning) 
-    - Convergence Rule
+- **Escalate only when a step stalls**, and change as little as possible.
+- Here the one lever that mattered was the **algorithm** (MCMLE → SA); `ergm`
+  auto-tunes the rest.
 
+::: {.accent}
+Reach for the algorithm switch before hand-tuning MCMC — under SA, `ergm` handles the
+sampling for you.
+:::
 
 ::: notes
-The rule is about the control knobs from this module — algorithm (`main.method`),
-convergence rule (`MCMLE.termination`), iterations, and MCMC interval / sample size.
-Defaults carry you through the mixing block and single-direction degree terms; the
-in+out degree step is where you escalate. Escalate minimally — one knob at a time —
-rather than pasting the whole override recipe from the start. How you actually confirm
-a fit reproduced its targets (simulation / GOF) is Module 5; don't get pulled into that
-here.
+The transferable rule: defaults carry you through the mixing block and single-direction
+degree terms; the in+out degree step is where you escalate. Escalate minimally. In this
+pipeline the effective override was just `main.method = "Stochastic-Approximation"` —
+the MCMLE.* / MCMC.* knobs the full pipeline also set don't apply under SA. How you
+confirm a fit reproduced its targets (simulation / GOF) is Module 5; don't get pulled
+into that here.
 :::
 
 ---
@@ -310,7 +304,7 @@ required path.
 ## Recap
 
 - Stage the model; **warm-start** each step from the last simulation
-- Dyad-independent terms fit exactly; degree terms need MCMC and can stall
+- Dyad-independent terms fit easily; dyad-dependent degree terms are a harder MCMC problem and can stall
 - Start with `ergm` defaults; override **sequentially**
 
 
@@ -326,7 +320,7 @@ matters less than the *process* for finding it.
 
 Work in the Posit Cloud environment:
 
-1. Run the mixing block (`f_mix`) and confirm it fits exactly
+1. Run the mixing block (`f_mix`) — watch the log: SAN → MPLE → MCMLE, converges easily
 2. Warm-start and add `odegree(0)`, then `odegree(0:1)` — do defaults suffice?
 3. Add `idegree(0:1) + odegree(0:1)` with defaults — watch what happens
 4. Re-fit the same model with the override recipe; compare simulated degree
