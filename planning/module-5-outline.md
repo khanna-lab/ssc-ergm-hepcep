@@ -1,6 +1,6 @@
 # Module 5 Outline — Simulation as Diagnostic
 
-**SSC 2026** · Khanna & Ozik · ~30 min, hands-on. Sources: `R/04-simulation.R`
+**SSC 2026** · Khanna & Ozik · ~30 min, hands-on. Sources: `R/05a-simulation.R`
 (built, working), archived `05-simulation-diagnostic.qmd` draft.
 
 Picks up from Module 4's `gof()` call and asks: what does that actually check,
@@ -22,7 +22,7 @@ for going back to Module 3.
 "Converged" and "matches our empirical numbers" are not the same claim.
 :::
 
-## The workflow (already built, `R/04-simulation.R`)
+## The workflow (already built, `R/05a-simulation.R`)
 ```r
 sims <- simulate(fit_final, nsim = 100)
 sim_stats <- t(sapply(sims, function(s) summary(s ~ edges + odegree(0:1) +
@@ -46,7 +46,7 @@ distinction · 10–20 run the simulation, read the faceted violin plot ·
 to Module 6 (these simulated networks are the ABM input).
 
 ## Open decisions
-1. **Degree-only or add a mixing-matrix example?** `R/04-simulation.R` covers
+1. **Degree-only or add a mixing-matrix example?** `R/05a-simulation.R` covers
    edges/degree/geography only; the archived draft has an unfinished racial-
    mixing violin example (`TODO: example code`). Degree-only keeps the module
    tight and matches what's actually built; adding mixing would need new code

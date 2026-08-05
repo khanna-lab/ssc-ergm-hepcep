@@ -53,7 +53,7 @@ ts_mix <- unname(c(
   geo_target
 ))
 
-# Light controls + fitting helper (used by 03-failure-modes.R).
+# Light controls + fitting helper (used by 04-failure-modes.R).
 ctrl <- control.ergm(MCMC.interval = 1024, MCMC.samplesize = 1024, MCMLE.maxit = 60)
 fit_to_targets <- function(rhs, target.stats, basis = net, control = ctrl) {
   ergm(as.formula(paste("basis ~", rhs)), target.stats = target.stats,

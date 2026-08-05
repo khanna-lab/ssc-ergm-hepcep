@@ -10,9 +10,12 @@ the sequential fit, where it lives in the real pipeline).
 | `00-setup.R` | shared | Load nodes + targets, build the directed network, light controls, helpers |
 | `01-targets.R` | 1 | Re-derive each target statistic from the empirical summaries; confirm vs `targets.rds` (no fitting) |
 | `02-sequential.R` | 2-3 | Staged, warm-started fit to the final model; geographic mixing folded in as the `nodematch("chicago")` stage (stand-in for the custom `dnf` term) |
-| `03-failure-modes.R` | 4 | Demonstrate degeneracy (`odegree(0:2)`), MCMC diagnostics, GOF |
-| `04-simulation.R` | 5 | Simulate networks, compare summaries to targets (violin plots) |
-| `05-export-abm.R` | 6 | Export edgelist + node-attribute table for the ABM |
+| `04-failure-modes.R` | 4 | Demonstrate degeneracy (`odegree(0:3)` at n=1000), MCMC diagnostics, GOF |
+| `05a-simulation.R` | 5 | Simulate networks, compare summaries to targets (violin plots) |
+| `05b-export-abm.R` | 5 | Export edgelist + node-attribute table for the ABM |
+
+(No `03-`: Module 3 is folded into `02-sequential.R`. Module 6 — geocoded mixing —
+is maintained separately.)
 
 ## Run it
 

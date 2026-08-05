@@ -14,7 +14,7 @@ execute:
   message: false
 ---
 
-## This Module's Goal {.smaller}
+## This Module's Goal {.smallish}
 
 ::: {.punch}
 Where Module 2 ended
@@ -29,9 +29,9 @@ summaries
 In this module, we will:
 :::
 
-- Build a complicated ERGM following a **sequential** specification.
+- Build a more complex ERGM following a **sequential** specification.
 - Use `simulate()` to **warm-start** the next stage from the current fit
-- Account for practical considerations for **when to override** `ergm`'s default controls
+- Discuss practical considerations for **when to override** `ergm`'s default controls
 
 ::: notes
 The Module 2 recap is not a re-derivation — `target_vec` is a given here; the open
@@ -42,7 +42,7 @@ and the mixing/warm-starting material exists to set it up.
 
 ---
 
-## The Fitting Sequence {.smaller}
+## The Fitting Sequence {.smallish}
 
 Each row sequentially builds upon the simpler model in the previous row.
 
@@ -54,11 +54,11 @@ Each row sequentially builds upon the simpler model in the previous row.
 | 7 | `+ idegree(0:1) + odegree(0:1)` | Stochastic-Approximation |
 
 
-Steps 5–7 switch to **Stochastic-Approximation** — one of `ergm`'s simulation-based
-estimators (the default is MCMLE). We don't teach the algorithms here; we note which
-ran, and the settings we changed (shortly).
+- Exact MLE: Computed in dyadic independent models, when such computation is possible. 
 
+- For dyadic dependent models, the default is MCMLE
 
+- We used **Stochastic Approximation** in our full pipeline to ensure convergence
 
 
 ::: notes
@@ -225,13 +225,14 @@ scale comparison on a slide.
 
 ---
 
-## The knobs we ended up turning
+## The parameters we specified {.smallish}
 
 Two things changed from `ergm`'s defaults **empirically** to ensure convergence:
 
 1. **Algorithm** (`main.method`): MCMLE (default) → **Stochastic-Approximation**
-2. **Convergence rule** (`MCMLE.termination`): Hummel's step-length rule (default) →
-   **Hotelling**'s T², plus `MCMC.effectiveSize = NULL`
+2. **Convergence rule** (`MCMLE.termination`): 
+  * Hummel's step-length rule (default) → **Hotelling**'s T²
+  * `MCMC.effectiveSize = NULL`
 
 ```r
 control.ergm(

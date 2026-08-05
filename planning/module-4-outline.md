@@ -1,6 +1,6 @@
 # Module 4 Outline — Assessing Failure Modes
 
-**SSC 2026** · Khanna & Ozik · ~30 min, hands-on. Sources: `R/03-failure-modes.R`,
+**SSC 2026** · Khanna & Ozik · ~30 min, hands-on. Sources: `R/04-failure-modes.R`,
 `net-ergm-v4plus/fit-ergms/diagnose-rix-race-degen.R` and
 `investigate-mcmc-diagnostics.R` (real pipeline).
 
@@ -21,7 +21,7 @@ alignment — three different failures with three different fixes. Read
 | Poor alignment | Converges fine, but simulated stats ≠ targets | Revisit model spec or targets, not the fitting controls |
 
 ## Worked degeneracy example
-`+ odegree(0:2)` on top of the converged mixing block (`R/03-failure-modes.R`,
+`+ odegree(0:2)` on top of the converged mixing block (`R/04-failure-modes.R`,
 `fit_to_targets()` + `tryCatch`). An `ergm()` error here is itself a
 degeneracy signature worth naming, not just a bug to catch. If it does return
 a fit, compare simulated edge count to `edges_target` — degenerate = wildly

@@ -10,9 +10,9 @@ steps <- c(
   "00-setup.R",
   "01-targets.R",
   "02-sequential.R",
-  "03-failure-modes.R",
-  "04-simulation.R",
-  "05-export-abm.R"
+  "04-failure-modes.R",
+  "05a-simulation.R",
+  "05b-export-abm.R"
 )
 
 for (s in steps) {
