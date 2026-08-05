@@ -66,7 +66,7 @@ fit_sa <- ergm(f_hard, target.stats = ts_hard, eval.loglik = FALSE,
                  main.method     = "Stochastic-Approximation",
                  MCMLE.maxit     = 60,
                  MCMC.interval   = 1e4,
-                 MCMC.samplesize = 1e4)) #fits quickly, but the MCMC/MCLE are not used under SA
+                 MCMC.samplesize = 1e4)) #fits quickly
 fit_sa
 sim_sa_hard <- simulate(fit_sa, nsim=1)
 sim_sa_hard
@@ -80,3 +80,38 @@ fit_sa_2 <- ergm(f_hard, target.stats = ts_hard, eval.loglik = FALSE,
 sim_sa_2 <- simulate(fit_sa_2)
 sim_sa_2
 
+
+set.seed(1)
+fit_sa_3 <- ergm(f_hard, target.stats = ts_hard, eval.loglik = FALSE,
+               verbose = TRUE,
+               control = control.ergm(
+                main.method     = "Stochastic-Approximation", 
+                MCMLE.termination = "Hotelling",
+                MCMC.effectiveSize = NULL,)
+)
+sim_sa_3 <- simulate(fit_sa_3)
+sim_sa_3
+
+fit_sa_4 <- ergm(f_hard, target.stats = ts_hard, eval.loglik = FALSE,
+               verbose = TRUE,
+               control = control.ergm(
+                 main.method     = "Stochastic-Approximation",
+                 MCMLE.maxit     = 60,
+                 MCMC.interval   = 1e4,
+                 MCMC.samplesize = 1e4,
+                 MCMLE.termination = "Hotelling")) #fits quickly
+fit_sa_4
+sim_sa_4 <- simulate(fit_sa_4, nsim=1)
+sim_sa_4
+
+fit_sa_5 <- ergm(f_hard, target.stats = ts_hard, eval.loglik = FALSE,
+               verbose = TRUE,
+               control = control.ergm(
+                 main.method     = "Stochastic-Approximation",
+                 MCMLE.maxit     = 60,
+                 MCMC.interval   = 1e4,
+                 MCMC.samplesize = 1e4,
+                 MCMLE.termination = "Hummel")) 
+fit_sa_5
+sim_sa_5 <- simulate(fit_sa_4, nsim=1)
+sim_sa_5
