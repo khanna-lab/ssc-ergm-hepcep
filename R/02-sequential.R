@@ -20,12 +20,16 @@ print(mix_stat_names)
 stopifnot(length(mix_stat_names) == length(ts_mix))
 
 # The one control that matters: step 7 (in + out degree) needs Stochastic-
-# Approximation; steps 5-6 converge on ergm's defaults. Under SA, ergm auto-tunes
-# the sampling (the SA.* family). MCMLE.termination and MCMC.* are MCMLE-only
-# controls and don't apply under SA, so we don't set them.
+# Approximation; steps 5-6 converge on ergm's defaults. Under SA the sampler is
+# governed by the SA.* family, and SA.interval/SA.samplesize DEFAULT to MCMC.interval/
+# MCMC.samplesize -- so those DO tune the SA chain (heavy sampling in the full pipeline).
+# What is inert under SA: MCMLE.termination (Hummel/Hotelling) and MCMC.effectiveSize.
+# Defaults are fine at n=1000, so we set only the algorithm.
 sa_control <- control.ergm(main.method = "Stochastic-Approximation")
 
-# Steps 1-4: mixing block (exact MLE).
+# Steps 1-4: mixing block. Dyad-independent, so it fits easily -- but targets are
+# non-integer (e.g. edges_target = 711.1), so ergm matches them in expectation via
+# MCMC (SAN -> MPLE -> MCMLE), not by closed-form MLE.
 fit_mix  <- ergm(f_mix, target.stats = ts_mix, eval.loglik = FALSE)
 net_warm <- simulate(fit_mix, nsim = 1)
 
