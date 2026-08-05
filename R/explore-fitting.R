@@ -57,10 +57,9 @@ set.seed(1)
 #                     main.method     = "MCMLE",
 #                     MCMLE.maxit     = 60,
 #                     MCMC.interval   = 1e4,
-#                     MCMC.samplesize = 1e4))
+#                     MCMC.samplesize = 1e4)) # seems to hang
 
-# set.seed(1) # seems to hang
-
+set.seed(1) 
 fit_sa <- ergm(f_hard, target.stats = ts_hard, eval.loglik = FALSE,
                verbose = TRUE,
                control = control.ergm(
@@ -68,6 +67,9 @@ fit_sa <- ergm(f_hard, target.stats = ts_hard, eval.loglik = FALSE,
                  MCMLE.maxit     = 60,
                  MCMC.interval   = 1e4,
                  MCMC.samplesize = 1e4)) #fits quickly, but the MCMC/MCLE are not used under SA
+fit_sa
+sim_sa_hard <- simulate(fit_sa, nsim=1)
+sim_sa_hard
 
 set.seed(1)
 fit_sa_2 <- ergm(f_hard, target.stats = ts_hard, eval.loglik = FALSE,
@@ -75,5 +77,6 @@ fit_sa_2 <- ergm(f_hard, target.stats = ts_hard, eval.loglik = FALSE,
                control = control.ergm(
                  main.method     = "Stochastic-Approximation")
 )
-
+sim_sa_2 <- simulate(fit_sa_2)
+sim_sa_2
 
