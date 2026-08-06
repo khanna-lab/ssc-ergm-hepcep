@@ -19,35 +19,36 @@ mix_stat_names <- names(summary(f_mix))
 print(mix_stat_names)
 stopifnot(length(mix_stat_names) == length(ts_mix))
 
-# Control. Real pipeline: SA with MCMC.* = 1e6, MCMLE.maxit = 500. Scaled down
-# for live fits; drop main.method for default MCMLE.
-fit_control <- control.ergm(
-  main.method     = "Stochastic-Approximation",
-  MCMLE.maxit     = 60,
-  MCMC.interval   = 1e4,
-  MCMC.samplesize = 1e4
-)
+# The one control that matters here: step 7 (in + out degree) needs Stochastic-
+# Approximation; steps 5-6 converge on ergm's defaults. Under SA the sampler is
+# governed by the SA.* family, and SA.interval/SA.samplesize DEFAULT to MCMC.interval/
+# MCMC.samplesize -- so those DO tune the SA chain (heavy sampling in the full pipeline).
+# At n=1000 the termination criterion (Hummel/Hotelling) and MCMC.effectiveSize don't
+# change the fit, so defaults suffice and we set only the algorithm. NOTE: at full scale
+# they CAN matter -- the research pipeline needed Hotelling to complete a fit that stalled
+# under Hummel (the final MCMLE/Newton-Raphson step is termination-governed even under SA).
+sa_control <- control.ergm(main.method = "Stochastic-Approximation")
 
-# Steps 1-4: mixing block (exact MLE).
+# Steps 1-4: mixing block. Dyad-independent, so it fits easily -- but targets are
+# non-integer (e.g. edges_target = 711.1), so ergm matches them in expectation via
+# MCMC (SAN -> MPLE -> MCMLE), not by closed-form MLE.
 fit_mix  <- ergm(f_mix, target.stats = ts_mix, eval.loglik = FALSE)
 net_warm <- simulate(fit_mix, nsim = 1)
 
-# Step 5: + odegree(0)
+# Step 5: + odegree(0)   (defaults)
 fit5 <- ergm(update(f_mix, net_warm ~ . + odegree(0)),
-             target.stats = c(ts_mix, odeg_target(0)),
-             control = fit_control, eval.loglik = FALSE)
+             target.stats = c(ts_mix, odeg_target(0)), eval.loglik = FALSE)
 net_warm <- simulate(fit5, nsim = 1)
 
-# Step 6: + odegree(0:1)
+# Step 6: + odegree(0:1)   (defaults)
 fit6 <- ergm(update(f_mix, net_warm ~ . + odegree(0:1)),
-             target.stats = c(ts_mix, odeg_target(0:1)),
-             control = fit_control, eval.loglik = FALSE)
+             target.stats = c(ts_mix, odeg_target(0:1)), eval.loglik = FALSE)
 net_warm <- simulate(fit6, nsim = 1)
 
-# Step 7: + idegree(0:1) + odegree(0:1)  (final model)
+# Step 7: + idegree(0:1) + odegree(0:1)  (final model — needs SA)
 fit_final <- ergm(update(f_mix, net_warm ~ . + idegree(0:1) + odegree(0:1)),
                   target.stats = c(ts_mix, ideg_target(0:1), odeg_target(0:1)),
-                  control = fit_control, eval.loglik = FALSE)
+                  control = sa_control, eval.loglik = FALSE)
 
 print(summary(fit_final))
 saveRDS(fit_final, file.path(out_dir, "fit_final.rds"))

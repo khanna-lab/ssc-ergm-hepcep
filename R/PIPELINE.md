@@ -33,8 +33,10 @@ Prerequisite: `R/generate-synthetic-data.R` has been run, producing
 ## Simplifications vs. the full pipeline
 
 - **n = 1000** instead of 32k, so models converge live.
-- **Light MCMC controls** (`MCMC.* = 1024`, MLE for dyad-independent terms)
-  instead of Stochastic-Approximation with `MCMC.* = 1e6`.
+- **Light MCMC controls** (defaults; only the final in+out-degree step needs
+  Stochastic-Approximation) instead of SA everywhere with `MCMC.* = 1e6`. Note the
+  dyad-independent mixing block still fits by MCMC, not closed-form MLE, because the
+  targets are non-integer expected counts.
 - **Geography:** `nodematch("chicago")` stand-in instead of the custom `dnf`
   distance term from `ergm.userterms.hepcep` (which needs compiling). The
   swap-in point and the real targets are noted in `02-sequential.R`.
