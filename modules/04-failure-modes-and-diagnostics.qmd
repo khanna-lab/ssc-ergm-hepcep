@@ -63,10 +63,10 @@ Building further upon the converged Module 3, we switched tuning parameters as o
 | **Poor alignment** | Converges, but simulated stats ≠ targets | 
 
 
-## Non-Convergence/Degeneracy: Indicator #1
+## Indicator #1 {.smallish}
 
-In our **full pipeline** (n ≈ 32k, with a custom geographic term), adding
-`odegree(0:2)` produced an error in estimation:
+A **degeneracy-type** failure. In our **full pipeline** (n ≈ 32k, with a custom
+geographic term), adding `odegree(0:2)` produced an error in estimation:
 
 ```
 Error in ergm.MCMLE(...):
@@ -75,33 +75,42 @@ Error in ergm.MCMLE(...):
   a very poor starting parameter configuration.
 ```
 
-- At this **simplified** n = 1,000 scale, `odegree(0:2)` fits fine.
+- The tell: simulated networks blow up toward (near-)complete — nothing like the target.
+- Data- and scale-dependent: at the **simplified** n = 1,000 scale `odegree(0:2)` fits fine,
+  so to reproduce the failure live we push to `odegree(0:3)`.
 
-- So to reproduce the same failure, we specify up to `odegree(0:3)`
+::: {.accent}
+Fix: no control setting rescues degeneracy — **change the specification**.
+:::
 
 ::: notes
 Degeneracy is data- and scale-dependent, not a fixed property of a term. Honest story:
 the real degeneracy was odegree(0:2) at full scale; it doesn't reproduce at n=1000, so
-we push to 0:3 for a live, reproducible demo.
+we push to 0:3 for a live, reproducible demo. The error message itself hedges ("degeneracy
+or a very poor starting configuration"), which is why we number the indicator rather than
+hard-label it. Folds in the old standalone "near-empty / near-complete simulations" slide.
 :::
 
 
-## Non-Convergence: Indicator #2 
+## Indicator #2 {.smallish}
 
-`ergm` may report **"converged"** — that alone isn't reassurance.
+A **non-convergence** failure. `ergm` may report **"converged"** — that alone isn't reassurance.
 
 - "Converged" means the algorithm *stopped*, not that it sampled well
-
 - The **MCMC diagnostics** can still look poor
+- So we check `mcmc.diagnostics(fit)` (next slide)
 
-- So we check `mcmc.diagnostics(fit)` 
+::: {.accent}
+Fix: the model is fine, the *fit* isn't — **tune the controls** (Module 3: SA, Hotelling,
+heavier MCMC, warm-start).
+:::
 
 ::: notes
 Indicator #2: don't take "converged" at face value — the sampler may not have mixed.
-mcmc.diagnostics is the check. Leads into "What we watched for."
+mcmc.diagnostics is the check. Leads into the example.
 :::
 
-## Non-Convergence: Indicator #2 (Example) {.smaller}
+## Indicator #2 (Example) {.smallish}
 
 A real MCMC diagnostic from our full pipeline  
 
@@ -119,27 +128,23 @@ Real `mcmc.diagnostics()` output from net-ergm-v4plus (all PLOS ONE terms). The 
 stable level — poor mixing / not converged. Contrast with a well-mixed "fuzzy caterpillar."
 :::
 
-## Degeneracy: Indicator {.smaller}
-Convergence criteria look fine, but simulated networks are (nearly) empty or (nearly) complete
+## Indicator #3 {.smallish}
 
-[show example, maybe from the pipeline]
+A **poor-alignment** failure. A fit can converge cleanly (diagnostics fine) and still not
+reproduce the structure you care about.
 
-## Poor alignment Indicator: Does it reproduce the targets? {.smaller}
-
-A fit can converge cleanly (i.e., diagnostics are fine)  and still not reproduce the structure
-you care about.
+- The GOF summary can look OK, or borderline — either way it's only a summary.
 
 [show example, ideally from the pipeline]
 
-
-
 ::: {.accent}
-Look at the simulated networks. They are often the better practical indicator. 
+Fix: the fit converged, so revisit the **specification** or the **targets** — and simulate
+the networks to see whether the structure actually holds.
 :::
 
 
 
-## Matching the fix to the failure {.smaller}
+## Matching the fix to the failure {.smallish}
 
 The fix depends on which failure you have:
 [convert to table]
