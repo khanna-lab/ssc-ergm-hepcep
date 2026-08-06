@@ -14,33 +14,47 @@ execute:
   message: false
 ---
 
-## What this module is
+## This Module's Goal {.smallish}
 
-From **our** pipeline 
-- Practical considerations on how fits failed 
-- How we diagnosed failure
-- Solutions that enabled recovery
-
-- The general theory of how ERGMs are fit is well-studied. 
-
-  * Handcock (2003)
-  * Schweinberger (2011) 
-
-- Building upon that theory, we derive **practical** recovery steps
-
-
-::: notes
-Set the posture up front: this is experience, not a degeneracy tutorial. Defer the
-theory to the literature; the value-add is practical recognition and recovery.
+::: {.accent}
+Where Module 3 ended:
 :::
+
+- Produced a staged set of convergent ERGMs. 
+- But are the fitted models good enough?
+- How do we diagnose the [quality]{.accent} of model fit?
+
+::: {.accent}
+In this module, we will discuss:
+:::
+
+- Practical considerations on the types of model failure.
+- How we diagnose those failures.
+- Some solutions to specific failure types. 
 
 ---
 
-## Some Ways in which ERGMs don't Fit
+## Our Fitting Sequence, Revisited
 
-Building further upon the converged Module 3, some specific terms further produced **non-convergent** models.
+Building further upon the converged Module 3, we switched tuning parameters as our models became more complex. 
 
-Usually, in one of three ways:
+| Step | Terms added | Fitting Algorithm |
+|:----:|-------------|----------|
+| 1–4 | `edges + nodemix(sex/young/race.num) + nodematch("chicago")` | MCMC (defaults) |
+|:----:|-------------|----------|
+| 5 | `+ odegree(0)` | Stochastic Approximation  (real pipeline) |
+| 6 | `+ odegree(0:1)` | As above |
+|:----:|-------------|----------|
+| 7 | `+ idegree(0:1) + odegree(0:1)` | Stochastic-Approximation with Hotelling to detect convergence|
+
+
+- Step 5 didn't work with Step 4's tuning parameters, even with a "warm start".
+- Same for Step 7 with Step 6's specifications.
+- Both points failed in some way, necissitating a change. 
+
+---
+
+## Some Ways in which ERGMs Do Not Fit
 
 | What we saw | Symptom | 
 |---|---|
@@ -49,7 +63,7 @@ Usually, in one of three ways:
 | **Poor alignment** | Converges, but simulated stats ≠ targets | 
 
 
-## Non-Convergence: Indicator #1
+## Non-Convergence/Degeneracy: Indicator #1
 
 In our **full pipeline** (n ≈ 32k, with a custom geographic term), adding
 `odegree(0:2)` produced an error in estimation:
@@ -105,65 +119,40 @@ Real `mcmc.diagnostics()` output from net-ergm-v4plus (all PLOS ONE terms). The 
 stable level — poor mixing / not converged. Contrast with a well-mixed "fuzzy caterpillar."
 :::
 
-## Poor alignment: does it reproduce the targets? {.smaller}
+## Degeneracy: Indicator {.smaller}
+Convergence criteria look fine, but simulated networks are (nearly) empty or (nearly) complete
 
-A fit can converge cleanly — diagnostics fine — and still not reproduce the structure
+[show example, maybe from the pipeline]
+
+## Poor alignment Indicator: Does it reproduce the targets? {.smaller}
+
+A fit can converge cleanly (i.e., diagnostics are fine)  and still not reproduce the structure
 you care about.
 
-- A GOF summary can look **OK, or questionable** — either way, it's only a summary
-- What we found practical: **simulate and look at the networks**, then compare the
-  statistics that matter to their targets
+[show example, ideally from the pipeline]
 
-```r
-plot(simulate(fit_final, nsim = 1))   # does the simulated network actually look right?
-```
+
 
 ::: {.accent}
-Comparing a set of simulated networks — not the GOF summary — shows whether the
-structure we care about is reproduced.
+Look at the simulated networks. They are often the better practical indicator. 
 :::
 
-::: notes
-The third failure mode from the table: a converged, well-mixed fit that still misses its
-targets. Simulate and compare — sometimes it exposes a gap, sometimes (as in our example)
-it reassures. Bridge to Module 5.
-:::
-
-## Poor alignment (Example) — simulation holds {.smaller}
-
-Simulate many networks and compare the structure we care about to its **target**
-(black line):
-
-![](img/outdeg-violin.png){width="60%" fig-align="center"}
-
-- The out-degree **targets fall within the simulated spread** — the model reproduces
-  these counts (the violins straddle each target)
-- The questionable-looking GOF didn't mean a broken model
-
-::: {.accent}
-Look at the simulated networks — they often hold the story the GOF summary muddies.
-:::
-
-::: notes
-Real output from net-ergm-v4plus (simulate-from-ergms). Each violin is a statistic's
-distribution across many simulated networks; the line is the target. The out-degree
-targets sit inside the spread (modes just above), so the structure holds. The systematic
-version of eyeballing a simulated network — bridge to Module 5.
-:::
 
 
 ## Matching the fix to the failure {.smaller}
 
 The fix depends on which failure you have:
-
+[convert to table]
 - **Non-convergence** — the model is fine, the *fit* isn't → **tune the controls**
   (Module 3: SA, Hotelling, heavier MCMC, warm-start; smallest knob first)
 - **Degeneracy** — no control setting helps → **change the specification**
-  (reparameterize; e.g. GWESP, not raw triangles)
-- **Poor alignment** — the fit converged → **revisit the spec or the targets**
+  (reparameterize; e.g. GWESP, not raw triangles) [maybe give an example from our study]
+- **Poor alignment** — the fit appears to converge → **revisit the model specification or check the target computation**
 
 ::: {.punch}
-Non-convergence is a *controls* problem; degeneracy and poor alignment are *model* problems.
+
+- Non-convergence is (usually) a *controls* problem 
+- Degeneracy and poor alignment are *model* problems.
 :::
 
 
@@ -177,9 +166,7 @@ Three failures, told apart by how they show up:
 - **Degeneracy** — near-empty / near-complete simulations
 - **Poor alignment** — converged, but simulated stats miss the targets
 
-::: {.punch}
-Diagnostics check the algorithm; simulation checks the model.
-:::
+
 
 ::: notes
 The transferable skill is the triage, not any single fix — that judgment is what we're
