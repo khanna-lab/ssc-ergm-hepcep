@@ -64,11 +64,12 @@ Each row sequentially builds upon the simpler model in the previous row.
 | 5 | `+ odegree(0)` | MCMC (defaults) |
 | 6 | `+ odegree(0:1)` | MCMC (defaults) |
 
-Convergence detection criteria can be important.
+[Convergence detection criteria can be important:]{.smallish}
+
 - In `ergm` v4, the default criterion **Hummel**, which uses an adaptive step-length rule. 
 - The alternative is **Hotelling** (the `ergm` v3.x default), conducts a T² test of equality between the
   simulated mean and target mean; stopping when equality is not rejected.
-- Hummel handles 5–6 here, but at **full scale** we've it necessary to switch to **Hotelling**.
+- Hummel handles 5–6 here, but at **full scale** we found it necessary to switch to **Hotelling**.
 
 ---
 
@@ -93,7 +94,7 @@ Note: SA doesn't require MCMLE params and convergence criteria, but switches to 
 
 
 
-## Warm-starting {.smaller}
+## Warm-starting {.smallish}
 
 We also give the ERGM estimator a better starting point for its search using a "warm start" (our term).
 
@@ -148,12 +149,22 @@ rather than presenting our pipeline's pattern as the only correct one.
 Warm-started, fit with `ergm`'s defaults:
 
 ```r
-fit5 <- ergm(update(f_mix, net_warm ~ . + odegree(0)),
-             target.stats = c(ts_mix, odeg_target(0)), eval.loglik = FALSE)
-net_warm <- simulate(fit5, nsim = 1)
+# steps 1–4 → mixing fit; its simulated network warm-starts step 5
+net_mix <- simulate(fit_mix, nsim = 1)
 
-fit6 <- ergm(update(f_mix, net_warm ~ . + odegree(0:1)),
-             target.stats = c(ts_mix, odeg_target(0:1)), eval.loglik = FALSE)
+fit5 <- ergm(net_mix ~ edges +
+                ... +
+               odegree(0),
+             target.stats = c(ts
+```
+
+One simulated network from `fit5` becomes the starting network for `fit 6`. 
+
+```r
+fit6 <- ergm([net_warm]{.accent} ~ edges +
+                ...+
+               odegree(0:1),
+             target.stats = c(..., odeg_target(0:1)), eval.loglik = FALSE)
 net_warm <- simulate(fit6, nsim = 1)
 ```
 
