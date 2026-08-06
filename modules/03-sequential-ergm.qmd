@@ -25,7 +25,7 @@ Where Module 2 ended
 summaries
 - This module will turn the target vector into a **convergent** ERGM.
 
-::: {.punch}
+::: {.accent}
 In this module, we will:
 :::
 
@@ -42,26 +42,43 @@ and the mixing/warm-starting material exists to set it up.
 
 ---
 
-## The Fitting Sequence {.smallish}
+## The Fitting Sequence 
 
 Each row sequentially builds upon the simpler model in the previous row.
 
-| Step | Terms added | Fit type |
+| Step | Terms added | Fitting Algorithm |
 |:----:|-------------|----------|
 | 1–4 | `edges + nodemix(sex/young/race.num) + nodematch("chicago")` | MCMC (defaults) |
+
+- The mixing block (steps 1-4) is **dyadic independent** — easier to fit.
+- Can be fit by direct MLE estimation. 
+- Or if there are **non-integer target statistics** (e.g. `edges_target = 711.1`), ERGMs are estimated 
+  via MCMC (default MCMLE), not by closed-form MLE.
+
+---
+
+## The Fitting Sequence 
+
+| Step | Terms added | Fitting Algorithm |
+|:----:|-------------|----------|
 | 5 | `+ odegree(0)` | MCMC (defaults) |
 | 6 | `+ odegree(0:1)` | MCMC (defaults) |
+
+- The default convergence criteria (`name_the_arg`) for steps 5-6 is Hummel. 
+- It does XXX.
+- Smetimes specifying "Hotelling" (default in older ERGMs) is better. 
+- Because it does XXX. 
+---
+
+## The Fitting Sequence
+
+| Step | Terms added | Fitting Algorithm |
+|:----:|-------------|----------|
 | 7 | `+ idegree(0:1) + odegree(0:1)` | Stochastic-Approximation |
 
 
-- The mixing block is **dyad-independent** — easy to fit, MPLE gives a good start.
-
-- But we fit to **non-integer target statistics** (e.g. `edges_target = 711.1`),
-  which no single network realizes exactly — so `ergm` matches them *in expectation*
-  via MCMC (default MCMLE), not by closed-form MLE.
-
-- Only the final step needed **Stochastic Approximation** to converge.
-
+-In Step 7, as the model gets more complex, we fit is using **Stochastic Approximation** for easier convergence.
+- This does XXX
 
 ::: notes
 Steps 1–4 are dyad-independent, so they fit *easily* — but because we fit to
@@ -73,44 +90,11 @@ save that for the Module 4 handoff, not here.
 
 ---
 
-## Mixing block: steps 1–4 {.smallish}
 
-Dyad-independent terms — **easy** to fit, but still fit by MCMC:
 
-```r
-f_mix <- net ~ edges +
-  nodemix("sex",      levels2 = -1) +
-  nodemix("young",    levels2 = -1) +
-  nodemix("race.num", levels2 = -1) +
-  nodematch("chicago")
+## Warm-starting {.smaller}
 
-fit_mix <- ergm(f_mix, target.stats = ts_mix, eval.loglik = FALSE)
-```
-
-`ts_mix` is exactly the `target_vec` pieces built in Module 2.
-
-- Fitting to `target.stats`, `ergm` runs SAN → MPLE → MCMLE (you'll see this in the log).
-- The targets are **non-integer** expected counts (`edges_target = 711.1`), so no
-  network hits them exactly — `ergm` matches them **in expectation** via MCMC.
-
-::: {.accent}
-No convergence worries here — dyad-independent terms fit easily, even though MCMC
-is still doing the work.
-:::
-
-::: notes
-The subtlety, confirmed by running it: dyad-independence would give an *exact* MLE if we
-fit to an observed network (MPLE = MLE, no MCMC). But we fit to non-integer `target.stats`,
-so SAN can't realize them, ergm prints "Unable to match target stats. Using MCMLE
-estimation," and falls back to MCMC to match in expectation. So don't claim "exact MLE,
-no MCMC" — the honest point is that these terms are *easy*, not that they skip MCMC.
-Steps 5–7 add dyad-*dependent* degree terms, which is a harder MCMC problem, not a
-categorical MCMC-vs-not switch.
-:::
-
----
-
-## Warm-starting
+We also give the ERGM estimator a better starting point for its search using a "warm start" (our term).
 
 ```r
 net_warm <- simulate(fit_mix, nsim = 1)
@@ -146,8 +130,7 @@ net_warm <- simulate(fit_mix, nsim = 1)   # simulated net seeds the next fit
 control.ergm(init = coef(prev_fit))   # resume from previous estimates
 ```
 
-- Here we carry the **network**
-forward across fits to build our ERGM in stages. 
+- Here we carry the **network** forward across fits to build our ERGM in stages. 
 
 
 ::: notes
@@ -162,9 +145,13 @@ rather than presenting our pipeline's pattern as the only correct one.
 
 - **Building on steps 1–4:** take the mixing model `f_mix` and its warm-start
   network, and add **out-degree terms** — `odegree(0)`, then `odegree(0:1)`.
+
 - These terms are **dyad-dependent** — a **harder MCMC** problem than the mixing block, where the sampler can stall.
+
 - `ergm`'s default handles these — it **auto-tunes** the sampler (chain length,
   thinning, sample size) as it runs. No control settings needed here.
+
+- Sometimes, switching convergence from Hummelto Hotelling is necessary because [concise one liner]
 
 ::: notes
 These out-degree steps converge under plain `ergm` defaults (`test-sequential-defaults.R`).
@@ -204,9 +191,9 @@ fit_final <- ergm(update(f_mix, net_warm ~ . + idegree(0:1) + odegree(0:1)),
                   eval.loglik = FALSE)
 ```
 
-- With the default algorithm (MCMLE), this step **struggles** to converge.
-- In-degree *on top of* out-degree is the threshold where convergence breaks.
-- The fix (next slide): switch the fitting **algorithm**.
+- With the default algorithm (MCMLE), this step **struggles** to converge, even with the Hotelling criteria.
+
+- The fix (next slide) was to switch the fitting **algorithm**.
 
 ::: notes
 This mirrors the real n=32k pipeline's experience, reproduced in miniature at n=1000.
@@ -227,38 +214,23 @@ fit_final <- ergm(update(f_mix, net_warm ~ . + idegree(0:1) + odegree(0:1)),
 ```
 
 - MCMLE (default) → **Stochastic-Approximation** (Robbins–Monro; Snijders 2002)
-- `ergm` auto-tunes the SA sampling — nothing else to set
+- We specified MCMC tuning parameters, used by SA to XXX
 
-::: {.accent}
-The algorithm switch is the lever. The pipeline's `MCMC.interval`/`samplesize` still
-tune the SA sampler — but `MCMLE.termination` (Hummel/Hotelling) and `MCMC.effectiveSize`
-are **MCMLE** controls that do nothing under SA.
-:::
 
-::: notes
-Confirmed empirically (a 2×2 ablation in `explore-fitting.R`) and against the docs
-(ergm 4.12): under SA the sampler is set by `SA.interval`/`SA.samplesize`, which default
-to the `MCMC.*` values — so `MCMC.interval = 1e6` really did give heavy sampling (setting
-`MCMC.interval = 1e4` moves the SA interval 1024 → 10000). But `MCMLE.termination` (Hummel
-vs Hotelling) and `MCMC.effectiveSize` leave the fit unchanged — matched coefficients up
-to Monte Carlo noise. So the recipe reduces to: switch the algorithm, optionally set the
-MCMC sizes; the termination rule is decoration. Why SA is robust far from the solution:
-Snijders (2002); also Hunter & Handcock (2006), Hummel, Hunter & Handcock (2012);
-`?control.ergm`.
-:::
 
 ---
 
-## Decision rule
+## Recap
 
-- **Start with defaults.** They held through the mixing block and either degree direction alone.
-- **Escalate only when a step stalls**, and change as little as possible.
-- Here the one lever that mattered was the **algorithm** (MCMLE → SA); `ergm`
+- Start with defaults. They held through the mixing block and either degree direction alone.
+- Escalate when a step stalls.
+- Here the levers that mattered are: 
+  * the convergence criterion according for MCMLE. 
+  * The fitting algorithm (stochastic algorithm when the ); `ergm`
   auto-tunes the rest.
 
 ::: {.accent}
-Reach for the algorithm switch before hand-tuning MCMC — under SA, `ergm` handles the
-sampling for you.
+In the next module, we will assess the quality of these fits. 
 :::
 
 ::: notes
