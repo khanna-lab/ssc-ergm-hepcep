@@ -128,11 +128,18 @@ sim_sa_5
 #   sa_4   1e4             Hotelling             10000  <- identical to sa
 #   sa_5   1e4             Hummel                10000  <- coeffs match sa_4 up to MC noise
 #
-# RESOLVED: under SA the sampler is governed by the SA.* family, and
+# RESOLVED (AT n=1000): under SA the sampler is governed by the SA.* family, and
 # SA.interval/SA.samplesize DEFAULT to MCMC.interval/MCMC.samplesize -- so MCMC.* are
 # NOT inert under SA; they set the chain length/thinning (burnin and SAN steps scale
-# too). What IS inert under SA: MCMLE.termination (Hummel vs Hotelling -> same fit) and
-# MCMC.effectiveSize. So the real pipeline's recipe = switch to SA (the lever) + heavy
-# MCMC sizes (real, for n=32k); Hotelling/effectiveSize rode along doing nothing.
+# too). At THIS scale, MCMLE.termination (Hummel vs Hotelling) and MCMC.effectiveSize
+# leave the fit unchanged -- both finish instantly either way.
+#
+# BUT termination is NOT universally inert under SA. Even under SA there is a final
+# MCMLE/Newton-Raphson polish step, which IS termination-governed. At production scale
+# (n~32k, MCMC.interval=1e6) the research pipeline shows a matched pair where the Hummel
+# fit did NOT complete while the Hotelling fit did
+# (net-ergm-v4plus/slurm_output/*int1e6-sampsize1e6-{hummel,hotelling}). So: at small
+# scale termination rides along inert; at scale, Hummel vs Hotelling can decide whether a
+# fit finishes. Treat BOTH the algorithm switch and the termination criterion as real levers.
 # Still not isolated: MCMLE.maxit may feed SA.nsubphases (Phase-2 length) under SA --
 # to test, compare MCMLE.maxit = 4 vs 60 with all else equal.

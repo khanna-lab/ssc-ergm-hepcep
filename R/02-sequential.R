@@ -19,12 +19,14 @@ mix_stat_names <- names(summary(f_mix))
 print(mix_stat_names)
 stopifnot(length(mix_stat_names) == length(ts_mix))
 
-# The one control that matters: step 7 (in + out degree) needs Stochastic-
+# The one control that matters here: step 7 (in + out degree) needs Stochastic-
 # Approximation; steps 5-6 converge on ergm's defaults. Under SA the sampler is
 # governed by the SA.* family, and SA.interval/SA.samplesize DEFAULT to MCMC.interval/
 # MCMC.samplesize -- so those DO tune the SA chain (heavy sampling in the full pipeline).
-# What is inert under SA: MCMLE.termination (Hummel/Hotelling) and MCMC.effectiveSize.
-# Defaults are fine at n=1000, so we set only the algorithm.
+# At n=1000 the termination criterion (Hummel/Hotelling) and MCMC.effectiveSize don't
+# change the fit, so defaults suffice and we set only the algorithm. NOTE: at full scale
+# they CAN matter -- the research pipeline needed Hotelling to complete a fit that stalled
+# under Hummel (the final MCMLE/Newton-Raphson step is termination-governed even under SA).
 sa_control <- control.ergm(main.method = "Stochastic-Approximation")
 
 # Steps 1-4: mixing block. Dyad-independent, so it fits easily -- but targets are

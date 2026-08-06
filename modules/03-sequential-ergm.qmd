@@ -64,10 +64,14 @@ Each row sequentially builds upon the simpler model in the previous row.
 | 5 | `+ odegree(0)` | MCMC (defaults) |
 | 6 | `+ odegree(0:1)` | MCMC (defaults) |
 
-- The default convergence criteria (`name_the_arg`) for steps 5-6 is Hummel. 
-- It does XXX.
-- Smetimes specifying "Hotelling" (default in older ERGMs) is better. 
-- Because it does XXX. 
+- Steps 5–6 fit by **MCMLE**, so the termination criterion (`MCMLE.termination`) is live.
+- Default is **Hummel**: an adaptive step-length rule — shrinks each step so the simulated
+  mean stays *between* the current fit and the target, growing to full steps near the solution.
+- The alternative is **Hotelling** (the older `ergm` default): a T² test of whether the
+  simulated mean equals the target; stops when it can't reject equality.
+- Hummel handles 5–6 here — but at **full scale** we've seen Hummel stall and **Hotelling
+  complete the fit**. A real escalation lever, not just a legacy setting.
+
 ---
 
 ## The Fitting Sequence
@@ -77,8 +81,9 @@ Each row sequentially builds upon the simpler model in the previous row.
 | 7 | `+ idegree(0:1) + odegree(0:1)` | Stochastic-Approximation |
 
 
--In Step 7, as the model gets more complex, we fit is using **Stochastic Approximation** for easier convergence.
-- This does XXX
+- In Step 7, as the model gets more complex, we fit it using **Stochastic Approximation** for easier convergence.
+- SA does moment-matching (Robbins–Monro): simulate, compare to target, nudge the
+  coefficients, shrink the step — robust far from the solution, where MCMLE stalls.
 
 ::: notes
 Steps 1–4 are dyad-independent, so they fit *easily* — but because we fit to
@@ -151,7 +156,7 @@ rather than presenting our pipeline's pattern as the only correct one.
 - `ergm`'s default handles these — it **auto-tunes** the sampler (chain length,
   thinning, sample size) as it runs. No control settings needed here.
 
-- Sometimes, switching convergence from Hummelto Hotelling is necessary because [concise one liner]
+- Sometimes, when a heavy fit stalls under Hummel, switching to **Hotelling** lets it finish — we saw this in the full-scale pipeline.
 
 ::: notes
 These out-degree steps converge under plain `ergm` defaults (`test-sequential-defaults.R`).
@@ -191,9 +196,9 @@ fit_final <- ergm(update(f_mix, net_warm ~ . + idegree(0:1) + odegree(0:1)),
                   eval.loglik = FALSE)
 ```
 
-- With the default algorithm (MCMLE), this step **struggles** to converge, even with the Hotelling criteria.
+- With the default algorithm (MCMLE), this step **struggles** to converge.
 
-- The fix (next slide) was to switch the fitting **algorithm**.
+- Here the lever isn't the termination criterion — the fix (next slide) was to switch the fitting **algorithm**.
 
 ::: notes
 This mirrors the real n=32k pipeline's experience, reproduced in miniature at n=1000.
@@ -214,7 +219,8 @@ fit_final <- ergm(update(f_mix, net_warm ~ . + idegree(0:1) + odegree(0:1)),
 ```
 
 - MCMLE (default) → **Stochastic-Approximation** (Robbins–Monro; Snijders 2002)
-- We specified MCMC tuning parameters, used by SA to XXX
+- The full pipeline also set `MCMC.interval`/`samplesize`; under SA these tune the SA
+  chain length/thinning (via `SA.*` defaults). At n=1000, defaults suffice.
 
 
 
@@ -222,24 +228,24 @@ fit_final <- ergm(update(f_mix, net_warm ~ . + idegree(0:1) + odegree(0:1)),
 
 ## Recap
 
-- Start with defaults. They held through the mixing block and either degree direction alone.
-- Escalate when a step stalls.
-- Here the levers that mattered are: 
-  * the convergence criterion according for MCMLE. 
-  * The fitting algorithm (stochastic algorithm when the ); `ergm`
-  auto-tunes the rest.
+- Stage the model; **warm-start** each step from the last simulation.
+- Dyad-independent terms fit easily; dyad-dependent degree terms are a harder MCMC problem and can stall.
+- Start with defaults, and escalate only when a step stalls — two levers:
+  * **termination** (`MCMLE.termination`): Hummel → Hotelling — at full scale, Hotelling completed fits that stalled under Hummel;
+  * **algorithm** (`main.method`): MCMLE → Stochastic-Approximation for the hardest step.
 
 ::: {.accent}
-In the next module, we will assess the quality of these fits. 
+In the next module, we assess the quality of these fits.
 :::
 
 ::: notes
 The transferable rule: defaults carry you through the mixing block and single-direction
-degree terms; the in+out degree step is where you escalate. Escalate minimally. In this
-pipeline the effective override was just `main.method = "Stochastic-Approximation"` —
-the MCMLE.* / MCMC.* knobs the full pipeline also set don't apply under SA. How you
-confirm a fit reproduced its targets (simulation / GOF) is Module 5; don't get pulled
-into that here.
+degree terms; the in+out-degree step is where you escalate, minimally. Two distinct levers:
+the MCMLE termination criterion (Hummel vs Hotelling — indistinguishable at n=1000 where
+both finish instantly, but decisive at production scale where the final MCMLE step is
+expensive) and the algorithm (MCMLE → SA). Under SA the sampler is set by
+SA.interval/SA.samplesize, which default to the MCMC.* values. How you confirm a fit
+reproduced its targets (simulation / GOF) is Module 5; don't get pulled into that here.
 :::
 
 ---
@@ -272,21 +278,6 @@ required path.
 :::
 
 --- -->
-
-## Recap
-
-- Stage the model; **warm-start** each step from the last simulation
-- Dyad-independent terms fit easily; dyad-dependent degree terms are a harder MCMC problem and can stall
-- Start with `ergm` defaults; override **sequentially**
-
-
-::: notes
-This is the transferable takeaway — the specific recipe (SA + Hotelling)
-matters less than the *process* for finding it.
-:::
-
----
-
 
 ## Exercise
 
