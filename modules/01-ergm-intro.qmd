@@ -61,6 +61,7 @@ running example from this tutorial. CC‑BY permits reuse and adaptation with at
 - What processes generate the network structures we see?
 
 **Micro-level processes → macro-level structure**
+(JO: Tie this to ABM, with which the audience is familiar)
 
 ::: notes
 Sometimes we care about people's attributes; here the *pattern of ties* is the point.
@@ -73,9 +74,9 @@ tell if a process reproduces the structure.
 ## Where we're going
 
 1. **Describe** the network: what does the structure look like?
-2. **Summarize** it numerically: these become our **targets**
-3. **Model** it: null vs. assortative mixing 
-4. **Simulate**: does the model reproduce the underlying empirical structures?
+2. **Summarize** it numerically: these become our **targets** (JO: can we say "these network summary statistics become our calibration targets"?)
+3. **Model** it: null vs. assortative mixing (JO: This is somewhat opaque. Why assortative here?)
+4. **Simulate**: does the model reproduce the underlying empirical structures? (JO: "in the form of our network summary statistics?")
 
 ::: notes
 This arc (describe, summarize, model, check) is the workshop in miniature.
@@ -233,7 +234,7 @@ fit to the summaries regardless.
 - **Coefficients:** log-odds of a tie, converted to probabilities
 
 ::: notes
-The left-hand side is the observed network; the right-hand side is the terms, which are
+(JO: do these notes go with the slide? It's not immediately clear.) The left-hand side is the observed network; the right-hand side is the terms, which are
 exactly the statistics we just computed. R and statnet run the estimation for us. Everything
 that follows is this one idea.
 :::
@@ -256,8 +257,9 @@ Interpretation
 - Modeled using the `edges` ERGM term.
 - Additional terms will adjust the probability that nodes are connected using the "attributes" 
 - The `edges` term is therefore analogous to the intercept in regression modeling.  
-
+(JO: explain plogis?)
 ::: notes
+(JO: talk about the use of log-odds if we use it throughout this and later modules)
 Log-odds about −6.99, probability ≈ 0.0009. A random pair almost never shares a tie.
 :::
 
@@ -277,6 +279,7 @@ round(coef(assort.m), 2)
 {{< include precomputed/out-assort.md >}}
 
 ::: notes
+(JO: this seems like a big point to make and may require providing intuition about finding configurations in the network space, and how it gets complicated when you go from dyad independent to dependent terms.)
 All terms here are dyad-independent, so this fits instantly via logistic regression, no
 MCMC. Positive coefficients mean ties are more likely within that attribute.
 :::
@@ -294,7 +297,7 @@ A same-grade tie is ~22× more likely than a random pair.
 
 ::: notes
 The `edges` term is the intercept; each `nodematch` shifts the log-odds when two people
-share that attribute. Log-likelihood also jumps (−7790 to −6528): a better fit.
+share that attribute. (JO: log likelihood is first introduced here? Will need some at least brief context.) Log-likelihood also jumps (−7790 to −6528): a better fit.
 :::
 
 ---
@@ -306,7 +309,7 @@ share that attribute. Log-likelihood also jumps (−7790 to −6528): a better f
 - The test: simulate many networks, compare to the data
 
 ::: notes
-A converged model is not necessarily a well-aligned one. We pick a structural property we
+A converged model is not necessarily a well-aligned one. (JO: what's the intuition behind why this might happen?) We pick a structural property we
 care about and check whether the data sits inside the simulated spread.
 :::
 
@@ -366,7 +369,7 @@ Likely Candidate:
 - The probability of connecting two people increases as the number of their shared friends increases.
 - But this scaling is not linear. 
 - The probability of two people connecting is far greater if they know 2 vs. 4 people in common, than whether they know 100 vs. 102 people in common.
-- Using triangles in social networks leads to “degenerate” models
+- Using triangles in social networks leads to “degenerate” models (JO: this needs more explanation)
 
 ---
 
