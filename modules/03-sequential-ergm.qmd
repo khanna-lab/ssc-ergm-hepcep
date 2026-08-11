@@ -43,6 +43,7 @@ and the mixing/warm-starting material exists to set it up.
 ---
 
 ## The Fitting Sequence {.smallish}
+(JO: Mention at the get go that there will be 7 steps? Maybe even list them all once as a table with just the first two columns, then proceed to these slides that speak to the details of fitting each?)
 
 Each row sequentially builds upon the simpler model in the previous row.
 
@@ -51,7 +52,7 @@ Each row sequentially builds upon the simpler model in the previous row.
 | 1–4 | `edges + nodemix(sex/young/race.num) + nodematch("chicago")` | MCMC (defaults) |
 
 - The mixing block (steps 1-4) is **dyadic independent** — easier to fit.
-- Can be fit by direct MLE estimation. 
+- Can be fit by direct MLE estimation. (JO: Redundant "estimation" here. Just MLE or maximum likelihood estimation (MLE).)
 - Or if there are **non-integer target statistics** (e.g. `edges_target = 711.1`), ERGMs are instead estimated 
   via MCMC (default MCMLE).
 
@@ -66,10 +67,10 @@ Each row sequentially builds upon the simpler model in the previous row.
 
 [Convergence detection criteria can be important:]{.smallish}
 
-- In `ergm` v4, the default criterion **Hummel**, which uses an adaptive step-length rule. 
-- The alternative is **Hotelling** (the `ergm` v3.x default), conducts a T² test of equality between the
+- In `ergm` v4, the default criterion is **Hummel**, which uses an adaptive step-length rule. 
+- The alternative is **Hotelling** (the `ergm` v3.x default), which conducts a T² test of equality between the
   simulated mean and target mean; stopping when equality is not rejected.
-- Hummel handles 5–6 here, but at **full scale** we found it necessary to switch to **Hotelling**.
+- Hummel handles steps 5–6 here, but at **full scale** we found it necessary to switch to **Hotelling**. (JO: can you offer some intuition as to why it might be difficult with Hummel at full scale?)
 
 ---
 
@@ -80,9 +81,9 @@ Each row sequentially builds upon the simpler model in the previous row.
 | 7 | `+ idegree(0:1) + odegree(0:1)` | Stochastic-Approximation |
 
 
-- In Step 7, we fit a more complex model using **Stochastic Approximation** for easier convergence.
-- SA is based on moment-matching (Robbins–Monro). 
-- Works by simulating, compare to target, and nudge the coefficients.
+- In Step 7, we fit a more complex model using **Stochastic Approximation** (SA) for easier convergence.
+- SA is based on moment-matching (Robbins–Monro). (JO: What do you think about including footnotes for references mentioned in a slide?)
+- Works by simulating, comparing to target, and nudging the coefficients.
 - In practice, found to be useful for fitting more complex networks.
 - Setting convergence criteria to Hotelling and specifying MCMLE parameters was important to ensure final convergence. 
 
@@ -104,7 +105,7 @@ net_warm <- simulate(fit_mix, nsim = 1)
 
 - `net_warm` becomes the **starting network** for the next, harder fit
 - A network with the right low-order structure already in place converges
-  faster than starting from empty or random
+  faster than starting from an empty or random network
 
 ::: {.accent}
 Each stage's fit becomes the next stage's starting point.
@@ -132,7 +133,7 @@ net_warm <- simulate(fit_mix, nsim = 1)   # simulated net seeds the next fit
 control.ergm(init = coef(prev_fit))   # resume from previous estimates
 ```
 
-- Here we carry the **network** forward across fits to build our ERGM in stages. 
+- Here we carry the **network** forward across fits to build our ERGM in stages. (JO: By "here" do we mean what we will do? It's a bit unclear if this refers to the second option you provide just above.)
 
 
 ::: notes
@@ -160,6 +161,7 @@ fit5 <- ergm(net_mix ~ edges +
 
 One simulated network from `fit5` becomes the starting network for `fit 6`. 
 
+(JO: where is net_warm defined in this sequence?)
 ```r
 fit6 <- ergm([net_warm]{.accent} ~ edges +
                 ...+
