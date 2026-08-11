@@ -22,7 +22,7 @@ execute:
 
 - In Module 1 we fit models to a network we could **see**. 
 
-   * Targets were based on those observed freindships: 
+   * Targets were based on those observed friendships: 
 
     ```r
     summary(fmh ~ edges + nodematch("Grade"))
@@ -30,7 +30,7 @@ execute:
 
 - Often networks are less observable 
 - Or network data are not directly available
-- Then, available data are converted to ERGM-compatible network parameters
+- Then, available data are converted to ERGM-compatible network parameters (JO: targets?)
 
 ::: notes
 Recap in one breath: the intro had the whole adjacency matrix, so a "target" was
@@ -69,7 +69,7 @@ ergm(net ~ terms, target.stats = <numbers>)
 ```
 
 - We build an adjacency matrix from the data we have
-- To do this, we turn survey numbers into a correctly-ordered vector
+- To do this, we turn survey numbers into a correctly-ordered vector (JO: correctly ordered vector seems unnecessarily jargony?)
 - "From aggregate summaries to network parameters"...
 - We produce a vector of summaries to specify in the ERGM.
 
@@ -88,7 +88,7 @@ Network Characteristics:
 
   - n = 1,000 PWID with attributes: `sex`, `race.num`, `young`, `chicago`. 
   - The network is **directed**. 
-  - That, is A naming B as a friend is distinct from B naming A.
+  - That, is A naming B as a friend is distinct from B naming A. (JO: friend? did you not want to say connection or something more specific like needle sharing?)
 
 ```r
 library(network); library(ergm); library(dplyr); library(readr); library(here)
@@ -162,7 +162,7 @@ Module 3 as the `idegree`/`odegree` targets.
 ## Turn a degree distribution into an edge count
 
 - Every tie is one partner-slot for someone, 
-- **total ties = Σ (degree × # people at that degree)** 
+- **total ties = Σ (degree × # people at that degree)** (JO: why are the in/out_degrees being multiplied by the mean_n and not the number of people with that degree in the code snippet below?)
 - Computed separately for in- and out-degree reports
 
 ```r
@@ -184,7 +184,7 @@ distribution. The two sums count the *same* edges from two directions.
 
 - In-ties and out-ties count the same edges. Should agree. 
 - They often don't in practice, because each is estimated separately. 
-- Fixes possible based on availble data. 
+- Fixes possible based on available data. 
 - Here, for simplicity, we take the mean.
 
 ```r
@@ -197,7 +197,7 @@ A target is a **count** — and the next step turns proportions *into* counts.
 :::
  -->
 ::: notes
-`711` is load-bearing: every mixing target is `edges_target × proportion`, so it
+`711` is load-bearing (JO: "load-bearing" is the new AI tell :) ): every mixing target is `edges_target × proportion`, so it
 propagates through the whole vector. The in ≠ out gap is an honest preview —
 summaries don't always reconcile, which is why simulation (Module 5), not the fit
 object, is the real test of fit. (If asked about size/scale: the count and density
@@ -210,7 +210,7 @@ are what transfer across populations; Krivitsky, Handcock & Morris 2011.)
 ## Homophily, one example: sex mixing
 
 The survey gives mixing as **proportions**: share of ties sent by each sex, split
-within/between group.
+within/between group. (JO: make sure to define "sent" well here. It's not clear from the code snippet below. Neither is the "within-group" clear.)
 
 ```r
 # shares of ties SENT by each sex
@@ -250,6 +250,7 @@ summary(net ~ nodemix("sex", levels2 = -1))
 
 sex_target <- c(F_to_M, M_to_F, M_to_M)   # order matched to names above
 ```
+(JO: why do the results of `summary` contain decimals?)
 
 ::: notes
 How ordering actually works: ergm sorts factor levels (here F before M) and enumerates
@@ -267,7 +268,7 @@ of silently fitting the wrong model.
 
 - Build a named vector
 - Reorder it to match `summary()`'s names
-- Specify the base term, e.g. `nodemix("sex", levels2 = -1)`
+- Specify the base term, e.g. `nodemix("sex", levels2 = -1)` (JO: make sure to explain the levels2. E.g., "2" referring to the second term. Maybe say that this is arbitrarily chosen or provide some rule of thumb.)
 
 ::: notes
 This is the general recipe behind the worked example on the previous slide — it
@@ -283,6 +284,7 @@ scales to any `nodemix` term, not just sex.
 target_vec <- c(edges_target, sex_target, age_target, race_target)
 stopifnot(length(summary(f_mix)) == length(target_vec))   # count check, not order check
 ```
+(JO: age_target and race_target are not yet defined? I see, they're part of the exercise. Mention this.)
 
 N.B.
 
