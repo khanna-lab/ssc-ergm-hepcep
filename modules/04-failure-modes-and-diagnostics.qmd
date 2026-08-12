@@ -15,6 +15,7 @@ execute:
 ---
 
 ## This Module's Goal {.smallish}
+(JO: Where does the sequential fitting fit into this fitting diagnostic pipeline?)
 
 ::: {.accent}
 Where Module 3 ended:
@@ -54,7 +55,7 @@ In this module, we will discuss:
 
 | What we saw | Symptom | 
 |---|---|
-| **Degeneracy** | Simulated nets nearly empty or near-complete; `ergm` may error | 
+| **Degeneracy** | Simulated networks nearly empty or near-complete; `ergm` may error | 
 | **Non-convergence** | Chains don't mix; `ergm` may error | 
 | **Poor alignment** | Converges, but simulated stats ≠ targets | 
 
@@ -68,14 +69,15 @@ Error in ergm.MCMLE(...):
   a very poor starting parameter configuration.
 ```
 
-- Degeneracy is a classic **model-specification** error, widely discussed in canonical papers. 
+- Degeneracy is a classic **model-specification** error, widely discussed in canonical papers.(JO: if we're using footnotes, include references to these papers here.) 
+(JO: more importantly, we need to say what degeneracy is, to provide at least some intuition)
 
-- Can be scale dependent: At the **simplified** n = 1,000 scale, `odegree(0:2)` fit fine. 
+- Can be scale dependent: At the **simplified** n = 1,000 scale, `odegree(0:2)` fits fine. 
 
 - But `odegree(0:3)` produced the same error at the n=1,000 scale. 
 
 ::: {.accent}
-Fix: no control setting rescues degeneracy: the **model specification** needs to be changed. 
+Fix: no control setting rescues degeneracy: the **model specification** needs to be changed. (JO: I thought the sequential approach helped with this? Or was that with the non-convergence? You see, even I need to understand what degeneracy is.)
 :::
 
 ## Indicator #2 {.smallish}
@@ -102,7 +104,7 @@ A real MCMC diagnostic from our full pipeline
  - The traces **drift upward/downward** (instead of
 settling around a stable mean) 
 
- - The edge density plots may be centered far from 0, indicating divergence between the targets and fitted values.
+ - The edge density plots may be centered far from 0, indicating divergence between the targets and fitted values. (JO: where is the target value for the edges in this figure?)
 
 ![](img/mcmc-diag-edges.png){width="90%" fig-align="center"}
 
@@ -155,7 +157,7 @@ The fix depends on which failure we have:
 | Failure | What it means | Fix |
 |---|---|---|
 | **Degeneracy** | ERGM errors out, or simulated networks are (nearly) full or empty  | Reparameterize the model (e.g., GWESP instead of triangles, as in Module 1) |
-| **Non-convergence** | The MCMC diagnostics are poor. | Tune the control parameters |
+| **Non-convergence** | The MCMC diagnostics are poor | Tune the control parameters |
 | **Poor alignment** | The fit converged | Revisit the specification, the target computation, or the data sampling/quality|
 :::
 
