@@ -41,16 +41,16 @@ useful when the plot alone is ambiguous.
 
 ## Run sheet (30 min)
 0–5 recap Module 4's `gof()`, pose today's question · 5–10 the two-approaches
-distinction · 10–20 run the simulation, read the faceted violin plot ·
-20–26 good vs. poor alignment, worked from the numeric table · 26–30 handoff
-to Module 6 (these simulated networks are the ABM input).
+distinction · 10–18 run the simulation, read the faceted violin plot ·
+18–24 good vs. poor alignment, worked from the numeric table · 24–28 crosswalk
+to the ABM (`R/05b-export-abm.R`: a simulated network → agents + partnerships) ·
+28–30 handoff to Module 6 (**spatial modeling** — replace the `nodematch("chicago")`
+stand-in with a custom distance-based term).
+
+The ABM crosswalk (`05b`) is part of **this** module, not Module 6. Module 6 is
+spatial modeling.
 
 ## Open decisions
-1. **Degree-only or add a mixing-matrix example?** `R/05a-simulation.R` covers
-   edges/degree/geography only; the archived draft has an unfinished racial-
-   mixing violin example (`TODO: example code`). Degree-only keeps the module
-   tight and matches what's actually built; adding mixing would need new code
-   but demonstrates the same diagnostic on a multi-cell target (closer to
-   Module 2's race-mixing complexity). Leaning degree-only unless you want the
-   extra worked example.
+1. ~~Degree-only or add a mixing-matrix example?~~ **Decided: degree-only** —
+   matches `R/05a-simulation.R`, keeps the module tight and terse.
 2. **Instructor key** — same open question carried from Modules 3–4.
