@@ -1,0 +1,139 @@
+---
+title: "Simulation as Diagnostic"
+subtitle: "SSC 2026 ERGM Workshop · Module 5"
+format:
+  revealjs:
+    theme: [simple, theme.scss]
+    slide-number: true
+    fig-width: 7
+    fig-height: 3.6
+execute:
+  eval: false    # participants run code themselves; flip to true for the instructor key
+  echo: true
+  warning: false
+  message: false
+---
+
+## This Module's Goal {.smallish}
+
+::: {.accent}
+Where Module 4 ended:
+:::
+
+- We diagnosed fits **by hand** - MCMC diagnostics, eyeballing one simulation.
+
+::: {.accent}
+Today:
+:::
+
+- Make that check **systematic**: simulate an ensemble, compare to our **targets**.
+- Learn what good vs. poor alignment looks like — and where poor alignment sends us.
+
+---
+
+## Two notions of "goodness of fit" {.smallish}
+
+::: {.smaller}
+| Approach | Compares simulated nets to | Use when |
+|---|---|---|
+| `gof()` (Module 4) | the fitted / pseudo-observed network | you fit to a real observed network |
+| Simulate vs. targets (today) | your empirical **target vector**, directly | you fit to `target.stats` — this workshop |
+:::
+
+::: {.punch}
+"Converged" and "matches our empirical numbers" are not the same claim.
+:::
+
+::: notes
+The whole workshop fits to `target.stats`, never to a single observed network — so the
+right check is against the targets, which is exactly what manual simulation does.
+:::
+
+---
+
+## Simulate an ensemble {.smallish}
+
+```r
+sims <- simulate(fit_final, nsim = 100)
+
+sim_stats <- t(sapply(sims, \(s)
+  summary(s ~ edges + odegree(0:1) + idegree(0:1) + nodematch("chicago"))))
+```
+
+- One row of statistics per simulated network.
+- Compare each column's spread to its **target**.
+
+---
+
+## Read it: statistics vs. targets {.smallish}
+
+![](img/sim-vs-targets.png){width="80%" fig-align="center"}
+
+- Each violin: one statistic across 100 simulated networks. Red line: the **target**.
+
+::: notes
+Plot from `R/05a-simulation.R` (`out/sim-vs-targets.png`). To render: run the script and
+copy the PNG into `modules/img/`.
+:::
+
+---
+
+## Good vs. poor alignment {.smallish}
+
+- **Good:** target sits inside the bulk; no one-sided bias; spread not absurdly wide.
+- **Poor:** target outside the distribution, or stuck at an extreme tail.
+- **Numeric companion:** per statistic, target vs. simulated mean and 95% interval —
+  read it when the plot is ambiguous.
+
+::: {.accent}
+Poor alignment points at *which* term is off — a **Module 3** problem (revise the model),
+not a "just refit."
+:::
+
+---
+
+## Crosswalk to the ABM {.smallish}
+
+::: {.punch}
+An aligned simulated network **is** the ABM input.
+:::
+
+Export one simulated network as two tables:
+
+```r
+net_sim <- simulate(fit_final, nsim = 1)
+
+attrs <- data.frame(id = network.vertex.names(net_sim),  # agents
+                    sex = net_sim %v% "sex", young = net_sim %v% "young", ...)
+el    <- as.edgelist(net_sim)                            # partnerships (from, to)
+```
+
+- **Agents** = vertex attributes; **partnerships** = the edgelist.
+- Export one edgelist per simulated network to carry **network uncertainty** into the ABM.
+
+---
+
+## Handoff to Module 6
+
+::: {.punch}
+Module 6: **spatial modeling** — geography as a first-class term.
+:::
+
+- We used `nodematch("chicago")` as a stand-in; Module 6 replaces it with a custom
+  distance-based term.
+
+---
+
+## Exercise
+
+Work in the Posit Cloud environment:
+
+1. Run `R/05a-simulation.R` — simulate 100 networks from `fit_final`.
+2. Read the violin plot: which statistics straddle their target?
+3. Check the numeric table — any target outside the 95% interval?
+4. If one is off, name the term you'd revise (back to Module 3).
+5. Run `R/05b-export-abm.R` — export a simulated net to `edgelist.csv` + `vertex_attributes.csv`.
+
+::: notes
+Cap time on the live simulation; the pre-baked plot carries the point if it runs long.
+:::
