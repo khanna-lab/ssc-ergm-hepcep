@@ -34,40 +34,33 @@ In this module, we will discuss:
 
 ---
 
-## Our Fitting Sequence, Revisited
+## Our Fitting Sequence, Revisited {.smallish}
 
-Building further upon the converged Module 3, we switched tuning parameters as our models became more complex. 
+
+- Our "real pipeline" was similar to Module 3 (below)  
 
 | Step | Terms added | Fitting Algorithm |
 |:----:|-------------|----------|
 | 1–4 | `edges + nodemix(sex/young/race.num) + nodematch("chicago")` | MCMC (defaults) |
-|:----:|-------------|----------|
-| 5 | `+ odegree(0)` | Stochastic Approximation  (real pipeline) |
+| 5 | `+ odegree(0)` | Stochastic Approximation (real pipeline) |
 | 6 | `+ odegree(0:1)` | As above |
-|:----:|-------------|----------|
-| 7 | `+ idegree(0:1) + odegree(0:1)` | Stochastic-Approximation with Hotelling to detect convergence|
+| 7 | `+ idegree(0:1) + odegree(0:1)` | Stochastic-Approximation + Hotelling |
 
-
-- Step 5 didn't work with Step 4's tuning parameters, even with a "warm start".
-- Same for Step 7 with Step 6's specifications.
-- Both points failed in some way, necissitating a change. 
+- But, at the scale of our research problem, we needed to introduce Stochastic Approximation earlier. 
 
 ---
 
-## Some Ways in which ERGMs Do Not Fit
+## Some Ways in which ERGMs do not Fit {.smallish}
 
 | What we saw | Symptom | 
 |---|---|
-| **Non-convergence** | Chains don't mix; `ergm` may error | 
 | **Degeneracy** | Simulated nets nearly empty or near-complete; `ergm` may error | 
+| **Non-convergence** | Chains don't mix; `ergm` may error | 
 | **Poor alignment** | Converges, but simulated stats ≠ targets | 
-
 
 ## Indicator #1 {.smallish}
 
-A **degeneracy-type** failure. In our **full pipeline** (n ≈ 32k, with a custom
-geographic term), adding `odegree(0:2)` produced an error in estimation:
-
+- In our **real pipeline** with standard tuning parameters, adding `odegree(0:2)` produced an error: 
 ```
 Error in ergm.MCMLE(...):
   Number of edges in a simulated network exceeds that in the observed by a
@@ -75,101 +68,103 @@ Error in ergm.MCMLE(...):
   a very poor starting parameter configuration.
 ```
 
-- The tell: simulated networks blow up toward (near-)complete — nothing like the target.
-- Data- and scale-dependent: at the **simplified** n = 1,000 scale `odegree(0:2)` fits fine,
-  so to reproduce the failure live we push to `odegree(0:3)`.
+- Degeneracy is a classic **model-specification** error, widely discussed in canonical papers. 
+
+- Can be scale dependent: At the **simplified** n = 1,000 scale, `odegree(0:2)` fit fine. 
+
+- But `odegree(0:3)` produced the same error at the n=1,000 scale. 
 
 ::: {.accent}
-Fix: no control setting rescues degeneracy — **change the specification**.
+Fix: no control setting rescues degeneracy: the **model specification** needs to be changed. 
 :::
-
-::: notes
-Degeneracy is data- and scale-dependent, not a fixed property of a term. Honest story:
-the real degeneracy was odegree(0:2) at full scale; it doesn't reproduce at n=1000, so
-we push to 0:3 for a live, reproducible demo. The error message itself hedges ("degeneracy
-or a very poor starting configuration"), which is why we number the indicator rather than
-hard-label it. Folds in the old standalone "near-empty / near-complete simulations" slide.
-:::
-
 
 ## Indicator #2 {.smallish}
 
-A **non-convergence** failure. `ergm` may report **"converged"** — that alone isn't reassurance.
+- A **non-convergence** failure (even when `ergm` may report **"converged"**). 
 
-- "Converged" means the algorithm *stopped*, not that it sampled well
-- The **MCMC diagnostics** can still look poor
-- So we check `mcmc.diagnostics(fit)` (next slide)
+- "Converged" means the algorithm *stopped*, not that the model sampled well.
 
-::: {.accent}
-Fix: the model is fine, the *fit* isn't — **tune the controls** (Module 3: SA, Hotelling,
-heavier MCMC, warm-start).
-:::
+- In such cases, the `mcmc.diagnostics(fitted_ergm_obj)` may still look poor.
+
+- Example on next slide.
+
+
 
 ::: notes
-Indicator #2: don't take "converged" at face value — the sampler may not have mixed.
-mcmc.diagnostics is the check. Leads into the example.
+- Indicator #2: don't take "converged" at face value.
+- mcmc.diagnostics is the check. Leads into the example.
 :::
 
 ## Indicator #2 (Example) {.smallish}
 
 A real MCMC diagnostic from our full pipeline  
 
- - The traces **drift upward** (instead of
+ - The traces **drift upward/downward** (instead of
 settling around a stable mean) 
- - Concurrently, the edge density plots are not centered at 0, indicating divergence between the targets and fitted values.
- - Such plots can be produced for all specified terms in the ERGM
 
+ - The edge density plots may be centered far from 0, indicating divergence between the targets and fitted values.
 
 ![](img/mcmc-diag-edges.png){width="90%" fig-align="center"}
 
-::: notes
-Real `mcmc.diagnostics()` output from net-ergm-v4plus (all PLOS ONE terms). The tell:
-`edges` (and the mixing terms) trend up across iterations rather than hovering around a
-stable level — poor mixing / not converged. Contrast with a well-mixed "fuzzy caterpillar."
+::: {.accent}
+In this case: 
 :::
+
+- The model itself might be correctly specified.   
+- But, the control parameters might not be. 
+- The solution is often to  **tune the controls** (Module 3).
+
 
 ## Indicator #3 {.smallish}
 
-A **poor-alignment** failure. A fit can converge cleanly (diagnostics fine) and still not
-reproduce the structure you care about.
+ - A fit converges cleanly (no degeneracy errors, MCMC diagnostics OK.) 
 
-- The GOF summary can look OK, or borderline — either way it's only a summary.
+- We still want to check if simulating from the fitted ERGM produces networks that match the targets.  
 
-[show example, ideally from the pipeline]
+- We **simulate many networks** (e.g., `sims <- simulate(fitted_ergm_obj, nsim=100)`).
+
+- Compare distributions on all specified statistics relative to their **targets**.
+
+![](img/outdeg-violin.png){width="55%" fig-align="center"}
+
+- This shows good alignment between the outdegree distribution on the simulated networks relative to the target (black line).
+
+## Indicator #3 (continued) {.smallish}
+
+- But, there are three ways this can go: 
+  1. The MCMC diagnostics and simulated statistics look good.
+  2. The MCMC diagnostics look borderline, but the simulated structures look good relative to the targets. 
+  3. The MCMC diagnostics look borderline, but the simulated network structures do not contain the target. 
 
 ::: {.accent}
-Fix: the fit converged, so revisit the **specification** or the **targets** — and simulate
-the networks to see whether the structure actually holds.
+Considerations:
+:::
+
+1. Great! We are (almost) done!
+2. We often care about the simulated network alignment with the targets. If upon repeating the simulation with different seeds, the simulated networks usually contain the targets, we are (arguably) done, from the networks-for-ABM perspective.
+3. In such a case, we can try further tuning the ERGM controls (Module 3). But, in a practical sense, we might also want to revisit our data sources, our computation of targets, and whether there are potential data quality/alignment issues.     
+
+
+
+
+## Matching potential fixes to the failure modes 
+
+The fix depends on which failure we have:
+
+::: {.smaller}
+| Failure | What it means | Fix |
+|---|---|---|
+| **Degeneracy** | ERGM errors out, or simulated networks are (nearly) full or empty  | Reparameterize the model (e.g., GWESP instead of triangles, as in Module 1) |
+| **Non-convergence** | The MCMC diagnostics are poor. | Tune the control parameters |
+| **Poor alignment** | The fit converged | Revisit the specification, the target computation, or the data sampling/quality|
+:::
+
+::: {.accent}
+- Non-convergence (usually) indicates a *controls* problem.
+- Degeneracy and poor alignment are either *model* or data quality/processing problems.
 :::
 
 
-
-## Matching the fix to the failure {.smallish}
-
-The fix depends on which failure you have:
-[convert to table]
-- **Non-convergence** — the model is fine, the *fit* isn't → **tune the controls**
-  (Module 3: SA, Hotelling, heavier MCMC, warm-start; smallest knob first)
-- **Degeneracy** — no control setting helps → **change the specification**
-  (reparameterize; e.g. GWESP, not raw triangles) [maybe give an example from our study]
-- **Poor alignment** — the fit appears to converge → **revisit the model specification or check the target computation**
-
-::: {.punch}
-
-- Non-convergence is (usually) a *controls* problem 
-- Degeneracy and poor alignment are *model* problems.
-:::
-
-
-
-
-## Recap
-
-Three failures, told apart by how they show up:
-
-- **Non-convergence** — errors out, or the traces drift
-- **Degeneracy** — near-empty / near-complete simulations
-- **Poor alignment** — converged, but simulated stats miss the targets
 
 
 
@@ -183,14 +178,15 @@ Schweinberger (2011), JASA 106(496), 1361–1370.
 
 ## Handoff to Module 5
 
-This GOF was one check, done by hand.
+We diagnosed these fits **by hand** -- reading MCMC diagnostics and simulating a network to compare alignment.
 
 ::: {.punch}
 Module 5: simulation as the *systematic* diagnostic (and the bridge to the ABM).
 :::
 
 ::: notes
-Frame Module 5 as scaling up today's GOF check into the workflow.
+Frame Module 5 as scaling up today's by-hand checks — especially the simulate-and-compare
+move from Indicator #3 — into the workflow.
 :::
 
 ---
