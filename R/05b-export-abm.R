@@ -1,4 +1,4 @@
-# Module 6: networks -> ABM inputs. Export a simulated network as a vertex table
+# Module 5: networks -> ABM inputs. Export a simulated network as a vertex table
 # (agents) and an edgelist (partnerships). The full pipeline exports one edgelist
 # per simulated network so network uncertainty carries into the ABM.
 if (!exists("net") || !"package:ergm" %in% search()) source(here::here("R", "00-setup.R"))
