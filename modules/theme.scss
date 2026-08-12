@@ -142,6 +142,12 @@ $code-block-font-size: 0.6em !default;
 .reveal .smallish {
   font-size: 0.85em;
 }
+// Tables don't inherit a wrapping size-utility div's font-size in reveal, so
+// {.smaller}/{.smallish}/{.tiny} on a div looks like it "does nothing" to a table.
+// Target the table explicitly so the same wrappers shrink tables too.
+.reveal .tiny table     { font-size: 0.55em; }
+.reveal .smallish table { font-size: 0.80em; }
+.reveal .smaller table  { font-size: 0.68em; }
 // Center-align a block of text
 .reveal .center {
   text-align: center;
