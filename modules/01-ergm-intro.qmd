@@ -167,8 +167,6 @@ c(students = network.size(fmh),
 ![](precomputed/netplot.png){width="100%" fig-align="center"}
 :::
 
-(Comments on structure are needed: what are we seeing?)
-
 ::: notes
 Colored by grade: ties visibly cluster within grade, with a fringe of isolates. Each point
 is a student; lines are friendships. The next two slides put numbers on both.
