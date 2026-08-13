@@ -122,16 +122,15 @@ JSS 24(9)); the article is CC‑BY, so adapting it here with attribution is fine
 
 ---
 
-## Where we're going
+## Where We Are Going
 
 ::: footer
 &nbsp;
 :::
 
 1. **Describe** the network: what does the structure look like?
-2. **Summarize** it numerically: these become our **targets** (JO: can we say "these network summary statistics become our calibration targets"?)
-(ASK: Not really sure, the calibration targets usually are downstream from the network?)
-3. **Model** it: null (random mixing) vs. assortative mixing (representing a simple mechanism that drives adolescent friendships) (JO: This is somewhat opaque. Why assortative here?. ASK: see addition in parentheses.)
+2. **Summarize** it numerically: these network **summary statistics** become our **targets** for evaluating the quality of the fitted ERGM (akin to calibration in ABMs).
+3. **Model** it: null (random mixing) vs. **assortative** mixing, incorporating a known mechanism ("homophily") of friendship formation.
 4. **Simulate**: does the model reproduce the underlying empirical structures? (JO: "in the form of our network summary statistics?")
 
 ::: notes
