@@ -20,7 +20,7 @@ execute:
 - This is a research problem on fitting an exponential random graph model (ERGM) to a directed **32,000-node** syringe-sharing
   network (HepCEP). 
   
-- We first modeled this using the `ergm` v3.x, part of the `statnet` suite in R. (Add a footnote to this citation? https://pubmed.ncbi.nlm.nih.gov/35020725/, standard bib format)
+- We first modeled this using the `ergm` v3.x, part of the `statnet` suite in R.^[Boodram, B., Mackesy‑Amiti, M.‑E., Khanna, A., Brickman, B., Dahari, H., & Ozik, J. (2022). People who inject drugs in metropolitan Chicago: A meta‑analysis of data from 1997–2017 to inform interventions and computational modeling toward hepatitis C microelimination. *PLoS ONE*, 17(1), e0248850. https://doi.org/10.1371/journal.pone.0248850]
 
 - As the synthetic population evolved to incorporate more realistic demographic structures, we needed to refit the ERGM. 
 
@@ -30,7 +30,7 @@ execute:
 
 - Following this, we worked through a chain of modeling steps and tuning of fitting parameters, often starting with some educated guesswork. 
 
-- Once we got the ERGM fitting sequence to work, we wanted to share the decisions we worked through as a pipeline with the ABM community intersted in incorporating empirical networks.
+- Once we got the ERGM fitting sequence to work, we wanted to share the decisions we worked through as a pipeline with the ABM community interested in incorporating empirical networks.
 
 
 ## Why we Developed this Workshop {.smallish}
