@@ -131,11 +131,7 @@ JSS 24(9)); the article is CC‑BY, so adapting it here with attribution is fine
 1. **Describe** the network: what does the structure look like?
 2. **Summarize** it numerically: these network **summary statistics** become our **targets** for evaluating the quality of the fitted ERGM (akin to calibration in ABMs).
 3. **Model** it: null (random mixing) vs. **assortative** mixing, incorporating a known mechanism ("homophily") of friendship formation.
-4. **Simulate**: does the model reproduce the underlying empirical structures? (JO: "in the form of our network summary statistics?")
-
-::: notes
-This arc (describe, summarize, model, check) is the workshop in miniature.
-:::
+4. **Simulate**: do networks from the model reproduce the empirical structure — i.e., our **target statistics**?
 
 ---
 
