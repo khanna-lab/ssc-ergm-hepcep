@@ -30,12 +30,21 @@ execute:
 
 - But, the ERGM no longer fit "out of the box".
 
-- Getting the fit to work again required us to have a long conversation with the  **statnet community** in 2024.
+---
+
+## How this workshop came about (cont'd) {.smallish}
+
+::: footer
+&nbsp;
+:::
+
+- Refitting started with a long conversation with the  **statnet_help community** in 2024.
 
 - Following this, we worked through a chain of modeling steps and tuning of fitting parameters, often starting with some educated guesswork. 
 
 - Once we got the ERGM fitting sequence to work, we wanted to share the decisions we worked through as a pipeline with the ABM community interested in incorporating empirical networks.
 
+---
 
 ## Why we Developed this Workshop {.smallish}
 
@@ -53,8 +62,9 @@ execute:
 
 ![](img/boodram-plos-2022.png){width="34%" fig-align="right"}
 
+---
 
-## Why this intro
+## Module 1: Introducting the Core Concepts
 
 ::: footer
 &nbsp;
@@ -104,13 +114,11 @@ JSS 24(9)); the article is CC‑BY, so adapting it here with attribution is fine
 - What processes generate the network structures we see?
 
 **Micro-level processes → macro-level structure**
-(JO: Tie this to ABM, with which the audience is familiar)
 
-::: notes
-Sometimes we care about people's attributes; here the *pattern of ties* is the point.
-We'll pin down three things: what a generative process is, what "structure" is, and how to
-tell if a process reproduces the structure.
-:::
+- The same **micro → macro** process that **ABMs** are useful for. 
+- That is, localized rules produce emergent structure. 
+- Here, this **micro → macro** pipeline is followed for modeling network structure.
+
 
 ---
 
