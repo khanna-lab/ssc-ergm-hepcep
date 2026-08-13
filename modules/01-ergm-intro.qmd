@@ -17,10 +17,14 @@ execute:
 
 ## How this workshop came about {.smallish}
 
+::: footer
+&nbsp;
+:::
+
 - This is a research problem on fitting an exponential random graph model (ERGM) to a directed **32,000-node** syringe-sharing
   network (HepCEP). 
   
-- We first modeled this using the `ergm` v3.x, part of the `statnet` suite in R.^[Boodram, B., Mackesy‑Amiti, M.‑E., Khanna, A., Brickman, B., Dahari, H., & Ozik, J. (2022). People who inject drugs in metropolitan Chicago: A meta‑analysis of data from 1997–2017 to inform interventions and computational modeling toward hepatitis C microelimination. *PLoS ONE*, 17(1), e0248850. https://doi.org/10.1371/journal.pone.0248850]
+- We first modeled this using the `ergm` v3.x, part of the `statnet` suite in R.^[Boodram et al. (2022), *PLoS ONE* 17(1): e0248850. doi:10.1371/journal.pone.0248850]
 
 - As the synthetic population evolved to incorporate more realistic demographic structures, we needed to refit the ERGM. 
 
@@ -35,16 +39,26 @@ execute:
 
 ## Why we Developed this Workshop {.smallish}
 
+::: footer
+&nbsp;
+:::
+
 - The **ABM community** increasingly wants networked populations — but the practical
   ERGM-fitting know-how is **scattered and largely undocumented**.
 - This workshop packages that pipeline as a **reproducible, hands-on toolkit**:
   aggregate summaries → convergent ERGM → simulated networks → ABM inputs.
 - The emphasis is **practical judgment**, including diagnosis, tuning, and checking fits in practice. 
 - The workshop example includes a 1000-node network extracted from our "research problem," to enable us to experiment with the steps in real time. 
-- The full pipeline will be made available in a GitHub repository once the paper is submitted for review. 
+- The full pipeline will be made available in a GitHub repository once the paper is submitted for review.
+
+![](img/boodram-plos-2022.png){width="34%" fig-align="right"}
 
 
 ## Why this intro
+
+::: footer
+&nbsp;
+:::
 
 - Core ideas in 30 minutes, on a familiar example: **teen friendships**
 - Builds to the workshop's key concepts end to end.
@@ -64,6 +78,10 @@ JSS 24(9)); the article is CC‑BY, so adapting it here with attribution is fine
 
 ## Based on the statnet tutorial{.smaller}
 
+::: footer
+&nbsp;
+:::
+
 ::: {.smallish}
 ![](img/jss-title.png){width="70%" fig-align="center"}
 :::
@@ -72,15 +90,15 @@ JSS 24(9)); the article is CC‑BY, so adapting it here with attribution is fine
 [Reused under CC‑BY]{.smallish}
 :::
 
-::: notes
-Showing the title page makes the provenance unmistakable: this module reproduces the
-running example from this tutorial. CC‑BY permits reuse and adaptation with attribution.
-:::
+
 
 ---
 
 ## The question
 
+::: footer
+&nbsp;
+:::
 
 - How do adolescents form friendships?
 - What processes generate the network structures we see?
@@ -98,6 +116,10 @@ tell if a process reproduces the structure.
 
 ## Where we're going
 
+::: footer
+&nbsp;
+:::
+
 1. **Describe** the network: what does the structure look like?
 2. **Summarize** it numerically: these become our **targets** (JO: can we say "these network summary statistics become our calibration targets"?)
 (ASK: Not really sure, the calibration targets usually are downstream from the network?)
@@ -111,6 +133,7 @@ This arc (describe, summarize, model, check) is the workshop in miniature.
 ---
 
 ## The data
+
 
 - Network of 1,461 adolescent friendships (`faux.magnolia.high`)
 - 974 friendship "ties" (other common terms: "links", or "edges")
