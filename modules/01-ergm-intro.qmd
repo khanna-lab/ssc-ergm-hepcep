@@ -15,9 +15,34 @@ execute:
   message: false
 ---
 
-## Introducing the workshop
-- A slide of two explaining the outline and structure of the workshop
-- To Be Done
+## How this workshop came about {.smallish}
+
+- This is a research problem on fitting an exponential random graph model (ERGM) to a directed **32,000-node** syringe-sharing
+  network (HepCEP). 
+  
+- We first modeled this using the `ergm` v3.x, part of the `statnet` suite in R. (Add a footnote to this citation? https://pubmed.ncbi.nlm.nih.gov/35020725/, standard bib format)
+
+- As the synthetic population evolved to incorporate more realistic demographic structures, we needed to refit the ERGM. 
+
+- But, the ERGM no longer fit "out of the box".
+
+- Getting the fit to work again required us to have a long conversation with the  **statnet community** in 2024.
+
+- Following this, we worked through a chain of modeling steps and tuning of fitting parameters, often starting with some educated guesswork. 
+
+- Once we got the ERGM fitting sequence to work, we wanted to share the decisions we worked through as a pipeline with the ABM community intersted in incorporating empirical networks.
+
+
+## Why we Developed this Workshop {.smallish}
+
+- The **ABM community** increasingly wants networked populations — but the practical
+  ERGM-fitting know-how is **scattered and largely undocumented**.
+- This workshop packages that pipeline as a **reproducible, hands-on toolkit**:
+  aggregate summaries → convergent ERGM → simulated networks → ABM inputs.
+- The emphasis is **practical judgment**, including diagnosis, tuning, and checking fits in practice. 
+- The workshop example includes a 1000-node network extracted from our "research problem," to enable us to experiment with the steps in real time. 
+- The full pipeline will be made available in a GitHub repository once the paper is submitted for review. 
+
 
 ## Why this intro
 
@@ -75,7 +100,8 @@ tell if a process reproduces the structure.
 
 1. **Describe** the network: what does the structure look like?
 2. **Summarize** it numerically: these become our **targets** (JO: can we say "these network summary statistics become our calibration targets"?)
-3. **Model** it: null vs. assortative mixing (JO: This is somewhat opaque. Why assortative here?)
+(ASK: Not really sure, the calibration targets usually are downstream from the network?)
+3. **Model** it: null (random mixing) vs. assortative mixing (representing a simple mechanism that drives adolescent friendships) (JO: This is somewhat opaque. Why assortative here?. ASK: see addition in parentheses.)
 4. **Simulate**: does the model reproduce the underlying empirical structures? (JO: "in the form of our network summary statistics?")
 
 ::: notes
@@ -233,11 +259,7 @@ fit to the summaries regardless.
 - **Predictors:** network statistics (the target terms)
 - **Coefficients:** log-odds of a tie, converted to probabilities
 
-::: notes
-(JO: do these notes go with the slide? It's not immediately clear.) The left-hand side is the observed network; the right-hand side is the terms, which are
-exactly the statistics we just computed. R and statnet run the estimation for us. Everything
-that follows is this one idea.
-:::
+
 
 ---
 
