@@ -297,16 +297,16 @@ plogis(coef(random.m))   # baseline tie probability
 
 {{< include precomputed/out-null.md >}}
 
-Interpretation 
+Interpretation
 
-- The above coefficient is the probability any two persons are friends.
-- Modeled using the `edges` ERGM term.
-- Additional terms will adjust the probability that nodes are connected using the "attributes" 
-- The `edges` term is therefore analogous to the intercept in regression modeling.  
-(JO: explain plogis?)
+- The `edges` coefficient is a **log-odds**.
+- We convert it to a probability using `plogis()`, representing the "baseline" chance any two students are friends.
+- The `edges` term provides models this baseline probability, akin to the **intercept** in regression modeling.
+
 ::: notes
-(JO: talk about the use of log-odds if we use it throughout this and later modules)
-Log-odds about −6.99, probability ≈ 0.0009. A random pair almost never shares a tie.
+Log-odds are the currency throughout: ERGM coefficients are on the log-odds scale (as in
+logistic regression), and `plogis()` (inverse-logit) maps them to probabilities. Here the
+`edges` coef is about −6.99 → probability ≈ 0.0009: a random pair almost never shares a tie.
 :::
 
 ---
