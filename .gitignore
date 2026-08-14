@@ -7,3 +7,5 @@ _output/
 /modules/*_cache/
 /modules/*_files/
 /out/
+*.code-workspace
+/local_only/
