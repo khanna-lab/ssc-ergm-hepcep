@@ -75,27 +75,22 @@ Direct fixes he made: "the default criterion **is** Hummel"; "**which** conducts
 From `JO-04-notes`. Three of the five cluster on "define degeneracy / how does it differ
 from non-convergence" — worth resolving together.
 
-- [ ] **Goal slide (l.18)** — "Where does the sequential fitting fit into this diagnostic
-  pipeline?" Add a line connecting Module 3 (build a convergent fit, sequentially) → Module 4
-  (now *diagnose* whether that fit is any good). Sequencing = getting a fit; diagnostics =
-  judging it.
-- [ ] **Define degeneracy + intuition (l.73)** — the core ask. Proposed: a model is
-  *degenerate* when it puts almost all probability on a few extreme graphs (near-empty or
+- [x] **Goal slide (l.18)** — "Where does the sequential fitting fit into this diagnostic
+  pipeline?" (I might be missing something. But sequential fitting is not a part of the "diagnostic pipeline". It is a strategy to improve model convergence.)
+- [x] **Define degeneracy + intuition (l.73)**.
+      (A model is *degenerate* when it puts almost all probability on a few extreme graphs (near-empty or
   near-complete), so simulated networks look nothing like the data and the MLE is effectively
   unreachable. Cause: terms like raw `triangle` create runaway positive feedback (a tie makes
-  further ties even more likely). Ties back to the Module 1 GWESP/triangles slide.
-- [ ] **Degeneracy vs. non-convergence; does sequential/warm-start help? (l.80)** — Jonathan
-  conflates them. Clarify: **non-convergence** is a *fitting* problem (algorithm can't settle
-  on estimates matching targets) → fixed by tuning controls (SA, Hotelling, heavier MCMC,
-  **warm-start**). **Degeneracy** is a *model-specification* problem (even a perfect fit puts
-  mass on extreme graphs) → no control setting helps; must respecify. So sequential/warm-start
-  helped the hard-to-converge step (non-convergence), **not** degeneracy.
-- [ ] **Footnote the degeneracy references (l.72)** — inline `^[...]` convention:
+  further ties even more likely). Ties back to the Module 1 GWESP/triangles slide.)
+- [] **Degeneracy vs. non-convergence; does sequential/warm-start help? (l.80)**
+   (These strategies mostly help with **non-convergence**, which is a  *fitting* problem, arising when an algorithm can't settle)
+  on estimates matching targets). I don't think it should directly help with degeneracy, but sometimes the distinction between the two is not obvious to me.)  
+- [x] **Footnote the degeneracy references (l.72)** — inline `^[...]` convention:
   Handcock (2003), CSSS Working Paper 39; Schweinberger (2011), *JASA* 106(496), 1361–1370.
-- [ ] **Target line in the MCMC diagnostic figure (l.107)** — "where is the edges target?"
-  For a `target.stats` fit, `mcmc.diagnostics()` plots sampled stats as *deviations from
-  target*, so the target is the **0 line** — "centered far from 0" = off target. Verify
-  against the actual `mcmc-diag-edges.png` and label it on the slide/caption.
+   (Done)
+- [x] **Target line in the MCMC diagnostic figure (l.107)** — "where is the edges target?"
+  (For a `target.stats` fit, `mcmc.diagnostics()` plots sampled stats as *deviations from
+  target*, so the "target" for the MCMC diagnostic plot is 0, i.e. the density should be centered around 0.) 
 
 ---
 
