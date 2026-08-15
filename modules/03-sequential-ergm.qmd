@@ -84,7 +84,18 @@ Each row sequentially builds upon the simpler model in the previous row.
 - In `ergm` v4, the default criterion is **Hummel**, which uses an adaptive step-length rule. 
 - The alternative is **Hotelling** (the `ergm` v3.x default), which conducts a T² test of equality between the
   simulated mean and target mean; stopping when equality is not rejected.
-- Hummel handles steps 5–6 here, but at **full scale** we found it necessary to switch to **Hotelling**. (JO: can you offer some intuition as to why it might be difficult with Hummel at full scale?)
+- At **full scale**, Hummel's step-shrinking iterations might in the larger scale. 
+- Hotelling's simpler T² test is less computationally intensive.
+
+::: notes
+Why Hummel struggles at scale: it's deliberately conservative — it shrinks each step to keep the
+simulated mean between the current fit and the target, taking full steps only near the solution. At
+n≈32k with heavy MCMC (interval/samplesize ~1e6), each iteration is very expensive, so that cautious,
+many-iteration path can exhaust walltime before finishing. Hotelling's T² test stops as soon as the
+simulated mean is statistically indistinguishable from the target — fewer, cheaper iterations. Our
+pipeline bears this out: the matched Hummel run didn't complete while the Hotelling run did
+(net-ergm-v4plus/slurm_output/*int1e6-sampsize1e6-{hummel,hotelling}).
+:::
 
 ---
 
@@ -147,7 +158,7 @@ net_warm <- simulate(fit_mix, nsim = 1)   # simulated net seeds the next fit
 control.ergm(init = coef(prev_fit))   # resume from previous estimates
 ```
 
-- Here we carry the **network** forward across fits to build our ERGM in stages. (JO: By "here" do we mean what we will do? It's a bit unclear if this refers to the second option you provide just above.)
+- In this module, we carry the **network** forward across fits to build our ERGM in stages. 
 
 
 ::: notes
