@@ -66,7 +66,7 @@ Each row sequentially builds upon the simpler model in the previous row.
 | 1–4 | `edges + nodemix(sex/young/race.num) + nodematch("chicago")` | MCMC (defaults) |
 
 - The mixing block (steps 1-4) is **dyadic independent** — easier to fit.
-- Can be fit by direct MLE estimation. (JO: Redundant "estimation" here. Just MLE or maximum likelihood estimation (MLE).)
+- Can be fit directly by **maximum likelihood estimation (MLE)**.
 - Or if there are **non-integer target statistics** (e.g. `edges_target = 711.1`), ERGMs are instead estimated 
   via MCMC (default MCMLE).
 
