@@ -275,7 +275,8 @@ of silently fitting the wrong model.
 - Build a named vector
 - Reorder it to match `summary()`'s names
 - Specify the base term, e.g. `nodemix("sex", levels2 = -1)` 
-- The `levels2` argument allows us to specify the "base term" to avoid collinearity with `edges`. A value of -1 drops the first term in the ordered vector. 
+- The `levels2` argument allows us to specify the base/ref. cell to avoid collinearity with `edges`. 
+- A value of -1 drops the first term in the ordered vector. 
 
 
 ::: notes
