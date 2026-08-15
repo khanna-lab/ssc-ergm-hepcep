@@ -107,7 +107,7 @@ pipeline bears this out: the matched Hummel run didn't complete while the Hotell
 
 
 - In Step 7, we fit a more complex model using **Stochastic Approximation** (SA) for easier convergence.
-- SA is based on moment-matching (Robbins–Monro). (JO: What do you think about including footnotes for references mentioned in a slide?)
+- SA is based on moment-matching (Robbins–Monro).^[Snijders (2002), *Journal of Social Structure* 3(2), 1–40.]
 - Works by simulating, comparing to target, and nudging the coefficients.
 - In practice, found to be useful for fitting more complex networks.
 - Setting convergence criteria to Hotelling and specifying MCMLE parameters was important to ensure final convergence. 
