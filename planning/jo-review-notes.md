@@ -15,22 +15,22 @@ delete each `JO:` comment from the slide as it's resolved.
 
 Direct fixes he made: none (all comments).
 
-- [ ] **Micro→macro framing** — tie "micro-level processes → macro-level structure" to
+- [x] **Micro→macro framing** — tie "micro-level processes → macro-level structure" to
   **ABMs**, which the audience already knows.
-- [ ] **"targets" wording** — on "Where we're going" #2, consider "these network summary
+- [x] **"targets" wording** — on "Where we're going" #2, consider "these network summary
   statistics become our **calibration targets**."
-- [ ] **"null vs. assortative mixing" is opaque** — say *why* assortative here.
-- [ ] **Simulate step (#4)** — add "…reproduce the empirical structures **in the form of our
+- [x] **"null vs. assortative mixing" is opaque** — say *why* assortative here.
+- [x] **Simulate step (#4)** — add "…reproduce the empirical structures **in the form of our
   network summary statistics?**"
-- [ ] **Speaker notes on the ERGM-equation slide** — "do these notes go with the slide? not
+- [x] **Speaker notes on the ERGM-equation slide** — "do these notes go with the slide? not
   immediately clear." Check alignment.
-- [ ] **Define `plogis`** on the edges/intercept slide.
-- [ ] **Log-odds** — if used throughout this and later modules, introduce it explicitly here.
-- [ ] **Assortative-fit note** — big point; add intuition about finding configurations in
+- [x] **Define `plogis`** on the edges/intercept slide.
+- [x] **Log-odds** — if used throughout this and later modules, introduce it explicitly here.
+- [x] **Assortative-fit note** — big point; add intuition about finding configurations in
   network space, and how dyad-independent → dyad-dependent complicates things.
-- [ ] **Log-likelihood** is first used on the `nodematch` slide without context — add a brief line.
-- [ ] **Converged ≠ well-aligned** — add intuition for *why* this can happen.
-- [ ] **Triangles → degeneracy** — "this needs more explanation."
+- [x] **Log-likelihood** is first used on the `nodematch` slide without context — add a brief line.
+- [x] **Converged ≠ well-aligned** — add intuition for *why* this can happen.
+- [x] **Triangles → degeneracy** — "this needs more explanation."
 
 ## Module 2 — `modules/02-network-targets.qmd`
 
