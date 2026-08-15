@@ -36,9 +36,9 @@ Direct fixes he made: none (all comments).
 
 Direct fixes he made: `freindships`→`friendships`, `availble`→`available`.
 
-- [ ] **"ERGM-compatible network parameters"** → just call them **targets**.
-- [ ] **"correctly-ordered vector"** — reads jargony; simplify.
-- [ ] **"friend" is wrong for a syringe-sharing network** — use "connection" or something
+- [x] **"ERGM-compatible network parameters"** → just call them **targets**.
+- [x] **"correctly-ordered vector"** — reads jargony; explained the importance of checking ordering directly instead).
+- [x] **"friend" is wrong for a syringe-sharing network** — use "connection" or something
   specific like "needle-sharing." Recurs; worth a consistent pass.
 - [ ] **Degree→edge-count derivation** — "why are in/out-degrees multiplied by `mean_n` and
   not the number of people at that degree in the code snippet?" Clarify the math vs. the code.
