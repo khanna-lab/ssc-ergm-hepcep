@@ -84,7 +84,7 @@ Each row sequentially builds upon the simpler model in the previous row.
 - In `ergm` v4, the default criterion is **Hummel**, which uses an adaptive step-length rule. 
 - The alternative is **Hotelling** (the `ergm` v3.x default), which conducts a T² test of equality between the
   simulated mean and target mean; stopping when equality is not rejected.
-- At **full scale**, Hummel's step-shrinking iterations might in the larger scale. 
+- At **full scale**, Hummel's step-shrinking might stall. 
 - Hotelling's simpler T² test is less computationally intensive.
 
 ::: notes
