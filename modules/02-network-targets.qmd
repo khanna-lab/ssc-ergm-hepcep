@@ -30,7 +30,8 @@ execute:
 
 - Often networks are less observable 
 - Or network data are not directly available
-- Then, available data are converted to ERGM-compatible network parameters (JO: targets?)
+- In such cases, available data are converted to ERGM-compatible target statistics for network parameters
+- The network parameters are chosen to adequately describe the "generative" network structures of interest. 
 
 ::: notes
 Recap in one breath: the intro had the whole adjacency matrix, so a "target" was
