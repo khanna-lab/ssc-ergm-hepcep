@@ -42,8 +42,22 @@ and the mixing/warm-starting material exists to set it up.
 
 ---
 
+## The Fitting Sequence: roadmap {.smallish}
+
+We built the model in **seven sequential steps**:
+
+| Step | Terms added |
+|:----:|-------------|
+| 1–4 | `edges + nodemix(sex/young/race.num) + nodematch("chicago")` |
+| 5 | `+ odegree(0)` |
+| 6 | `+ odegree(0:1)` |
+| 7 | `+ idegree(0:1) + odegree(0:1)` |
+
+- Allows us to build the model in increasing complexity
+- Makes it easier to diagnose potential issues. 
+---
+
 ## The Fitting Sequence {.smallish}
-(JO: Mention at the get go that there will be 7 steps? Maybe even list them all once as a table with just the first two columns, then proceed to these slides that speak to the details of fitting each?)
 
 Each row sequentially builds upon the simpler model in the previous row.
 
