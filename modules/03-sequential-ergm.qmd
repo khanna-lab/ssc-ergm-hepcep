@@ -181,19 +181,21 @@ net_mix <- simulate(fit_mix, nsim = 1)
 fit5 <- ergm(net_mix ~ edges +
                 ... +
                odegree(0),
-             target.stats = c(ts
+             target.stats = c(ts_mix, odeg_target(0)), eval.loglik = FALSE)
+net5 <- simulate(fit5, nsim = 1)     # in turn, warm-starts step 6
 ```
 
-One simulated network from `fit5` becomes the starting network for `fit 6`. 
+One simulated network from `fit5` (here, `net5`) becomes the starting network for `fit6`.
 
-(JO: where is net_warm defined in this sequence?)
 ```r
-fit6 <- ergm([net_warm]{.accent} ~ edges +
-                ...+
+fit6 <- ergm([net5]{.accent} ~ edges +
+                ... +
                odegree(0:1),
-             target.stats = c(..., odeg_target(0:1)), eval.loglik = FALSE)
-net_warm <- simulate(fit6, nsim = 1)
+             target.stats = c(ts_mix, odeg_target(0:1)), eval.loglik = FALSE)
+net6 <- simulate(fit6, nsim = 1)     # warm-starts step 7
 ```
+
+Informally, this workshop describes a simulated network instance from one fit as providing a "warm start" for the next. 
 
 ::: notes
 Default (MCMLE) fitting, warm-started each step. These converge fine on defaults; the
