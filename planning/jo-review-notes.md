@@ -40,9 +40,9 @@ Direct fixes he made: `freindships`→`friendships`, `availble`→`available`.
 - [x] **"correctly-ordered vector"** — reads jargony; explained the importance of checking ordering directly instead).
 - [x] **"friend" is wrong for a syringe-sharing network** — use "connection" or something
   specific like "needle-sharing." Recurs; worth a consistent pass.
-- [ ] **Degree→edge-count derivation** — "why are in/out-degrees multiplied by `mean_n` and
-  not the number of people at that degree in the code snippet?" Clarify the math vs. the code.
-- [ ] **"load-bearing"** — Jonathan flags it as an "AI tell." Reword; scrub for similar voice.
+- [x] **Degree→edge-count derivation** — "why are in/out-degrees multiplied by `mean_n` and
+  not the number of people at that degree in the code snippet?" (Clarified: what you are suggesting is what we did. Clarified on slide.)
+- [x] **"load-bearing"** — Jonathan flags it as an "AI tell." Reword; scrub for similar voice. (removed)
 - [ ] **Sex-mixing slide** — define "**sent**" clearly; "within-group" isn't clear from the code.
 - [ ] **`summary()` decimals** — explain why the results contain decimals (non-integer targets).
 - [ ] **`levels2 = -1`** — explain the "2" (second term); note it's a choice / give a rule of thumb.
