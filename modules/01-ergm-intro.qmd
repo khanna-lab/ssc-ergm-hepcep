@@ -457,7 +457,7 @@ round(coef(gwesp.m), 2)
 ::: notes
 gwesp decay 0.25, fixed. The gwesp coefficient is strongly positive; log-likelihood
 improves to ≈ −6100 (null −7790, assortative ≈ −6528). The fit is precomputed by
-`R/precompute-intro-fit.R`; the coefficients shown are read from `intro.rds`.
+`R/precompute-intro-fit.R`; the coefficients shown are read from `intro-fits.rds`.
 :::
 
 ---
@@ -498,9 +498,14 @@ workshop's real setting is fitting to summary targets alone.
 
 ---
 
-## Simulate 
-Show further how these fitted models behave upon simulation. 
+## Simulate from the fitted model {.smaller}
 
+A single network drawn from the assortative fit, beside the observed network:
+
+![](precomputed/obs-vs-sim.png){width="90%" fig-align="center"}
+
+- A simulated network is a **draw from the model** (not a copy of the data).
+- It reproduces what the model includes (i.e., assortative mixing). 
 
 ## Most Importantly
 
