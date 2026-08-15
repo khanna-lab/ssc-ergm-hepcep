@@ -246,15 +246,19 @@ F_to_F <- edges_target * female_share * female_within       # within-group, refe
 M_to_F <- edges_target * male_share   * (1 - male_within)
 F_to_M <- edges_target * female_share * (1 - female_within)
 
-summary(net ~ nodemix("sex", levels2 = -1))
+summary(net ~ nodemix("sex", levels2 = -1))   # use this only for the cell NAMES / order
 #>   mix.sex.F.M mix.sex.M.F mix.sex.M.M
-#>         194.6       187.7       234.7
 
-sex_target <- c(F_to_M, M_to_F, M_to_M)   # order matched to names above
+sex_target <- c(F_to_M, M_to_F, M_to_M)        # targets, in that order:
+#>   194.6       187.7       234.7             # fractional = proportions × edges_target (711.1)
 ```
-(JO: why do the results of `summary` contain decimals?)
+Contains decimals, because targets are expected counts using means and proportions of the source data. 
 
 ::: notes
+Why the target cells are fractional: they're proportions × edges_target (711.1) — expected
+counts, not the integer tie counts `summary()` returns on a realized network. `summary()` here
+is only for the names/order.
+
 How ordering actually works: ergm sorts factor levels (here F before M) and enumerates
 from→to combinations in that order, dropping the reference cell (`levels2 = -1`, the
 first one). You never need to derive this by hand — `summary()` on the *unfitted*
