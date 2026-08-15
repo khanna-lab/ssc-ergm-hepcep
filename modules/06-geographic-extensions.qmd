@@ -95,6 +95,12 @@ source is inside or outside Chicago, what share go to a **near** partner and wha
 share go to a **far** one.
 :::
 
+| Source's area | Near | Far |
+|---|:--:|:--:|
+| **Chicago** (`chicago == 1`) | .457 | .229 |
+| **Non-Chicago** (`chicago == 2`) | .163 | .151 |
+: The four shares of the total tie count sum to 1. {tbl-colwidths="[50,25,25]"}
+
 ::: notes
 `chicago` is derived in `R/generate-synthetic-data.R`, where zip codes beginning
 "606" are 1 (city) and everything else is 2 (suburban/collar). 55% are category 1.
@@ -397,7 +403,7 @@ needs network access but is authoring-only.
 ## Does it agree with you? {.smallish}
 
 With `thresholds = c(2, 2)`, tie 1→2 is near (0.73 < 2) and the other two are far.
-That predicts `1.n = 1`, `1.f = 1`, `2.n = 0`, and `2.f = 1`.
+That should result in `1.n = 1`, `1.f = 1`, `2.n = 0`, and `2.f = 1`.
 
 ::: {.gap-lg}
 ```r
@@ -430,15 +436,19 @@ cheapest correctness test available for any partition-style term.
 
 ## Moving the threshold {.smallish}
 
-Drop category 1's cutoff to 100 m and the 0.73 km tie should reclassify as far:
+We drop category 1's cutoff to 100m and the 0.73km tie should reclassify as far:
 
+::: {.gap}
 ```r
 summary(g ~ dnf(by = "cat1", thresholds = c(0.1, 2), base = 3))
 #> dnf.cat1.1.n dnf.cat1.1.f dnf.cat1.2.f
 #>            0            2            1
 ```
 
+:::
+::: {.gap}
 - `1.n` empties, `1.f` goes from 1 to 2. The category-2 tie is untouched.
+:::
 
 ::: {.punch}
 The term responds to the threshold exactly where it should, and nowhere else.
@@ -447,27 +457,44 @@ The term responds to the threshold exactly where it should, and nowhere else.
 ::: notes
 Perturbation testing means changing one input, predicting which outputs move, and
 confirming the rest stay put. Cheap, and it catches the indexing errors that are
-otherwise nearly impossible to debug inside C.
+difficult to debug inside C.
 :::
 
 ---
 
 ## What the term has to overcome {.smallish}
 
-On our n = 1,000 network, a **random** placement of ~900 ties lands almost entirely
-in the far cells:
+On our n = 1,000 network, a **random** placement of ~900 ties gets classified
+almost entirely in the far cells:
 
 ```r
-#> dnf.chicago.1.n dnf.chicago.1.f dnf.chicago.2.n dnf.chicago.2.f
-#>               8             492               1             398
+set.seed(5)
+n <- network.size(net)
+p <- network.edgecount(net) / (n * (n - 1))
+net_rand <- as.network(rgraph(n, tprob = p, mode = "digraph"), directed = TRUE)
+net_rand %v% "chicago" <- net %v% "chicago"
+net_rand %v% "lat"     <- net %v% "lat"
+net_rand %v% "lon"     <- net %v% "lon"
+
+summary(net_rand ~ dnf(by = "chicago", thresholds = c(2, 2)))            # base = 4
+#> dnf.chicago.1.n dnf.chicago.1.f dnf.chicago.2.n
+#>               7             468               1
+
+summary(net_rand ~ dnf(by = "chicago", thresholds = c(2, 2), base = 3))  # exposes cell 4
+#> dnf.chicago.1.n dnf.chicago.1.f dnf.chicago.2.f
+#>               7             468             404
 ```
+
 
 Fewer than **1%** of random ties are near. Our empirical targets want **62%**.
 
+
+
 ::: {.accent}
-Geographic proximity is the dominant structure in this network. The term has to
-create nearly every near tie from scratch.
+Geographic proximity is a prominent feature in this network. The term has to
+reflect the distribution of near ties.
 :::
+
 
 ::: notes
 Use this slide when someone asks whether the compiled term is worth the trouble.
@@ -489,6 +516,7 @@ dnf_target <- edges_target * c(.457, .229, .163)            # base cell omitted
 #> 325.0  162.9  115.9
 ```
 
+::: {.gap}
 | Cell | Share of ties | Target |
 |---|:--:|:--:|
 | `dnf.chicago.1.n` | .457 | 325.0 |
@@ -496,7 +524,10 @@ dnf_target <- edges_target * c(.457, .229, .163)            # base cell omitted
 | `dnf.chicago.2.n` | .163 | 115.9 |
 | `dnf.chicago.2.f` *(base)* | .151 | *107.4* |
 
-- The four shares sum to 1, so the base cell is implied and left out.
+:::
+::: {.gap}
+The four shares sum to 1, so the base cell is implied and left out.
+:::
 
 ::: notes
 Order matters, so `.457, .229, .163` must line up with the coefficient names
@@ -518,7 +549,7 @@ f_mix <- net ~ edges +
   dnf(by = "chicago", thresholds = c(2, 2))    # was: nodematch("chicago")
 
 ts_mix <- c(edges_target, sex_target, age_target, race_target,
-            edges_target * c(.457, .229, .163))
+            dnf_target)
 
 stopifnot(length(summary(f_mix)) == length(ts_mix))   # 23 becomes 25
 ```
@@ -535,18 +566,20 @@ untouched. Swapping in a custom term is a local edit to one line of the formula.
 
 ---
 
-## The sibling term `dist()` {.smallish}
+## The sibling term `dist()` (another aside) {.smallish}
 
-The same package ships a simpler, older term that bands every tie by distance,
-with no category:
+The package ships a related term we used in
+[Boodram et al. (2022)](https://doi.org/10.1371/journal.pone.0248850), which bands
+every tie by distance:
 
 ```r
-summary(g ~ dist(1:4))          # band indices, not distances
+summary(g ~ dist(1:4, breaks = c(0.2, 1.6, 32.2)))   # km cutoffs
 #> dist1 dist2 dist3 dist4
 #>     0     1     2     0
 ```
 
-The four default bands follow the field's conventional cutoffs:
+Those breaks are the default, so `dist(1:4)` gives the same thing. They're the
+four cutoffs from the paper:
 
 ::: {.smaller}
 | Band | Range | In miles |
@@ -557,42 +590,46 @@ The four default bands follow the field's conventional cutoffs:
 | 4 | > 32.2 km | > 20 miles |
 :::
 
-- `breaks` replaces the cutoffs, so `dist(1:3, breaks = c(1, 3))` gives three bands.
-- `dnf` adds the piece `dist` still lacks, one threshold per category.
+- `k` breaks give `k + 1` bands, so the three defaults yield four. Every dyad
+  falls in exactly one band, so `edges + dist(1:4)` is collinear. Drop a band
+  to identify the model, same principle as `dnf`'s base cell.
 
 ::: notes
-`dist` came first and answered "how far are ties, overall". `dnf` answers "how far
-are ties, given their source", which is the question our survey summaries can
-actually speak to. Both terms take custom cut points now, so the live distinction
-is the per-category stratification. Warn that the first argument is band indices,
-since asking for `dist(1:7)` with four bands is an error.
+`dist` answers "how far are ties, overall". `dnf` answers "how far are ties,
+given their source", which is the question our survey summaries can actually
+speak to. The live distinction is the per-category stratification. Warn that the
+first argument is band indices, since asking for `dist(1:7)` with four bands is
+an error.
 :::
 
 ---
 
 ## Requirements checklist {.smallish}
 
-`dnf` rests on five assumptions, and version 4 checks all but one.
+`dnf` rests on four assumptions, and the package checks all but one.
 
+::: {.gap}
 ::: {.smaller}
 | Requirement | Why | Failure mode |
 |---|---|---|
 | Network is **directed** | The tail node defines the cell | Error at term init |
 | Vertex attributes named exactly `lat`, `lon` | Read from the network by name | Error, "not valid nodal attribute(s)" |
-| `by` yields integers `1, 2, ..., n` | Codes index the threshold vector | Error naming the observed range |
-| One threshold per category | `thresholds` sets n | Error, from the same check |
+| `by` yields integers `1, 2, ..., n`, where n is `length(thresholds)` | Codes index the threshold vector | Error naming the observed range |
 | Coordinates in **decimal degrees** | Fed straight to the distance formula | **Silently wrong distances** |
 :::
 
+:::
+::: {.gap}
 ::: {.punch}
 Only the coordinate units fail silently. The rest stop you at term init.
 :::
+:::
 
 ::: notes
-Version 3.1.1 used the category codes as raw array indices, so a factor, a 0/1
-coding, or categories `c(1, 3)` each produced plausible numbers that were wrong.
-Version 4 rejects all three by name. Recoding to consecutive integers from 1 is
-still the preprocessing step, but you now find out immediately.
+The category codes must be consecutive integers starting at 1. A factor, a 0/1
+coding, or categories `c(1, 3)` are all rejected by name at term init. Recoding
+to consecutive integers from 1 is the preprocessing step, and you find out
+immediately if you haven't.
 :::
 
 ---
@@ -628,7 +665,7 @@ Verify by hand
 1. **Decide what one edge contributes** to each statistic.
 2. **On the R side**, validate arguments, name the coefficients, flatten the inputs.
 3. **On the C side**, return the change in each statistic for a toggled dyad.
-4. **Verify** on a network small enough to check mentally.
+4. **Verify** on a network small enough to check manually.
 
 ::: {.accent}
 Start from the `ergm.userterms` template package for the build plumbing.
@@ -652,7 +689,7 @@ statistic measures.
 - Custom terms are two pieces, an `InitErgmTerm` in R and a change statistic in C.
 - The term is dyad-independent, so it slots into the Module 3 pipeline for the cost
   of two extra targets.
-- Compiled terms get **verified on tiny networks**, before they get trusted.
+- Custom terms should be **verified on test networks**.
 
 ::: {.punch}
 When `ergm` has no term for your data, write one.
@@ -660,22 +697,26 @@ When `ergm` has no term for your data, write one.
 
 ---
 
-## Exercise
+## Exercise {.smallish}
 
-Work in the Posit Cloud environment:
+`ergm.userterms.hepcep` is already installed in the Posit Cloud workspace, so just
+`library(ergm.userterms.hepcep)` to get started.
 
-1. Install from `hepcep/ergm.userterms.hepcep`, then rebuild the three-node Hyde
-   Park network above.
-2. Run `summary(g ~ dnf(...))` at all four values of `base`. Confirm the four cells
-   sum to the edge count.
-3. Set `thresholds = c(0.1, 2)`. Predict which cells move **before** you run it.
-4. On the n = 1,000 network, swap `nodematch("chicago")` for
-   `dnf(by = "chicago", thresholds = c(2, 2))` and check the statistic count.
-5. Refit the mixing block with the new targets. Does it still converge?
-6. Simulate 100 networks (Module 5) and check the `dnf` cells against their targets.
+1. Rebuild the three-node Hyde Park network from earlier and run
+   `summary(g ~ dnf(...))` at each of the four `base` values. Confirm the four cells
+   sum to the edge count no matter which one you drop.
+2. Set `thresholds = c(0.1, 2)`. Predict which cells move **before** you run it.
+3. On the n = 1,000 network, swap `nodematch("chicago")` for
+   `dnf(by = "chicago", thresholds = c(2, 2))` and confirm the statistic count goes
+   from 23 to 25.
+4. Refit the mixing block with the two new near/far targets (.457, .229, .163, .151
+   from the survey summaries). Does it still converge?
+5. Simulate 100 networks (Module 5) and check the `dnf` cells against their targets.
+6. **Stretch.** Swap in `dist(1:3)` instead of `dnf(...)`. Which question does each
+   term answer that the other cannot?
 
 ::: notes
-Steps 1-3 are the core and should fit comfortably. Steps 4-6 depend on the package
-being pre-installed in the image, so treat them as the stretch goal and have a
-pre-baked fit ready if installation eats the clock.
+Steps 1-2 are the hands-on core. Steps 3-5 are the payoff, using the same pipeline
+from Modules 3-5 with the geographic term slotted in. Step 6 is optional. Have a
+pre-baked fit ready for step 4 if convergence eats the clock.
 :::
