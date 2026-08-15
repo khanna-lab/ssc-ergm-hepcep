@@ -428,10 +428,9 @@ Likely Candidate:
 - The probability of connecting two people increases as the number of their shared friends increases.
 - But this scaling is not linear. 
 - The probability of two people connecting is far greater if they know 2 vs. 4 people in common, than whether they know 100 vs. 102 people in common.
-- This means that the the log odds of tie probability decay as the
-number of common friends increases. 
-- A linear scaling WRT to common friends would be specified using a "triangle" parameter, which leads to "model degeneracy" (discussed later). 
-- Hence, we use an ERGM parameter that weights the tie probability non-monotonically WRT common friends.  
+- So each additional shared friend should add **less** to the tie's log-odds than the one before (i.e., **diminishing returns**).
+- A `triangle` parameter instead adds a *constant* amount per shared partner (linear, unbounded), which drives **model degeneracy** (discussed later).
+- Hence we specify a parameter with these diminishing returns.
 
 ---
 
