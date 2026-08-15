@@ -55,9 +55,9 @@ Direct fixes he made: "the default criterion **is** Hummel"; "**which** conducts
 "Hummel handles **steps** 5–6"; "simulating, **comparing** to target, and **nudging**";
 "an empty or random **network**"; "Stochastic Approximation **(SA)**".
 
-- [ ] **List the 7 steps up front** — "mention at the outset there will be 7 steps? maybe show
+- [x] **List the 7 steps up front** — "mention at the outset there will be 7 steps? maybe show
   them once as a table with the first two columns, then go into the per-step detail."
-- [ ] **"direct MLE estimation" is redundant** — use "MLE" or "maximum likelihood estimation (MLE)."
+- [x] **"direct MLE estimation" is redundant** — use "MLE" or "maximum likelihood estimation (MLE)."
 - [~] **Why is Hummel hard at full scale?** — *we can answer this now.* Under SA there's still a
   final MCMLE/Newton-Raphson polish step; at n≈32k with `MCMC.interval = 1e6`, Hummel's adaptive
   stepping is expensive enough to exhaust walltime while Hotelling's simpler T² stops sooner.
@@ -65,8 +65,7 @@ Direct fixes he made: "the default criterion **is** Hummel"; "**which** conducts
   → write a one-line intuition into the slide.
 - [ ] **Footnotes for references** — Jonathan asks whether to footnote in-slide citations
   (Robbins–Monro, etc.). Decide on a convention.
-- [ ] **"Here we carry the network forward"** — ambiguous "here"; clarify it refers to the
-  network-carrying option, not the coefficient-init option above it.
+- [x] **"Here we carry the network forward"** — ambiguous "here"; (yes, "here" refers to the follow-up examples in this module, not the second option on the slide).
 - [~] **"where is `net_warm` defined?"** — Jonathan independently caught the `net_mix` vs
   `net_warm` naming inconsistency (fit5 uses `net_mix`, fit6 uses `net_warm`). Make the
   carried-network naming consistent across the warm-start blocks.
