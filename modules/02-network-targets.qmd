@@ -13,8 +13,6 @@ execute:
   warning: false
   message: false
 
-# NOTE TO JO: the speaker-notes fields (::: notes blocks) are not edited yet —
-# they're generated directly by Claude.
 ---
 
 ## Where we left off
@@ -22,7 +20,7 @@ execute:
 
 - In Module 1 we fit models to a network we could **see**. 
 
-   * Targets were based on those observed friendships: 
+   * Targets were based on those observed syringe sharing links: 
 
     ```r
     summary(fmh ~ edges + nodematch("Grade"))
@@ -70,7 +68,8 @@ ergm(net ~ terms, target.stats = <numbers>)
 ```
 
 - We build an adjacency matrix from the data we have
-- To do this, we turn survey numbers into a correctly-ordered vector (JO: correctly ordered vector seems unnecessarily jargony?)
+- To do this, we turn survey statistics into a target vector 
+- Checking ordering between the ERGM parameters and the target statistics is important, especially for parameters with multiple cells.  
 - "From aggregate summaries to network parameters"...
 - We produce a vector of summaries to specify in the ERGM.
 
@@ -89,7 +88,7 @@ Network Characteristics:
 
   - n = 1,000 PWID with attributes: `sex`, `race.num`, `young`, `chicago`. 
   - The network is **directed**. 
-  - That, is A naming B as a friend is distinct from B naming A. (JO: friend? did you not want to say connection or something more specific like needle sharing?)
+  - That is, A naming B as a **syringe-sharing partner** is distinct from B naming A.
 
 ```r
 library(network); library(ergm); library(dplyr); library(readr); library(here)
@@ -162,13 +161,13 @@ Module 3 as the `idegree`/`odegree` targets.
 
 ## Turn a degree distribution into an edge count
 
-- Every tie is one partner-slot for someone, 
-- **total ties = Σ (degree × # people at that degree)** (JO: why are the in/out_degrees being multiplied by the mean_n and not the number of people with that degree in the code snippet below?)
+- Every tie is one partner-slot for someone,
+- **total ties = Σ (degree × # people at that degree)**, shown in the `mean_n` column below
 - Computed separately for in- and out-degree reports
 
 ```r
-indeg  <- targets$indegree_data      # our population's in-degree distribution
-outdeg <- targets$outdegree_data
+indeg  <- targets$indegree_data      # cols: in_degree, mean_n
+outdeg <- targets$outdegree_data     # mean_n = (mean) # of people at that degree
 
 inedges_target  <- sum(indeg$in_degree   * indeg$mean_n)     # 630.8
 outedges_target <- sum(outdeg$out_degree * outdeg$mean_n)    # 791.5
@@ -198,7 +197,7 @@ A target is a **count** — and the next step turns proportions *into* counts.
 :::
  -->
 ::: notes
-`711` is load-bearing (JO: "load-bearing" is the new AI tell :) ): every mixing target is `edges_target × proportion`, so it
+`711` is important to interpret. every mixing target is `edges_target × proportion`, so it
 propagates through the whole vector. The in ≠ out gap is an honest preview —
 summaries don't always reconcile, which is why simulation (Module 5), not the fit
 object, is the real test of fit. (If asked about size/scale: the count and density
@@ -210,8 +209,10 @@ are what transfer across populations; Krivitsky, Handcock & Morris 2011.)
 
 ## Homophily, one example: sex mixing
 
-The survey gives mixing as **proportions**: share of ties sent by each sex, split
-within/between group. (JO: make sure to define "sent" well here. It's not clear from the code snippet below. Neither is the "within-group" clear.)
+- The survey gives mixing as **proportions**.
+- That is, the number of syringe sharing partners claimed by each sex (M/F).
+- Claimed partners are istributed "within" the same group (i.e., M -> M, F->F) and "between" (i.e., M -> F,  F -> M) groups.   
+
 
 ```r
 # shares of ties SENT by each sex
