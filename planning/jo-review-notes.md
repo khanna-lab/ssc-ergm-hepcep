@@ -44,7 +44,7 @@ Direct fixes he made: `freindships`→`friendships`, `availble`→`available`.
   not the number of people at that degree in the code snippet?" (Clarified: what you are suggesting is what we did. Clarified on slide.)
 - [x] **"load-bearing"** — Jonathan flags it as an "AI tell." Reword; scrub for similar voice. (removed)
 - [x] **Sex-mixing slide** — define "**sent**" clearly; "within-group" isn't clear from the code.
-- [ ] **`summary()` decimals** — explain why the results contain decimals (non-integer targets).
+- [x] **`summary()` decimals** — explain why the results contain decimals (non-integer targets).
 - [ ] **`levels2 = -1`** — explain the "2" (second term); note it's a choice / give a rule of thumb.
 - [ ] **`age_target` / `race_target`** — not yet defined at that point (they're in the exercise);
   say so explicitly.
