@@ -15,10 +15,9 @@ execute:
 ---
 
 ## This Module's Goal {.smallish}
-(JO: Where does the sequential fitting fit into this fitting diagnostic pipeline?)
 
 ::: {.accent}
-Where Module 3 ended:
+From achieving convergence (Module 3) to diagnosing fit quality (this module):
 :::
 
 - Produced a staged set of convergent ERGMs. 
@@ -31,7 +30,14 @@ In this module, we will discuss:
 
 - Practical considerations on the types of model failure.
 - How we diagnose those failures.
-- Some solutions to specific failure types. 
+- Some solutions to specific failure types.
+
+::: notes
+Where sequential fitting fits (JO's question): it's not a diagnostic — it's the convergence
+strategy from Module 3. Pipeline = fit → diagnose → fix. Sequential/warm-start is a fitting
+strategy (and later a fix for non-convergence); this module is the diagnostic step. Degeneracy,
+unlike non-convergence, isn't fixed by a fitting strategy — it needs respecification.
+:::
 
 ---
 
