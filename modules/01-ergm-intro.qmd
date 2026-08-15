@@ -324,7 +324,7 @@ round(coef(assort.m), 2)
 
 {{< include precomputed/out-assort.md >}}
 
-- These `nodematch` terms allow us to estimate the probability that persons withing the same grade, or of the same sex or race  are more likely to be friends. 
+- These `nodematch` terms allow us to estimate the probability that persons within the same grade, or of the same sex or race, are more likely to be friends.
 - This is a **dyad-independent** model, a tie's odds depend only on the two nodes' attributes. 
 - Such models can be fit using standard logistic regression, and fit fast. 
 - Positive coefficients → ties are more likely **within** that attribute (homophily).
@@ -351,20 +351,25 @@ A same-grade tie is ~22× more likely than a random pair.
 
 ::: notes
 The `edges` term is the intercept; each `nodematch` shifts the log-odds when two people
-share that attribute. (JO: log likelihood is first introduced here? Will need some at least brief context.) Log-likelihood also jumps (−7790 to −6528): a better fit.
+share that attribute. Log-likelihood (how well the model explains the observed ties) also
+jumps (−7790 to −6528): a better fit.
 :::
 
 ---
 
 ## Is a better-fitting model *good enough*?
 
-- A higher log-likelihood says "better"
-- But does the model *reproduce* the structure we care about?
-- The test: simulate many networks, compare to the data
+- "Better" is measured here in terms of **log-likelihood**. 
+- Higher **log-likelihood** means the observed ties are **more probable** under the model.
+- But does the better fitting model *reproduce* the network structure we care about?
+- The test: simulate many networks, compare to the target network statistics. 
 
 ::: notes
-A converged model is not necessarily a well-aligned one. (JO: what's the intuition behind why this might happen?) We pick a structural property we
-care about and check whether the data sits inside the simulated spread.
+Intuition: a converged model matches the statistics you fit it to (in expectation), but it's
+free to differ on anything you didn't constrain. The assortative model matches mixing, yet its
+simulated networks miss the degree distribution (next slides) — degree was never a target. So
+convergence guarantees the *included* terms; alignment on *unmodeled* structure is a separate
+check. We pick a structural property and see whether the data sits inside the simulated spread.
 :::
 
 ---
