@@ -1,8 +1,8 @@
-# Jonathan's Review Notes — Modules 1–3
+# Jonathan's Review Notes — Modules 1–4
 
-Consolidated from the `JO-01-notes`, `JO-02-notes`, `JO-03-notes` branches
-(Jonathan Ozik, 08/10–08/11/2026). Each branch is a single commit against `init`
-touching one module. Below: his inline `JO:` comments as an actionable checklist,
+Consolidated from the `JO-01-notes`, `JO-02-notes`, `JO-03-notes`, `JO-04-notes`
+branches (Jonathan Ozik, 08/10–08/15/2026). Each branch is a single commit against
+`init` touching one module. Below: his inline `JO:` comments as an actionable checklist,
 plus the small text fixes he made directly.
 
 **Legend:** `[ ]` open · `[~]` partly solved (see note) · `[x]` done
@@ -70,6 +70,33 @@ Direct fixes he made: "the default criterion **is** Hummel"; "**which** conducts
 - [~] **"where is `net_warm` defined?"** — Jonathan independently caught the `net_mix` vs
   `net_warm` naming inconsistency (fit5 uses `net_mix`, fit6 uses `net_warm`). Make the
   carried-network naming consistent across the warm-start blocks.
+
+## Module 4 — `modules/04-failure-modes-and-diagnostics.qmd`
+
+From `JO-04-notes`. Three of the five cluster on "define degeneracy / how does it differ
+from non-convergence" — worth resolving together.
+
+- [ ] **Goal slide (l.18)** — "Where does the sequential fitting fit into this diagnostic
+  pipeline?" Add a line connecting Module 3 (build a convergent fit, sequentially) → Module 4
+  (now *diagnose* whether that fit is any good). Sequencing = getting a fit; diagnostics =
+  judging it.
+- [ ] **Define degeneracy + intuition (l.73)** — the core ask. Proposed: a model is
+  *degenerate* when it puts almost all probability on a few extreme graphs (near-empty or
+  near-complete), so simulated networks look nothing like the data and the MLE is effectively
+  unreachable. Cause: terms like raw `triangle` create runaway positive feedback (a tie makes
+  further ties even more likely). Ties back to the Module 1 GWESP/triangles slide.
+- [ ] **Degeneracy vs. non-convergence; does sequential/warm-start help? (l.80)** — Jonathan
+  conflates them. Clarify: **non-convergence** is a *fitting* problem (algorithm can't settle
+  on estimates matching targets) → fixed by tuning controls (SA, Hotelling, heavier MCMC,
+  **warm-start**). **Degeneracy** is a *model-specification* problem (even a perfect fit puts
+  mass on extreme graphs) → no control setting helps; must respecify. So sequential/warm-start
+  helped the hard-to-converge step (non-convergence), **not** degeneracy.
+- [ ] **Footnote the degeneracy references (l.72)** — inline `^[...]` convention:
+  Handcock (2003), CSSS Working Paper 39; Schweinberger (2011), *JASA* 106(496), 1361–1370.
+- [ ] **Target line in the MCMC diagnostic figure (l.107)** — "where is the edges target?"
+  For a `target.stats` fit, `mcmc.diagnostics()` plots sampled stats as *deviations from
+  target*, so the target is the **0 line** — "centered far from 0" = off target. Verify
+  against the actual `mcmc-diag-edges.png` and label it on the slide/caption.
 
 ---
 
