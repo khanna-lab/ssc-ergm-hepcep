@@ -81,3 +81,7 @@ Direct fixes he made: "the default criterion **is** Hummel"; "**which** conducts
   "network parameters"; watch jargon ("correctly-ordered vector").
 - **Voice scrub** — "load-bearing" flagged as an AI tell; do a light pass for similar phrasing.
 - **Citations convention** — decide footnotes vs inline (Module 3 prompt, applies throughout).
+
+## One research pipeline comment
+ - From AK: This may be important and I have a thumb on it. While doing another directed network data analysis, I found that a mutuality term maybe really useful to use in directed networks. I have never used it in the research pipeline. It might be worth adding. But we may not need it in the workshop itself, since we have got enough in terms of building and testing the pipeline.
+
