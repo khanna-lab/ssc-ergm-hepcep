@@ -290,10 +290,10 @@ scales to any `nodemix` term, not just sex.
 - Each is its own `nodemix` term, concatenated in formula order:
 
 ```r
+# age_target and race_target follow the sex_target example (see exercise)
 target_vec <- c(edges_target, sex_target, age_target, race_target)
 stopifnot(length(summary(f_mix)) == length(target_vec))   # count check, not order check
 ```
-(JO: age_target and race_target are not yet defined? I see, they're part of the exercise. Mention this.)
 
 N.B.
 
