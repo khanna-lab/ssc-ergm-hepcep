@@ -45,7 +45,7 @@ Direct fixes he made: `freindships`→`friendships`, `availble`→`available`.
 - [x] **"load-bearing"** — Jonathan flags it as an "AI tell." Reword; scrub for similar voice. (removed)
 - [x] **Sex-mixing slide** — define "**sent**" clearly; "within-group" isn't clear from the code.
 - [x] **`summary()` decimals** — explain why the results contain decimals (non-integer targets).
-- [ ] **`levels2 = -1`** — explain the "2" (second term); note it's a choice / give a rule of thumb.
+- [x] **`levels2 = -1`** — explain the "2" (second term); note it's a choice / give a rule of thumb.
 - [ ] **`age_target` / `race_target`** — not yet defined at that point (they're in the exercise);
   say so explicitly.
 
