@@ -73,16 +73,48 @@ For each statistic
 Repeat this process for every target statistic to:
 :::
 
-- Identify if the target statistic for any parameter is off
-- If not, great!
-- If yes, it is often a **fitting** (Modules 3 and 4) problem.
-- We run through checks described in modules 3 and 4.
+- Identify whether any statistic's target falls outside its simulated spread.
+- If not — great, the model reproduces the targets.
+- If a target is off, work through fixes in rough order of effort:
+
+  1. **Tune the controls / re-fit** (Modules 3–4) (cheapest, sometimes enough).
+  2. **Reparameterize**: try a different specification.
+  3. **Cross-check the data / targets** — most involved.
+
+- In practice for me, this is often iterative. 
+- Sometimes the order of operations can be different.
+- I stop when the target sits inside the simulated spread.
 
 ---
 
-## Sample Code for Violin Plot  {.smallish}
+## Sample Code for Violin Plot {.smallish}
+
+```r
+long <- data.frame(stat  = rep(colnames(sim_stats), each = nrow(sim_stats)),
+                   value = as.vector(sim_stats))
+tgt  <- data.frame(stat = names(targets_vec), target = as.numeric(targets_vec))
+
+ggplot(long, aes(stat, value)) +
+  geom_violin(fill = "#cdeef2", color = "#0b6e7c") +
+  geom_hline(data = tgt, aes(yintercept = target), color = "red") +
+  facet_wrap(~ stat, scales = "free")
+```
+
+---
 
 ## Sample Code for Simulation Interval {.smallish}
+
+```r
+comparison <- data.frame(
+  statistic = names(targets_vec),
+  target    = round(as.numeric(targets_vec), 1),
+  sim_mean  = round(colMeans(sim_stats), 1),
+  sim_lo    = round(apply(sim_stats, 2, quantile, 0.025), 1),
+  sim_hi    = round(apply(sim_stats, 2, quantile, 0.975), 1)
+)
+```
+
+- A target inside `[sim_lo, sim_hi]` → aligned on that statistic.
 
 
 ## Next Step: Crosswalk to the ABM {.smallish}
