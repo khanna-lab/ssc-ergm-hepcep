@@ -49,9 +49,9 @@ sim_stats <- t(sapply(sims, \(s)
   summary(s ~ edges + odegree(0:1) + idegree(0:1) + nodematch("chicago"))))
 ```
  
- This produces a matrix of:
-- One row of statistics per simulated network.
-- Compare each column's spread to its **target**.
+This produces a matrix:
+ - One row per simulated network, one column per target 
+ - We then compare each simulated distribution (in a column) to the target.
 
 ---
 
