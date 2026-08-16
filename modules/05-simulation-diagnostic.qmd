@@ -63,19 +63,30 @@ copy the PNG into `modules/img/`.
 
 ## Good vs. poor alignment {.smallish}
 
-- **Good:** target sits inside the bulk; no one-sided bias; spread not absurdly wide.
-- **Poor:** target outside the distribution, or stuck at an extreme tail.
-- **Numeric companion:** per statistic, target vs. simulated mean and 95% interval —
-  read it when the plot is ambiguous.
+For each statistic
+
+- **Good:** The distribution contains the target. 
+
+- **Numeric summary:** Computed the simulated mean and a  simulation interval (usually 95%)
 
 ::: {.accent}
-Poor alignment points at *which* term is off — a **Module 3** problem (revise the model),
-not a "just refit."
+Repeat this process for every target statistic to:
+:::
+
+- Identify if the target statistic for any parameter is off 
+- If not, great!
+- If yes, it is often a **fitting** (Modules 3 and 4) problem.
+- We run through checks described in modules 3 and 4. 
 :::
 
 ---
 
-## Crosswalk to the ABM {.smallish}
+## Sample Code for Violin Plot  {.smallish}
+
+## Sample Code for Simulation Interval {.smallish}
+
+
+## Next Step: Crosswalk to the ABM {.smallish}
 
 ::: {.punch}
 An aligned simulated network **is** the ABM input.
@@ -95,6 +106,12 @@ el    <- as.edgelist(net_sim)                            # partnerships (from, t
 - Export one edgelist per simulated network to carry **network uncertainty** into the ABM.
 
 ---
+
+## We have a well fitting network! What next?
+
+- Describe how flexible ABM formats can "ingest" this type of network as an input
+- Also mention canonical products that do this (e.g., EpiModel)
+- But our group often connects this to Repast or other ABM platforms (in R)
 
 ## Handoff to Module 6
 
