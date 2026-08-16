@@ -166,11 +166,11 @@ Module 3 as the `idegree`/`odegree` targets.
 - Computed separately for in- and out-degree reports
 
 ```r
-indeg  <- targets$indegree_data      # cols: in_degree, mean_n
-outdeg <- targets$outdegree_data     # mean_n = (mean) # of people at that degree
+indeg  <- targets$indegree_data      # cols: in_degree, num_in
+outdeg <- targets$outdegree_data     # num_n = num of people at in/out degree
 
-inedges_target  <- sum(indeg$in_degree   * indeg$mean_n)     # 630.8
-outedges_target <- sum(outdeg$out_degree * outdeg$mean_n)    # 791.5
+inedges_target  <- sum(indeg$in_degree   * indeg$num_n)     # 630.8
+outedges_target <- sum(outdeg$out_degree * outdeg$num_n)    # 791.5
 ```
 
 ::: notes
