@@ -36,13 +36,20 @@ In this module, we will:
 
 ## Simulate an ensemble {.smallish}
 
+We use standard `ergm` functionality to simulate a network ensemble:
+
 ```r
 sims <- simulate(fit_final, nsim = 100)
+```
 
+We then compute the distribution of the target statistics across the simulated ensemble: 
+
+```r
 sim_stats <- t(sapply(sims, \(s)
   summary(s ~ edges + odegree(0:1) + idegree(0:1) + nodematch("chicago"))))
 ```
-
+ 
+ This produces a matrix of:
 - One row of statistics per simulated network.
 - Compare each column's spread to its **target**.
 
