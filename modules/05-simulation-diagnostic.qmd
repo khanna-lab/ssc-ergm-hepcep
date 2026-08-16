@@ -73,11 +73,10 @@ For each statistic
 Repeat this process for every target statistic to:
 :::
 
-- Identify if the target statistic for any parameter is off 
+- Identify if the target statistic for any parameter is off
 - If not, great!
 - If yes, it is often a **fitting** (Modules 3 and 4) problem.
-- We run through checks described in modules 3 and 4. 
-:::
+- We run through checks described in modules 3 and 4.
 
 ---
 
