@@ -32,8 +32,8 @@ p_within_chicago <- 0.70
 geo_target <- targets$edges_target * p_within_chicago
 
 # Degree-target helpers (counts of nodes at given degrees).
-odeg_target <- function(k) with(targets$outdegree_data, mean_n[out_degree %in% k])
-ideg_target <- function(k) with(targets$indegree_data,  mean_n[in_degree  %in% k])
+odeg_target <- function(k) with(targets$outdegree_data, num_n[out_degree %in% k])
+ideg_target <- function(k) with(targets$indegree_data,  num_n[in_degree  %in% k])
 
 # Mixing block + targets. unname() keeps target.stats positional (target_race_num
 # carries names ergm would otherwise reject).

@@ -55,7 +55,7 @@ cat("Chicago area:", mean(nodes$chicago == 1), "\n")
 scale_factor <- n_workshop / 32002
 
 indegree_data <- read.table(text = "
-  in_degree mean_n
+  in_degree num_n
   0  20666.67
   1   6499.50
   2   2657.25
@@ -68,10 +68,10 @@ indegree_data <- read.table(text = "
   9     12.90
   10     6.25
 ", header = TRUE) |>
-  mutate(mean_n = mean_n * scale_factor)
+  mutate(num_n = num_n * scale_factor)
 
 outdegree_data <- read.table(text = "
-  out_degree mean_n
+  out_degree num_n
   0  19387.20
   1   6469.30
   2   2968.26
@@ -84,10 +84,10 @@ outdegree_data <- read.table(text = "
   9     37.79
   10    21.12
 ", header = TRUE) |>
-  mutate(mean_n = mean_n * scale_factor)
+  mutate(num_n = num_n * scale_factor)
 
-inedges_target  <- sum(indegree_data$in_degree  * indegree_data$mean_n)
-outedges_target <- sum(outdegree_data$out_degree * outdegree_data$mean_n)
+inedges_target  <- sum(indegree_data$in_degree  * indegree_data$num_n)
+outedges_target <- sum(outdegree_data$out_degree * outdegree_data$num_n)
 edges_target    <- mean(c(inedges_target, outedges_target))
 cat("edges_target:", round(edges_target), "\n")
 
