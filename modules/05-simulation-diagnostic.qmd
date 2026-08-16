@@ -34,26 +34,6 @@ In this module, we will:
 
 ---
 
-## Two notions of "goodness of fit" {.smallish}
-
-::: {.smaller}
-| Approach | Compares simulated nets to | Use when |
-|---|---|---|
-| `gof()` (Module 4) | the fitted / pseudo-observed network | you fit to a real observed network |
-| Simulate vs. targets (today) | your empirical **target vector**, directly | you fit to `target.stats` — this workshop |
-:::
-
-::: {.punch}
-"Converged" and "matches our empirical numbers" are not the same claim.
-:::
-
-::: notes
-The whole workshop fits to `target.stats`, never to a single observed network — so the
-right check is against the targets, which is exactly what manual simulation does.
-:::
-
----
-
 ## Simulate an ensemble {.smallish}
 
 ```r
