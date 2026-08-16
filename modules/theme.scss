@@ -116,6 +116,11 @@ $code-block-font-size: 0.6em !default;
   color: $brown-taupe;
   font-size: 0.5em;
 }
+// Hide the global footer on the auto-generated title slide
+.reveal #title-slide .footer,
+#title-slide .footer {
+  display: none !important;
+}
 .reveal .slide-number {
   background-color: transparent;
   color: $brown-taupe;

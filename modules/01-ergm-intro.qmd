@@ -15,11 +15,60 @@ execute:
   message: false
 ---
 
-## Introducing the workshop
-- A slide of two explaining the outline and structure of the workshop
-- To Be Done
+## How this workshop came about {.smallish}
 
-## Why this intro
+::: footer
+&nbsp;
+:::
+
+- This is a research problem on fitting an exponential random graph model (ERGM) to a directed **32,000-node** syringe-sharing
+  network (HepCEP). 
+  
+- We first modeled this using the `ergm` v3.x, part of the `statnet` suite in R.^[Boodram et al. (2022), *PLoS ONE* 17(1): e0248850. doi:10.1371/journal.pone.0248850]
+
+- As the synthetic population evolved to incorporate more realistic demographic structures, we needed to refit the ERGM. 
+
+- But, the ERGM no longer fit "out of the box".
+
+---
+
+## How this workshop came about (cont'd) {.smallish}
+
+::: footer
+&nbsp;
+:::
+
+- Refitting started with a long conversation with the  **statnet_help community** in 2024.
+
+- Following this, we worked through a chain of modeling steps and tuning of fitting parameters, often starting with some educated guesswork. 
+
+- Once we got the ERGM fitting sequence to work, we wanted to share the decisions we worked through as a pipeline with the ABM community interested in incorporating empirical networks.
+
+---
+
+## Why we Developed this Workshop {.smallish}
+
+::: footer
+&nbsp;
+:::
+
+- The **ABM community** increasingly wants networked populations — but the practical
+  ERGM-fitting know-how is **scattered and largely undocumented**.
+- This workshop packages that pipeline as a **reproducible, hands-on toolkit**:
+  aggregate summaries → convergent ERGM → simulated networks → ABM inputs.
+- The emphasis is **practical judgment**, including diagnosis, tuning, and checking fits in practice. 
+- The workshop example includes a 1000-node network extracted from our "research problem," to enable us to experiment with the steps in real time. 
+- The full pipeline will be made available in a GitHub repository once the paper is submitted for review.
+
+![](img/boodram-plos-2022.png){width="34%" fig-align="right"}
+
+---
+
+## Module 1: Introducting the Core Concepts
+
+::: footer
+&nbsp;
+:::
 
 - Core ideas in 30 minutes, on a familiar example: **teen friendships**
 - Builds to the workshop's key concepts end to end.
@@ -39,6 +88,10 @@ JSS 24(9)); the article is CC‑BY, so adapting it here with attribution is fine
 
 ## Based on the statnet tutorial{.smaller}
 
+::: footer
+&nbsp;
+:::
+
 ::: {.smallish}
 ![](img/jss-title.png){width="70%" fig-align="center"}
 :::
@@ -47,43 +100,43 @@ JSS 24(9)); the article is CC‑BY, so adapting it here with attribution is fine
 [Reused under CC‑BY]{.smallish}
 :::
 
-::: notes
-Showing the title page makes the provenance unmistakable: this module reproduces the
-running example from this tutorial. CC‑BY permits reuse and adaptation with attribution.
-:::
+
 
 ---
 
 ## The question
 
+::: footer
+&nbsp;
+:::
 
 - How do adolescents form friendships?
 - What processes generate the network structures we see?
 
 **Micro-level processes → macro-level structure**
 
-::: notes
-Sometimes we care about people's attributes; here the *pattern of ties* is the point.
-We'll pin down three things: what a generative process is, what "structure" is, and how to
-tell if a process reproduces the structure.
-:::
+- The same **micro → macro** process that **ABMs** are useful for. 
+- That is, localized rules produce emergent structure. 
+- Here, this **micro → macro** pipeline is followed for modeling network structure.
+
 
 ---
 
-## Where we're going
+## Where We Are Going
+
+::: footer
+&nbsp;
+:::
 
 1. **Describe** the network: what does the structure look like?
-2. **Summarize** it numerically: these become our **targets**
-3. **Model** it: null vs. assortative mixing 
-4. **Simulate**: does the model reproduce the underlying empirical structures?
-
-::: notes
-This arc (describe, summarize, model, check) is the workshop in miniature.
-:::
+2. **Summarize** it numerically: these network **summary statistics** become our **targets** for evaluating the quality of the fitted ERGM (akin to calibration in ABMs).
+3. **Model** it: null (random mixing) vs. **assortative** mixing, incorporating a known mechanism ("homophily") of friendship formation.
+4. **Simulate**: do networks from the model reproduce the empirical structure — i.e., our **target statistics**?
 
 ---
 
 ## The data
+
 
 - Network of 1,461 adolescent friendships (`faux.magnolia.high`)
 - 974 friendship "ties" (other common terms: "links", or "edges")
@@ -113,8 +166,6 @@ c(students = network.size(fmh),
 :::{.smallish}
 ![](precomputed/netplot.png){width="100%" fig-align="center"}
 :::
-
-(Comments on structure are needed: what are we seeing?)
 
 ::: notes
 Colored by grade: ties visibly cluster within grade, with a fringe of isolates. Each point
@@ -232,11 +283,7 @@ fit to the summaries regardless.
 - **Predictors:** network statistics (the target terms)
 - **Coefficients:** log-odds of a tie, converted to probabilities
 
-::: notes
-The left-hand side is the observed network; the right-hand side is the terms, which are
-exactly the statistics we just computed. R and statnet run the estimation for us. Everything
-that follows is this one idea.
-:::
+
 
 ---
 
@@ -250,15 +297,16 @@ plogis(coef(random.m))   # baseline tie probability
 
 {{< include precomputed/out-null.md >}}
 
-Interpretation 
+Interpretation
 
-- The above coefficient is the probability any two persons are friends.
-- Modeled using the `edges` ERGM term.
-- Additional terms will adjust the probability that nodes are connected using the "attributes" 
-- The `edges` term is therefore analogous to the intercept in regression modeling.  
+- The `edges` coefficient is a **log-odds**.
+- We convert it to a probability using `plogis()`, representing the "baseline" chance any two students are friends.
+- The `edges` term models this baseline probability, akin to the **intercept** in regression modeling.
 
 ::: notes
-Log-odds about −6.99, probability ≈ 0.0009. A random pair almost never shares a tie.
+Log-odds are the currency throughout: ERGM coefficients are on the log-odds scale (as in
+logistic regression), and `plogis()` (inverse-logit) maps them to probabilities. Here the
+`edges` coef is about −6.99 → probability ≈ 0.0009: a random pair almost never shares a tie.
 :::
 
 ---
@@ -276,9 +324,18 @@ round(coef(assort.m), 2)
 
 {{< include precomputed/out-assort.md >}}
 
+- These `nodematch` terms allow us to estimate the probability that persons within the same grade, or of the same sex or race, are more likely to be friends.
+- This is a **dyad-independent** model, a tie's odds depend only on the two nodes' attributes. 
+- Such models can be fit using standard logistic regression, and fit fast. 
+- Positive coefficients → ties are more likely **within** that attribute (homophily).
+
+
+
 ::: notes
-All terms here are dyad-independent, so this fits instantly via logistic regression, no
-MCMC. Positive coefficients mean ties are more likely within that attribute.
+The point to foreshadow: dyad-independent terms fit by plain logistic regression — no need to
+search the space of possible networks. That changes with dyad-*dependent* terms (triangles /
+GWESP, coming up), where whether one tie exists depends on other ties, so `ergm` must explore
+network configurations by MCMC — slower, and prone to degeneracy.
 :::
 
 ---
@@ -294,20 +351,25 @@ A same-grade tie is ~22× more likely than a random pair.
 
 ::: notes
 The `edges` term is the intercept; each `nodematch` shifts the log-odds when two people
-share that attribute. Log-likelihood also jumps (−7790 to −6528): a better fit.
+share that attribute. Log-likelihood (how well the model explains the observed ties) also
+jumps (−7790 to −6528): a better fit.
 :::
 
 ---
 
 ## Is a better-fitting model *good enough*?
 
-- A higher log-likelihood says "better"
-- But does the model *reproduce* the structure we care about?
-- The test: simulate many networks, compare to the data
+- "Better" is measured here in terms of **log-likelihood**. 
+- Higher **log-likelihood** means the observed ties are **more probable** under the model.
+- But does the better fitting model *reproduce* the network structure we care about?
+- The test: simulate many networks, compare to the target network statistics. 
 
 ::: notes
-A converged model is not necessarily a well-aligned one. We pick a structural property we
-care about and check whether the data sits inside the simulated spread.
+Intuition: a converged model matches the statistics you fit it to (in expectation), but it's
+free to differ on anything you didn't constrain. The assortative model matches mixing, yet its
+simulated networks miss the degree distribution (next slides) — degree was never a target. So
+convergence guarantees the *included* terms; alignment on *unmodeled* structure is a separate
+check. We pick a structural property and see whether the data sits inside the simulated spread.
 :::
 
 ---
@@ -366,7 +428,9 @@ Likely Candidate:
 - The probability of connecting two people increases as the number of their shared friends increases.
 - But this scaling is not linear. 
 - The probability of two people connecting is far greater if they know 2 vs. 4 people in common, than whether they know 100 vs. 102 people in common.
-- Using triangles in social networks leads to “degenerate” models
+- So each additional shared friend should add **less** to the tie's log-odds than the one before (i.e., **diminishing returns**).
+- A `triangle` parameter instead adds a *constant* amount per shared partner (linear, unbounded), which drives **model degeneracy** (discussed later).
+- Hence we specify a parameter with these diminishing returns.
 
 ---
 
@@ -393,7 +457,7 @@ round(coef(gwesp.m), 2)
 ::: notes
 gwesp decay 0.25, fixed. The gwesp coefficient is strongly positive; log-likelihood
 improves to ≈ −6100 (null −7790, assortative ≈ −6528). The fit is precomputed by
-`R/precompute-intro-fit.R`; the coefficients shown are read from `intro.rds`.
+`R/precompute-intro-fit.R`; the coefficients shown are read from `intro-fits.rds`.
 :::
 
 ---
@@ -434,9 +498,14 @@ workshop's real setting is fitting to summary targets alone.
 
 ---
 
-## Simulate 
-Show further how these fitted models behave upon simulation. 
+## Simulate from the fitted model {.smaller}
 
+A single network drawn from the assortative fit, beside the observed network:
+
+![](precomputed/obs-vs-sim.png){width="90%" fig-align="center"}
+
+- A simulated network is a **draw from the model** (not a copy of the data).
+- It reproduces what the model includes (i.e., assortative mixing). 
 
 ## Most Importantly
 
