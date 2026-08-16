@@ -42,6 +42,21 @@ and the mixing/warm-starting material exists to set it up.
 
 ---
 
+## The Fitting Sequence: roadmap {.smallish}
+
+We built the model in **seven sequential steps**:
+
+| Step | Terms added |
+|:----:|-------------|
+| 1–4 | `edges + nodemix(sex/young/race.num) + nodematch("chicago")` |
+| 5 | `+ odegree(0)` |
+| 6 | `+ odegree(0:1)` |
+| 7 | `+ idegree(0:1) + odegree(0:1)` |
+
+- Allows us to build the model in increasing complexity
+- Makes it easier to diagnose potential issues. 
+---
+
 ## The Fitting Sequence {.smallish}
 
 Each row sequentially builds upon the simpler model in the previous row.
@@ -51,7 +66,7 @@ Each row sequentially builds upon the simpler model in the previous row.
 | 1–4 | `edges + nodemix(sex/young/race.num) + nodematch("chicago")` | MCMC (defaults) |
 
 - The mixing block (steps 1-4) is **dyadic independent** — easier to fit.
-- Can be fit by direct MLE estimation. 
+- Can be fit directly by **maximum likelihood estimation (MLE)**.
 - Or if there are **non-integer target statistics** (e.g. `edges_target = 711.1`), ERGMs are instead estimated 
   via MCMC (default MCMLE).
 
@@ -66,10 +81,21 @@ Each row sequentially builds upon the simpler model in the previous row.
 
 [Convergence detection criteria can be important:]{.smallish}
 
-- In `ergm` v4, the default criterion **Hummel**, which uses an adaptive step-length rule. 
-- The alternative is **Hotelling** (the `ergm` v3.x default), conducts a T² test of equality between the
+- In `ergm` v4, the default criterion is **Hummel**, which uses an adaptive step-length rule. 
+- The alternative is **Hotelling** (the `ergm` v3.x default), which conducts a T² test of equality between the
   simulated mean and target mean; stopping when equality is not rejected.
-- Hummel handles 5–6 here, but at **full scale** we found it necessary to switch to **Hotelling**.
+- At **full scale**, Hummel's step-shrinking might stall. 
+- Hotelling's simpler T² test is less computationally intensive.
+
+::: notes
+Why Hummel struggles at scale: it's deliberately conservative — it shrinks each step to keep the
+simulated mean between the current fit and the target, taking full steps only near the solution. At
+n≈32k with heavy MCMC (interval/samplesize ~1e6), each iteration is very expensive, so that cautious,
+many-iteration path can exhaust walltime before finishing. Hotelling's T² test stops as soon as the
+simulated mean is statistically indistinguishable from the target — fewer, cheaper iterations. Our
+pipeline bears this out: the matched Hummel run didn't complete while the Hotelling run did
+(net-ergm-v4plus/slurm_output/*int1e6-sampsize1e6-{hummel,hotelling}).
+:::
 
 ---
 
@@ -80,9 +106,9 @@ Each row sequentially builds upon the simpler model in the previous row.
 | 7 | `+ idegree(0:1) + odegree(0:1)` | Stochastic-Approximation |
 
 
-- In Step 7, we fit a more complex model using **Stochastic Approximation** for easier convergence.
-- SA is based on moment-matching (Robbins–Monro). 
-- Works by simulating, compare to target, and nudge the coefficients.
+- In Step 7, we fit a more complex model using **Stochastic Approximation** (SA) for easier convergence.
+- SA is based on moment-matching (Robbins–Monro).^[Snijders (2002), *Journal of Social Structure* 3(2), 1–40.]
+- Works by simulating, comparing to target, and nudging the coefficients.
 - In practice, found to be useful for fitting more complex networks.
 - Setting convergence criteria to Hotelling and specifying MCMLE parameters was important to ensure final convergence. 
 
@@ -104,7 +130,7 @@ net_warm <- simulate(fit_mix, nsim = 1)
 
 - `net_warm` becomes the **starting network** for the next, harder fit
 - A network with the right low-order structure already in place converges
-  faster than starting from empty or random
+  faster than starting from an empty or random network
 
 ::: {.accent}
 Each stage's fit becomes the next stage's starting point.
@@ -132,7 +158,7 @@ net_warm <- simulate(fit_mix, nsim = 1)   # simulated net seeds the next fit
 control.ergm(init = coef(prev_fit))   # resume from previous estimates
 ```
 
-- Here we carry the **network** forward across fits to build our ERGM in stages. 
+- In this module, we carry the **network** forward across fits to build our ERGM in stages. 
 
 
 ::: notes
@@ -155,18 +181,22 @@ net_mix <- simulate(fit_mix, nsim = 1)
 fit5 <- ergm(net_mix ~ edges +
                 ... +
                odegree(0),
-             target.stats = c(ts
+             target.stats = c(ts_mix, odeg_target(0)), eval.loglik = FALSE)
+net5 <- simulate(fit5, nsim = 1)     # in turn, warm-starts step 6
 ```
 
-One simulated network from `fit5` becomes the starting network for `fit 6`. 
+One simulated network from `fit5` (here, `net5`) becomes the starting network for `fit6`.
 
+(JO: I assume the `{.accent}` below is a mistake?)
 ```r
-fit6 <- ergm([net_warm]{.accent} ~ edges +
-                ...+
+fit6 <- ergm(net5 ~ edges +
+                ... +
                odegree(0:1),
-             target.stats = c(..., odeg_target(0:1)), eval.loglik = FALSE)
-net_warm <- simulate(fit6, nsim = 1)
+             target.stats = c(ts_mix, odeg_target(0:1)), eval.loglik = FALSE)
+net6 <- simulate(fit6, nsim = 1)     # warm-starts step 7
 ```
+
+Informally, this workshop describes a simulated network instance from one fit as providing a "warm start" for the next. 
 
 ::: notes
 Default (MCMLE) fitting, warm-started each step. These converge fine on defaults; the
