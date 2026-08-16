@@ -20,14 +20,17 @@ execute:
 Where Module 4 ended:
 :::
 
-- We diagnosed fits **by hand** - MCMC diagnostics, eyeballing one simulation.
+- We diagnosed the model to ensure correctness:
+  1. No degeneracy.
+  2. Convergence diagnostics (MCMC diagnostics) are acceptable.
+  3. Target statistics are contained within the distribution of the simulated networks.
 
 ::: {.accent}
-Today:
+In this module, we will:
 :::
 
-- Make that check **systematic**: simulate an ensemble, compare to our **targets**.
-- Learn what good vs. poor alignment looks like — and where poor alignment sends us.
+- Discuss a simple mechanism to formalize step #3 above for comparing alignment of target statistics with the simulated distribution of each statistic
+- Build upon step #3 above to bridge to the ABM.
 
 ---
 
