@@ -162,7 +162,7 @@ Module 3 as the `idegree`/`odegree` targets.
 ## Turn a degree distribution into an edge count
 
 - Every tie is one partner-slot for someone,
-- **total ties = Σ (degree × # people at that degree)**, shown in the `mean_n` column below
+- **total ties = Σ (degree × # people at that degree)**, shown in the `num_n` column below
 - Computed separately for in- and out-degree reports
 
 ```r
