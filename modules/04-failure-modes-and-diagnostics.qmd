@@ -75,16 +75,38 @@ Error in ergm.MCMLE(...):
   a very poor starting parameter configuration.
 ```
 
-- Degeneracy is a classic **model-specification** error, widely discussed in canonical papers.(JO: if we're using footnotes, include references to these papers here.) 
-(JO: more importantly, we need to say what degeneracy is, to provide at least some intuition)
+- **Degeneracy:** the fitted model puts almost all its probability on a few **extreme graphs** (near-empty
+  or near-complete).^[Handcock (2003), CSSS Working Paper 39; Schweinberger (2011), *JASA* 106(496), 1361–1370.]
+- Sometimes we see an error; other times the fitting process claims convergence, but the simulated networks are extreme (nearly complete or nearly empty).
 
-- Can be scale dependent: At the **simplified** n = 1,000 scale, `odegree(0:2)` fits fine. 
+---
 
-- But `odegree(0:3)` produced the same error at the n=1,000 scale. 
+## Indicator #1: Degeneracy Causes and Solutions {.smallish}
+
+- Cause: 
+    1. Can be scale-dependent: 
+    - E.g.,  `odegree(0:2)` fits  at n = 1,000 but not in the full research model.  
+    
+    2. Can be caused by parameters in the model
+    - E.g., Using `triangle` can create extreme positive feedback since a tie makes further ties more likely.
 
 ::: {.accent}
-Fix: no control setting rescues degeneracy: the **model specification** needs to be changed. (JO: I thought the sequential approach helped with this? Or was that with the non-convergence? You see, even I need to understand what degeneracy is.)
+Degeneracy is a **model specification** problem.
 :::
+
+ - Usually cannot be fixed by control settings or warm-starting.
+ - Alternate parameteric specifications or scale investigations can help. 
+
+
+::: notes
+Degeneracy vs. non-convergence (JO's question): both can throw this same error and both look like
+"it won't fit," but they differ — degeneracy is a *model* property (mass on extreme graphs), while
+non-convergence is the *algorithm* failing to settle. Sequential/warm-start helped the
+hard-to-converge step (non-convergence), NOT degeneracy. The error message doesn't distinguish them —
+there's no confirmatory test; the honest guide is that the *fixes* differ.
+:::
+
+---
 
 ## Indicator #2 {.smallish}
 
@@ -103,6 +125,8 @@ Fix: no control setting rescues degeneracy: the **model specification** needs to
 - mcmc.diagnostics is the check. Leads into the example.
 :::
 
+---
+
 ## Indicator #2 (Example) {.smallish}
 
 A real MCMC diagnostic from our full pipeline  
@@ -110,7 +134,9 @@ A real MCMC diagnostic from our full pipeline
  - The traces **drift upward/downward** (instead of
 settling around a stable mean) 
 
- - The edge density plots may be centered far from 0, indicating divergence between the targets and fitted values. (JO: where is the target value for the edges in this figure?)
+ - These plots show each statistic **relative to its target**, so the target is the **0 line**.
+  
+- Ideally, the density mass sits around 0 (not the case here). 
 
 ![](img/mcmc-diag-edges.png){width="90%" fig-align="center"}
 
