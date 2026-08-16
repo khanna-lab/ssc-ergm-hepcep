@@ -87,34 +87,34 @@ Repeat this process for every target statistic to:
 
 ---
 
-## Sample Code for Violin Plot {.smallish}
+## The violin plot, conceptually {.smallish}
+
+For **each statistic**: show its distribution across the 100 simulated networks, and
+overlay the **target**.
 
 ```r
-long <- data.frame(stat  = rep(colnames(sim_stats), each = nrow(sim_stats)),
-                   value = as.vector(sim_stats))
-tgt  <- data.frame(stat = names(targets_vec), target = as.numeric(targets_vec))
-
-ggplot(long, aes(stat, value)) +
-  geom_violin(fill = "#cdeef2", color = "#0b6e7c") +
-  geom_hline(data = tgt, aes(yintercept = target), color = "red") +
-  facet_wrap(~ stat, scales = "free")
+# per statistic: simulated values -> a violin; target -> a red line
+ggplot(sim_long, aes(statistic, value)) +
+  geom_violin() +
+  geom_hline(aes(yintercept = target), color = "red")
 ```
+
+- Violin spread = sampling variability; the red line = the target we aim for.
+- Full plotting code: `R/05a-simulation.R` (and the exercise).
 
 ---
 
-## Sample Code for Simulation Interval {.smallish}
+## Summarizing alignment numerically {.smallish}
+
+For **each statistic**: compare the target to the simulated **mean** and a **95% interval**.
 
 ```r
-comparison <- data.frame(
-  statistic = names(targets_vec),
-  target    = round(as.numeric(targets_vec), 1),
-  sim_mean  = round(colMeans(sim_stats), 1),
-  sim_lo    = round(apply(sim_stats, 2, quantile, 0.025), 1),
-  sim_hi    = round(apply(sim_stats, 2, quantile, 0.975), 1)
-)
+sim_mean <- colMeans(sim_stats)                          # per-statistic mean
+sim_ci   <- apply(sim_stats, 2, quantile, c(.025, .975)) # 95% interval
 ```
 
-- A target inside `[sim_lo, sim_hi]` → aligned on that statistic.
+- Target inside the interval → aligned on that statistic.
+- Full comparison table: `R/05a-simulation.R` (and the exercise).
 
 
 ## Next Step: Crosswalk to the ABM {.smallish}
