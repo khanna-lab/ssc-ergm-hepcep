@@ -165,7 +165,6 @@ Module 3 as the `idegree`/`odegree` targets.
 - **total ties = Σ (degree × # people at that degree)**, shown in the `num_n` column below
 - Computed separately for in- and out-degree reports
 
-(JO: it's still not clear to me what the `mean_n` is. what's the average taken against? I understand that it's meant to be the number of people with that in_degree or out_degree, but it's unclear, as written, why the term `mean` is being used for these.)
 ```r
 indeg  <- targets$indegree_data      # cols: in_degree, num_in
 outdeg <- targets$outdegree_data     # num_n = num of people at in/out degree
