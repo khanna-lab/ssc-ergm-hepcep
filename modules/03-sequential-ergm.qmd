@@ -188,7 +188,7 @@ net5 <- simulate(fit5, nsim = 1)     # in turn, warm-starts step 6
 One simulated network from `fit5` (here, `net5`) becomes the starting network for `fit6`.
 
 ```r
-fit6 <- ergm([net5]{.accent} ~ edges +
+fit6 <- ergm(net5 ~ edges +
                 ... +
                odegree(0:1),
              target.stats = c(ts_mix, odeg_target(0:1)), eval.loglik = FALSE)
