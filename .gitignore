@@ -7,3 +7,6 @@ _output/
 /modules/*_cache/
 /modules/*_files/
 /out/
+
+# Machine-specific VSCode workspace (local R env paths)
+*.code-workspace
