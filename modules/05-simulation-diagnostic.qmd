@@ -49,13 +49,14 @@ sim_stats <- t(sapply(sims, \(s)
   summary(s ~ edges + odegree(0:1) + idegree(0:1) + nodematch("chicago"))))
 ```
  
-This produces a matrix:
+This produces a matrix:  
+
  - One row per simulated network, one column per target 
  - We then compare each simulated distribution (in a column) to the target.
 
 ---
 
-## Read it: statistics vs. targets {.smallish}
+## Simulated Statistics and Targets {.smallish}
 
 ![](img/sim-vs-targets.png){width="80%" fig-align="center"}
 
@@ -68,35 +69,31 @@ copy the PNG into `modules/img/`.
 
 ---
 
-## Good vs. poor alignment {.smallish}
-
-For each statistic
-
-- **Good:** The distribution contains the target. 
-
-- **Numeric summary:** Computed the simulated mean and a  simulation interval (usually 95%)
+## Assessing Alignment between Simulated and Target Statistics {.smallish}
 
 ::: {.accent}
-Repeat this process for every target statistic to:
+Repeat this process for each specified target statistic to:
 :::
 
 - Identify whether any statistic's target falls outside its simulated spread.
-- If not — great, the model reproduces the targets.
-- If a target is off, work through fixes in rough order of effort:
+- If not — great, the model reproduces the targets within statistical variation.
+- If a target is off, work through our discussed fixes, in rough order of effort:
 
   1. **Tune the controls / re-fit** (Modules 3–4) (cheapest, sometimes enough).
   2. **Reparameterize**: try a different specification.
   3. **Cross-check the data / targets** — most involved.
 
-- In practice for me, this is often iterative. 
-- Sometimes the order of operations can be different.
-- I stop when the target sits inside the simulated spread.
+- In practice, for us, this process is often iterative. 
+- Sometimes the order of operations 1-3 can be different in terms of effort required.
+- We stop when the target sits inside the simulated spread.
 
 ---
 
 ## The violin plot, conceptually {.smallish}
 
-For **each statistic**: show its distribution across the 100 simulated networks, and
+For **each statistic**: 
+
+- Show its distribution across the 100 simulated networks, and
 overlay the **target**.
 
 ```r
@@ -106,14 +103,13 @@ ggplot(sim_long, aes(statistic, value)) +
   geom_hline(aes(yintercept = target), color = "red")
 ```
 
-- Violin spread = sampling variability; the red line = the target we aim for.
-- Full plotting code: `R/05a-simulation.R` (and the exercise).
+- Violin spread = sampling variability; the red line = the specified target.
 
 ---
 
 ## Summarizing alignment numerically {.smallish}
 
-For **each statistic**: compare the target to the simulated **mean** and a **95% interval**.
+For **each statistic**: compare the target to the simulated **mean** and a **simulation interval** (usually 95%).
 
 ```r
 sim_mean <- colMeans(sim_stats)                          # per-statistic mean
@@ -121,13 +117,12 @@ sim_ci   <- apply(sim_stats, 2, quantile, c(.025, .975)) # 95% interval
 ```
 
 - Target inside the interval → aligned on that statistic.
-- Full comparison table: `R/05a-simulation.R` (and the exercise).
 
 
 ## Next Step: Crosswalk to the ABM {.smallish}
 
 ::: {.punch}
-An aligned simulated network **is** the ABM input.
+A simulated network whose statistics align with the targets **is** the ABM input.
 :::
 
 Export one simulated network as two tables:
@@ -141,15 +136,16 @@ el    <- as.edgelist(net_sim)                            # partnerships (from, t
 ```
 
 - **Agents** = vertex attributes; **partnerships** = the edgelist.
-- Export one edgelist per simulated network to carry **network uncertainty** into the ABM.
+
+- Export one edgelist per simulated network to carry **network variability** into the ABM.
 
 ---
 
 ## We have a well fitting network! What next?
 
-- Describe how flexible ABM formats can "ingest" this type of network as an input
-- Also mention canonical products that do this (e.g., EpiModel)
-- But our group often connects this to Repast or other ABM platforms (in R)
+- In our project, we use the Repast family to take such simulated network(s) as inputs.^[Collier & Ozik (2022), Distributed Agent-Based Simulation with Repast4Py. *2022 Winter Simulation Conference (WSC)*, 192–206. doi:10.1109/WSC57314.2022.10015389]
+- The `statnet` team also offers `EpiModel`, an end-to-end suite in R to streamline network modeling within ABMs.^[Jenness, Goodreau & Morris (2018), *Journal of Statistical Software* 84(8), 1–47. doi:10.18637/jss.v084.i08]
+
 
 ## Handoff to Module 6
 
@@ -157,8 +153,8 @@ el    <- as.edgelist(net_sim)                            # partnerships (from, t
 Module 6: **spatial modeling** — geography as a first-class term.
 :::
 
-- We used `nodematch("chicago")` as a stand-in; Module 6 replaces it with a custom
-  distance-based term.
+- We used `nodematch("chicago")` as a stand-in
+- Module 6 replaces it with a custom distance-based term.
 
 ---
 
