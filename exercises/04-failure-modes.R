@@ -21,6 +21,10 @@ ctrl <- control.ergm(MCMLE.maxit = 20)
 # odegree(0:2) fits fine at n = 1000; odegree(0:3) is DEGENERATE -- ergm errors
 # out. Read the message: it flags simulated networks nothing like the data
 # ("...exceeds that in the observed by a factor of more than 20...").
+# Watch also for a warning that the model is NONIDENTIFIABLE -- edges and the
+# full odegree(0:3) set are linearly dependent
+# (CONSTANT = edges + 4*odegree0 + 3*odegree1 + 2*odegree2 + odegree3),
+# a second reason this specification breaks.
 ergm(update(f_mix, ~ . + odegree(0:3)),
      target.stats = c(ts_mix, odeg_target(0:3)),
      control = ctrl, eval.loglik = FALSE)
