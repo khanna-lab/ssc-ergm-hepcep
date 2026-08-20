@@ -14,10 +14,15 @@ f_mix <- net ~ edges +
   nodemix("race.num", levels2 = -1) +
   nodematch("chicago")
 
+# Light, FIXED-size MCMC so the fit runs quickly at n = 1000. MCMC.effectiveSize
+# = NULL turns off ergm's adaptive sample-size growth; the fit is rougher but fast.
+ctrl <- control.ergm(MCMC.interval = 512, MCMC.samplesize = 512,
+                     MCMC.effectiveSize = NULL, MCMLE.maxit = 30)
+
 # A fitted model to simulate from (mixing block + out-degree; fits in seconds).
 fit <- ergm(update(f_mix, ~ . + odegree(0:1)),
             target.stats = c(ts_mix, odeg_target(0:1)),
-            eval.loglik = FALSE)
+            control = ctrl, eval.loglik = FALSE)
 
 # ---- Run this: simulate an ensemble, check ONE statistic --------------------
 sims <- simulate(fit, nsim = 100)
