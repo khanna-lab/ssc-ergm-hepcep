@@ -12,7 +12,8 @@ steps <- c(
   "02-sequential.R",
   "04-failure-modes.R",
   "05a-simulation.R",
-  "05b-export-abm.R"
+  "05b-export-abm.R",
+  "05c-export-json.R"
 )
 
 for (s in steps) {

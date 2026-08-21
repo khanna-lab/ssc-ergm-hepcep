@@ -13,6 +13,7 @@ the sequential fit, where it lives in the real pipeline).
 | `04-failure-modes.R` | 4 | Demonstrate degeneracy (`odegree(0:3)` at n=1000), MCMC diagnostics, GOF |
 | `05a-simulation.R` | 5 | Simulate networks, compare summaries to targets (violin plots) |
 | `05b-export-abm.R` | 5 | Export edgelist + node-attribute table for the ABM |
+| `05c-export-json.R` | 5 | Same export as node-link JSON (one file, read by `networkx.node_link_graph()`); needs `jsonlite` |
 
 (No `03-`: Module 3 is folded into `02-sequential.R`. Module 6 — geocoded mixing —
 is maintained separately.)
