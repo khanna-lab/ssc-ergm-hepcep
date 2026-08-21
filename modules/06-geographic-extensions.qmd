@@ -40,6 +40,16 @@ entirely) stay engaged.
 
 ---
 
+## The `ergm.userterms` template {.smallish}
+
+- The `statnet` team provides the ability for users of `ergm` capabilities to build custom terms, which we leverage extensively in this module.^[Hunter, Goodreau & Handcock (2013), ergm.userterms: A Template Package for Extending statnet. *Journal of Statistical Software* 52(2), 1–25. doi:10.18637/jss.v052.i02]
+
+![](img/ergm-userterms.png){width="70%" fig-align="center" fig-alt="Title page of the Journal of Statistical Software article 'ergm.userterms: A Template Package for Extending statnet' by Hunter, Goodreau and Handcock, January 2013, Volume 52, Issue 2"}
+
+
+
+---
+
 ## The stand-in, and what it hides {.smallish}
 
 ::: {.gap}
@@ -311,12 +321,10 @@ library(ergm.userterms.hepcep)
 :::
 
 ::: {.gap}
-Two things to note when you install it yourself:
+To note when you install it yourself:
 :::
 
-- The package will need to be **reinstalled whenever you upgrade `ergm`**, since it links to it.
-- Under `renv`, it must be installed into the **project** library. A system-library
-  copy is invisible to the project and `library()` will fail.
+- Any `ergm.userterms` package will need to be **reinstalled whenever you upgrade `ergm`**, since it links to it.
 
 ::: notes
 This is the slide that will generate the most support questions on Posit Cloud, so
@@ -602,7 +610,7 @@ first argument is band indices, since asking for `dist(1:7)` with four bands is
 an error.
 :::
 
----
+<!-- ---
 
 ## Requirements checklist {.smallish}
 
@@ -631,7 +639,7 @@ coding, or categories `c(1, 3)` are all rejected by name at term init. Recoding
 to consecutive integers from 1 is the preprocessing step, and you find out
 immediately if you haven't.
 :::
-
+ -->
 ---
 
 ## The general recipe {.smallish}
@@ -695,6 +703,7 @@ statistic measures.
 When `ergm` has no term for your data, write one.
 :::
 
+<!--
 ---
 
 ## Exercise {.smallish}
@@ -720,3 +729,4 @@ Steps 1-2 are the hands-on core. Steps 3-5 are the payoff, using the same pipeli
 from Modules 3-5 with the geographic term slotted in. Step 6 is optional. Have a
 pre-baked fit ready for step 4 if convergence eats the clock.
 :::
+-->
