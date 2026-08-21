@@ -119,39 +119,75 @@ sim_ci   <- apply(sim_stats, 2, quantile, c(.025, .975)) # 95% interval
 - Target inside the interval → aligned on that statistic.
 
 
-## Next Step: Crosswalk to the ABM {.smallish}
+## Next Step: Crosswalk to the ABM {.smaller}
 
-::: {.punch}
-The aligned model's ensemble of simulated networks are the ABM input.
-:::
 
-Export a simulated network as two tables (and repeat across the ensemble):
+We have an ensemble of simulated networks that align with the targets. 
+
+We select one well-fitting simulation and export it.
 
 ```r
-net_sim <- simulate(fit_final, nsim = 1)
+net_sim # selected network 
 
 attrs <- data.frame(id = network.vertex.names(net_sim),  # agents
                     sex = net_sim %v% "sex", young = net_sim %v% "young", ...)
 el    <- as.edgelist(net_sim)                            # partnerships (from, to)
+
+write.csv(attrs, "vertex_attributes.csv", row.names = FALSE)   # save agents
+write.csv(el,    "edgelist.csv",          row.names = FALSE)   # save partnerships
 ```
 
-- **Agents** = vertex attributes; **partnerships** = the edgelist.
+We save **two** flat files: 
 
-- Export one edgelist per simulated network to carry **network variability** into the ABM.
+```
+vertex_attributes.csv                edgelist.csv
+----                                   -----
+id,sex,young,race.num,chicago,...    from,to
+1,M,1,2,1,...                        12,847
+2,F,0,1,0,...                        12,203
+3,M,1,3,1,...                        305,41
+...                                  ...
+```
 
-::: notes
-Why "ensemble, not a single draw": even a well-aligned model produces individual networks that
-vary. A single `simulate(nsim = 1)` can land in the tail of the ensemble's spread -- an edge
-count outside the 95% interval we just plotted. So the ABM input is the model's *distribution*
-of networks; export several to carry that variability forward rather than betting on one draw.
-:::
+- The vertex set is fixed across the ensemble
+
+- The ensemble of exported edgelists propogates **network variability** into the ABM.
 
 ---
 
-## We have a well fitting network! What next?
+## Next Step: Crosswalk to the ABM (cont'd) {.smallish}
 
-- In our project, we use the Repast family to take such simulated network(s) as inputs.^[Collier & Ozik (2022), Distributed Agent-Based Simulation with Repast4Py. *2022 Winter Simulation Conference (WSC)*, 192–206. doi:10.1109/WSC57314.2022.10015389]
+A second option: reshape the **same** simulated network into networkx **node-link JSON**.
+
+```r
+# nodes carry attributes; edges are source -> target pairs
+jsonlite::write_json(
+  list(directed = TRUE, multigraph = FALSE,
+       nodes = attrs,          # id, young, race_num, chicago, sex, lat, lon
+       edges = edges),         # source, target
+  "net_sim.json", auto_unbox = TRUE)
+```
+
+- Setting `directed = TRUE` preserves the syringe-sharing direction (from → to).
+
+- This format is compatible with networkX, used by Repast4Py to ingest simulated networks.^[Collier & Ozik (2022), Distributed Agent-Based Simulation with Repast4Py. *2022 Winter Simulation Conference (WSC)*, 192–206. doi:10.1109/WSC57314.2022.10015389]
+
+
+---
+
+## Next Step: Canonical statnet method {.smallish}
+
 - The `statnet` team also offers `EpiModel`, an end-to-end suite in R to streamline network modeling within ABMs.^[Jenness, Goodreau & Morris (2018), *Journal of Statistical Software* 84(8), 1–47. doi:10.18637/jss.v084.i08]
+
+
+---
+
+
+
+
+
+
+
 
 
 ## Handoff to Module 6
