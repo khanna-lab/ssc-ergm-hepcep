@@ -122,10 +122,10 @@ sim_ci   <- apply(sim_stats, 2, quantile, c(.025, .975)) # 95% interval
 ## Next Step: Crosswalk to the ABM {.smallish}
 
 ::: {.punch}
-A simulated network whose statistics align with the targets **is** the ABM input.
+The aligned model's ensemble of simulated networks are the ABM input.
 :::
 
-Export one simulated network as two tables:
+Export a simulated network as two tables (and repeat across the ensemble):
 
 ```r
 net_sim <- simulate(fit_final, nsim = 1)
@@ -138,6 +138,13 @@ el    <- as.edgelist(net_sim)                            # partnerships (from, t
 - **Agents** = vertex attributes; **partnerships** = the edgelist.
 
 - Export one edgelist per simulated network to carry **network variability** into the ABM.
+
+::: notes
+Why "ensemble, not a single draw": even a well-aligned model produces individual networks that
+vary. A single `simulate(nsim = 1)` can land in the tail of the ensemble's spread -- an edge
+count outside the 95% interval we just plotted. So the ABM input is the model's *distribution*
+of networks; export several to carry that variability forward rather than betting on one draw.
+:::
 
 ---
 
