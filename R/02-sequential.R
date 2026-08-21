@@ -19,15 +19,29 @@ mix_stat_names <- names(summary(f_mix))
 print(mix_stat_names)
 stopifnot(length(mix_stat_names) == length(ts_mix))
 
-# The one control that matters here: step 7 (in + out degree) needs Stochastic-
-# Approximation; steps 5-6 converge on ergm's defaults. Under SA the sampler is
-# governed by the SA.* family, and SA.interval/SA.samplesize DEFAULT to MCMC.interval/
-# MCMC.samplesize -- so those DO tune the SA chain (heavy sampling in the full pipeline).
-# At n=1000 the termination criterion (Hummel/Hotelling) and MCMC.effectiveSize don't
-# change the fit, so defaults suffice and we set only the algorithm. NOTE: at full scale
-# they CAN matter -- the research pipeline needed Hotelling to complete a fit that stalled
-# under Hummel (the final MCMLE/Newton-Raphson step is termination-governed even under SA).
-sa_control <- control.ergm(main.method = "Stochastic-Approximation")
+# Every degree-term step (5-7) needs Stochastic-Approximation, not just step 7.
+# Under ergm's MCMLE defaults, step 5 (+ odegree(0)) does NOT converge at n=1000: the
+# estimating equations stop approaching the tolerance region, ergm keeps enlarging the
+# MCMC sample, and each iteration costs more than the last (measured: >2 hours at 99%
+# CPU, still on MCMLE iteration 7, no convergence). Under SA the whole 5-7 chain fits
+# in ~9 seconds.
+#
+# Sampling level then matters. Under SA the sampler is governed by the SA.* family, and
+# SA.interval/SA.samplesize DEFAULT to MCMC.interval/MCMC.samplesize -- so those DO tune
+# the SA chain. At n=1000, measured over the full 5-7 chain, scoring how many of the six
+# targets land inside the 95% interval of 20 simulated networks:
+#   SA defaults      0.05 min   3/6      <- fast but biased: too sparse, too many isolates
+#   + 1024/1024      0.05 min   2/6
+#   + 4096/4096      0.15 min   6/6      <- chosen
+#   + 16384/16384    0.55 min   6/6      <- no gain over 4096
+# Low interval also makes the Module 5 diagnostic look better than it is: consecutive
+# draws stay autocorrelated, so the simulated intervals come out misleadingly narrow.
+#
+# NOTE: at full scale the termination criterion CAN matter too -- the research pipeline
+# needed Hotelling to complete a fit that stalled under Hummel (the final MCMLE/Newton-
+# Raphson step is termination-governed even under SA).
+sa_control <- control.ergm(main.method = "Stochastic-Approximation",
+                           MCMC.interval = 4096, MCMC.samplesize = 4096)
 
 # Steps 1-4: mixing block. Dyad-independent, so it fits easily -- but targets are
 # non-integer (e.g. edges_target = 711.1), so ergm matches them in expectation via
@@ -35,14 +49,16 @@ sa_control <- control.ergm(main.method = "Stochastic-Approximation")
 fit_mix  <- ergm(f_mix, target.stats = ts_mix, eval.loglik = FALSE)
 net_warm <- simulate(fit_mix, nsim = 1)
 
-# Step 5: + odegree(0)   (defaults)
+# Step 5: + odegree(0)   (needs SA -- stalls indefinitely under MCMLE defaults)
 fit5 <- ergm(update(f_mix, net_warm ~ . + odegree(0)),
-             target.stats = c(ts_mix, odeg_target(0)), eval.loglik = FALSE)
+             target.stats = c(ts_mix, odeg_target(0)),
+             control = sa_control, eval.loglik = FALSE)
 net_warm <- simulate(fit5, nsim = 1)
 
-# Step 6: + odegree(0:1)   (defaults)
+# Step 6: + odegree(0:1)   (SA)
 fit6 <- ergm(update(f_mix, net_warm ~ . + odegree(0:1)),
-             target.stats = c(ts_mix, odeg_target(0:1)), eval.loglik = FALSE)
+             target.stats = c(ts_mix, odeg_target(0:1)),
+             control = sa_control, eval.loglik = FALSE)
 net_warm <- simulate(fit6, nsim = 1)
 
 # Step 7: + idegree(0:1) + odegree(0:1)  (final model — needs SA)
