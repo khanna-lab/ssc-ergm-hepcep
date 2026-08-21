@@ -10,8 +10,11 @@ if (file.exists(fit_final_path)) {
   source(here::here("R", "02-sequential.R"))
 }
 
-# One representative simulated network
+# One representative simulated network. Save the object so other exporters
+# (e.g. R/05-c-alternate.R -> JSON) reformat this SAME network instead of drawing
+# their own, which would differ.
 net_sim <- simulate(fit_final, nsim = 1)
+saveRDS(net_sim, file.path(out_dir, "net_sim.rds"))
 
 # Vertex attribute table (agents)
 attrs <- data.frame(
