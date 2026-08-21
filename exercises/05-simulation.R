@@ -14,15 +14,17 @@ f_mix <- net ~ edges +
   nodemix("race.num", levels2 = -1) +
   nodematch("chicago")
 
-# Light, FIXED-size MCMC so the fit runs quickly at n = 1000. MCMC.effectiveSize
-# = NULL turns off ergm's adaptive sample-size growth; the fit is rougher but fast.
-ctrl <- control.ergm(MCMC.interval = 512, MCMC.samplesize = 512,
-                     MCMC.effectiveSize = NULL, MCMLE.maxit = 30)
+# Degree terms need Stochastic-Approximation at n = 1000 (MCMLE defaults stall).
+# Sampling level matters HERE too: too-low MCMC leaves consecutive draws
+# autocorrelated, so the simulated intervals below come out misleadingly narrow.
+# 4096 gives honest intervals in seconds. (See R/02-sequential.R.)
+sa_control <- control.ergm(main.method = "Stochastic-Approximation",
+                           MCMC.interval = 4096, MCMC.samplesize = 4096)
 
 # A fitted model to simulate from (mixing block + out-degree; fits in seconds).
 fit <- ergm(update(f_mix, ~ . + odegree(0:1)),
             target.stats = c(ts_mix, odeg_target(0:1)),
-            control = ctrl, eval.loglik = FALSE)
+            control = sa_control, eval.loglik = FALSE)
 
 # ---- Run this: simulate an ensemble, check ONE statistic --------------------
 sims <- simulate(fit, nsim = 100)
