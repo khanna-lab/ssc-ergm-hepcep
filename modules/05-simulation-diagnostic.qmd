@@ -151,7 +151,7 @@ id,sex,young,race.num,chicago,...    from,to
 
 - The vertex set is fixed across the ensemble
 
-- The ensemble of exported edgelists propogates **network variability** into the ABM.
+- The ensemble of exported edgelists propagates **network variability** into the ABM.
 
 ---
 
@@ -170,7 +170,7 @@ jsonlite::write_json(
 
 - Setting `directed = TRUE` preserves the syringe-sharing direction (from → to).
 
-- This format is compatible with networkX, used by Repast4Py to ingest simulated networks.^[Collier & Ozik (2022), Distributed Agent-Based Simulation with Repast4Py. *2022 Winter Simulation Conference (WSC)*, 192–206. doi:10.1109/WSC57314.2022.10015389]
+- This format is compatible with networkx, used by Repast4Py to ingest simulated networks.^[Collier & Ozik (2022), Distributed Agent-Based Simulation with Repast4Py. *2022 Winter Simulation Conference (WSC)*, 192–206. doi:10.1109/WSC57314.2022.10015389]
 
 
 ---
@@ -179,6 +179,10 @@ jsonlite::write_json(
 
 - The `statnet` team also offers `EpiModel`, an end-to-end suite in R to streamline network modeling within ABMs.^[Jenness, Goodreau & Morris (2018), *Journal of Statistical Software* 84(8), 1–47. doi:10.18637/jss.v084.i08]
 
+- Developed by Professors Samuel Jenness (Emory), Steven Goodreau (Washington), and Martina Morris (Washington)
+.
+
+- Wide userbase and community to co-evolve ABMs and network structure.
 
 ---
 
