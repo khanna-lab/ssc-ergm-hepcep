@@ -13,9 +13,14 @@ f_mix <- net ~ edges +
   nodemix("race.num", levels2 = -1) +
   nodematch("chicago")
 
-# Cap the number of MCMLE iterations so a *degenerate* fit gives up quickly
-# instead of grinding for a long time before it errors.
-ctrl <- control.ergm(MCMLE.maxit = 20)
+# Two controls:
+#  - mcmle_ctrl: keep MCMLE for the degenerate fit so it surfaces the degeneracy
+#    ERROR (the lesson); cap iterations so it gives up quickly.
+#  - sa_control: for the non-degenerate "your turn" fit -- degree terms fit
+#    reliably under Stochastic-Approximation (see Module 3 / R/02-sequential.R).
+mcmle_ctrl <- control.ergm(MCMLE.maxit = 20)
+sa_control <- control.ergm(main.method = "Stochastic-Approximation",
+                           MCMC.interval = 4096, MCMC.samplesize = 4096)
 
 # ---- Run this: trigger degeneracy -------------------------------------------
 # odegree(0:2) fits fine at n = 1000; odegree(0:3) is DEGENERATE -- ergm errors
@@ -27,13 +32,13 @@ ctrl <- control.ergm(MCMLE.maxit = 20)
 # a second reason this specification breaks.
 ergm(update(f_mix, ~ . + odegree(0:3)),
      target.stats = c(ts_mix, odeg_target(0:3)),
-     control = ctrl, eval.loglik = FALSE)
+     control = mcmle_ctrl, eval.loglik = FALSE)
 
 # ---- Your turn: back off to odegree(0:2) ------------------------------------
-# Re-fit with odegree(0:2); it should converge and simulate a sensible edge count.
+# Re-fit with odegree(0:2) under SA; it converges and simulates a sensible edge count.
 # TODO: fit_ok <- ergm(update(f_mix, ~ . + odegree(0:2)),
 #                      target.stats = c(ts_mix, odeg_target(0:2)),
-#                      control = ctrl, eval.loglik = FALSE)
+#                      control = sa_control, eval.loglik = FALSE)
 # TODO: network.edgecount(simulate(fit_ok, nsim = 1))    # near the target now?
 
 # --- Try at home -------------------------------------------------------------
