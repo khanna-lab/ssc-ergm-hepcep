@@ -1,41 +1,47 @@
 # =============================================================================
-# Module 5 (alternate): convert the exported CSV network to JSON.
+# Module 5 (alternate): export the saved simulated network to JSON.
 #
-# Why this exists:
-#   05b-export-abm.R and 05c-export-json.R each call simulate(fit_final, nsim = 1)
-#   independently, so they exported DIFFERENT networks (e.g. 586 vs 685 edges).
-#   Instead, treat the CSV that 05b already wrote as the ONE final simulated
-#   network, and re-serialize it to JSON. No new simulation -> the JSON and CSV
-#   describe the identical network by construction.
+# 05b-export-abm.R simulates ONE network, writes the CSVs from it, and saves the
+# object as out/net_sim.rds. This reads that SAME object and serializes it to
+# JSON, so the CSV and JSON describe the identical network -- no second
+# simulate(), and no lossy CSV round-trip (types come straight off the object).
 #
-#   Run R/05b-export-abm.R first to produce the CSVs.
+# Run R/05b-export-abm.R first to create out/net_sim.rds.
 # =============================================================================
 
-suppressPackageStartupMessages({ library(here); library(readr); library(jsonlite) })
+suppressPackageStartupMessages({ library(here); library(network); library(jsonlite) })
 
-out_dir    <- here("out")
-attrs_path <- file.path(out_dir, "vertex_attributes.csv")
-el_path    <- file.path(out_dir, "edgelist.csv")
-if (!file.exists(attrs_path) || !file.exists(el_path)) {
-  stop("Run R/05b-export-abm.R first to create vertex_attributes.csv and edgelist.csv.")
+net_path <- here("out", "net_sim.rds")
+if (!file.exists(net_path)) {
+  stop("Run R/05b-export-abm.R first to create out/net_sim.rds.")
 }
+net_sim <- readRDS(net_path)
 
-attrs <- read_csv(attrs_path, show_col_types = FALSE)   # id, sex, young, race.num, ...
-el    <- read_csv(el_path,    show_col_types = FALSE)   # from, to
-
-# networkx node-link format (loads into networkx / Repast4Py):
-#   import json, networkx as nx
-#   G = nx.node_link_graph(json.load(open("net_sim.json")),
-#                          directed=True, edges="links")   # edges= for nx >= 3.x
-graph <- list(
-  directed   = TRUE,
-  multigraph = FALSE,
-  graph      = structure(list(), names = character()),      # serializes as {}
-  nodes      = attrs,                                        # array of node records
-  links      = data.frame(source = el$from, target = el$to)
+# Node table (agents). as.integer() keeps categoricals as integers in JSON (3,
+# not 3.0); race_num is a Python-valid name.
+attrs <- data.frame(
+  id       = as.integer(network.vertex.names(net_sim)),
+  sex      = net_sim %v% "sex",
+  young    = as.integer(net_sim %v% "young"),
+  race_num = as.integer(net_sim %v% "race.num"),
+  chicago  = as.integer(net_sim %v% "chicago"),
+  lat      = net_sim %v% "lat",
+  lon      = net_sim %v% "lon"
 )
-write_json(graph, file.path(out_dir, "net_sim.json"),
-           auto_unbox = TRUE, dataframe = "rows", pretty = TRUE)
 
-cat(sprintf("\nConverted %d agents and %d edges (from CSV) to net_sim.json.\n",
-            nrow(attrs), nrow(el)))
+# Edges. as.edgelist() gives 1-based (tail, head) indices; map through id so we
+# never assume index == vertex name.
+el    <- as.edgelist(net_sim)
+edges <- data.frame(source = attrs$id[el[, 1]], target = attrs$id[el[, 2]])
+
+# networkx node-link format:
+#   G = nx.node_link_graph(json.load(open("net_sim.json")),
+#                          directed=True, edges="edges")   # edges= for nx >= 3.x
+write_json(
+  list(directed = is.directed(net_sim), multigraph = FALSE, nodes = attrs, edges = edges),
+  here("out", "net_sim.json"),
+  auto_unbox = TRUE,   # scalars as 3, not [3]
+  digits     = NA)     # full lat/lon precision
+
+cat(sprintf("\nExported %d agents and %d edges to out/net_sim.json (directed=%s).\n",
+            nrow(attrs), nrow(edges), is.directed(net_sim)))
