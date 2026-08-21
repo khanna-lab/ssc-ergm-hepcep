@@ -10,3 +10,4 @@ _output/
 
 # Machine-specific VSCode workspace (local R env paths)
 *.code-workspace
+/local_only/

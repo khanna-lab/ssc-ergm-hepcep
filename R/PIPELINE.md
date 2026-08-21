@@ -15,8 +15,9 @@ the sequential fit, where it lives in the real pipeline).
 | `05b-export-abm.R` | 5 | Export edgelist + node-attribute table for the ABM |
 | `05c-export-json.R` | 5 | Same export as node-link JSON (one file, read by `networkx.node_link_graph()`); needs `jsonlite` |
 
-(No `03-`: Module 3 is folded into `02-sequential.R`. Module 6 — geocoded mixing —
-is maintained separately.)
+(No `03-`, because Module 3 is folded into `02-sequential.R`. Module 6 covers the
+geographic `dnf` term and has no script of its own; its examples are self-contained
+in `modules/06-geographic-extensions.qmd`.)
 
 ## Run it
 
@@ -39,8 +40,9 @@ Prerequisite: `R/generate-synthetic-data.R` has been run, producing
   dyad-independent mixing block still fits by MCMC, not closed-form MLE, because the
   targets are non-integer expected counts.
 - **Geography:** `nodematch("chicago")` stand-in instead of the custom `dnf`
-  distance term from `ergm.userterms.hepcep` (which needs compiling). The
-  swap-in point and the real targets are noted in `02-sequential.R`.
+  distance term from [`hepcep/ergm.userterms.hepcep`](https://github.com/hepcep/ergm.userterms.hepcep),
+  which installs from GitHub and compiles against `ergm`. The swap-in point and the
+  real targets are noted in `02-sequential.R`, and Module 6 walks through the term.
 - The geographic target is derived from an assumed within-area mixing fraction
   (`p_within_chicago` in `00-setup.R`); the real pipeline uses empirical
   distance proportions.
