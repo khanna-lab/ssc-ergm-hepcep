@@ -20,9 +20,9 @@ saveRDS(net_sim, file.path(out_dir, "net_sim.rds"))
 attrs <- data.frame(
   id       = network.vertex.names(net_sim),
   sex      = net_sim %v% "sex",
-  young    = net_sim %v% "young",
-  race.num = net_sim %v% "race.num",
-  chicago  = net_sim %v% "chicago",
+  young    = as.integer(net_sim %v% "young"),
+  race.num = as.integer(net_sim %v% "race.num"),
+  chicago  = as.integer(net_sim %v% "chicago"),
   lat      = net_sim %v% "lat",
   lon      = net_sim %v% "lon"
 )
