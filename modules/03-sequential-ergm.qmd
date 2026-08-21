@@ -55,6 +55,7 @@ We built the model in **seven sequential steps**:
 
 - Allows us to build the model in increasing complexity
 - Makes it easier to diagnose potential issues. 
+
 ---
 
 ## The Fitting Sequence {.smallish}
@@ -74,46 +75,51 @@ Each row sequentially builds upon the simpler model in the previous row.
 
 ## The Fitting Sequence {.smallish}
 
+The degree terms (steps 5–7) all use the **same** algorithm:
+
 | Step | Terms added | Fitting Algorithm |
 |:----:|-------------|----------|
-| 5 | `+ odegree(0)` | MCMC (defaults) |
-| 6 | `+ odegree(0:1)` | MCMC (defaults) |
+| 5 | `+ odegree(0)` | Stochastic-Approximation |
+| 6 | `+ odegree(0:1)` | Stochastic-Approximation |
+| 7 | `+ idegree(0:1) + odegree(0:1)` | Stochastic-Approximation |
 
-[Convergence detection criteria can be important:]{.smallish}
+- These degree terms are **dyad dependent** (i.e., the probability of a tie depends on other ties in the network)
 
-- In `ergm` v4, the default criterion is **Hummel**, which uses an adaptive step-length rule. 
-- The alternative is **Hotelling** (the `ergm` v3.x default), which conducts a T² test of equality between the
-  simulated mean and target mean; stopping when equality is not rejected.
-- At **full scale**, Hummel's step-shrinking might stall. 
-- Hotelling's simpler T² test is less computationally intensive.
+- Under `ergm`'s MCMLE **defaults**, the sampler keeps enlarging its sample; left unbounded it
+  can run for **hours** at n=1000.
+- Capping `MCMLE.maxit` **can** return a convergent fit, but it is also less reliable.
+- **Stochastic-Approximation** is an alternate estimation algorithm that can be more efficient (more on the next slide).
 
 ::: notes
-Why Hummel struggles at scale: it's deliberately conservative — it shrinks each step to keep the
-simulated mean between the current fit and the target, taking full steps only near the solution. At
-n≈32k with heavy MCMC (interval/samplesize ~1e6), each iteration is very expensive, so that cautious,
-many-iteration path can exhaust walltime before finishing. Hotelling's T² test stops as soon as the
-simulated mean is statistically indistinguishable from the target — fewer, cheaper iterations. Our
-pipeline bears this out: the matched Hummel run didn't complete while the Hotelling run did
-(net-ergm-v4plus/slurm_output/*int1e6-sampsize1e6-{hummel,hotelling}).
+The correction: it's not that step 7 alone needs SA — every degree step benefits. And MCMLE doesn't
+fail here: capping MCMLE.maxit converges. Left unbounded, though, the sample keeps growing and the
+fit can run for hours. SA is simply far more efficient, clearing all three steps in one short run.
+The mixing block (steps 1–4) fits on defaults either way.
 :::
 
 ---
 
-## The Fitting Sequence {.smallish}
+## What Stochastic-Approximation does {.smallish}
 
-| Step | Terms added | Fitting Algorithm |
-|:----:|-------------|----------|
-| 7 | `+ idegree(0:1) + odegree(0:1)` | Stochastic-Approximation |
+- SA is based on **moment-matching** (Robbins–Monro).^[Snijders (2002), *Journal of Social Structure* 3(2), 1–40.]
+- It works by simulating, comparing to the target, and **nudging** the coefficients — repeating
+  until the simulated statistics sit at the targets.
+- In practice, it converges reliably for these more complex, dyad-dependent networks.
 
+[At **full research scale** (n≈32k), one more lever matters:]{.smallish}
 
-- In Step 7, we fit a more complex model using **Stochastic Approximation** (SA) for easier convergence.
-- SA is based on moment-matching (Robbins–Monro).^[Snijders (2002), *Journal of Social Structure* 3(2), 1–40.]
-- Works by simulating, comparing to target, and nudging the coefficients.
-- In practice, found to be useful for fitting more complex networks.
-- Setting convergence criteria to Hotelling and specifying MCMLE parameters was important to ensure final convergence. 
+- The MCMLE **termination criterion** — **Hummel** (v4 default) vs **Hotelling** (a T² test) — can
+  decide whether the final polish step completes.
+- In our pipeline, Hotelling completed a fit that stalled under Hummel.
 
 ::: notes
-Note: SA doesn't require MCMLE params and convergence criteria, but switches to them in specific phases. Using Hotelling + MCMLE tuning helped in the full scale model. 
+SA doesn't need MCMLE termination settings for the small workshop model, but the final MCMLE/
+Newton-Raphson polish step is termination-governed even under SA — so at full scale the Hummel→
+Hotelling switch still helped. Hummel is conservative (shrinks each step); at n≈32k with heavy MCMC
+(interval/samplesize ~1e6) that cautious, many-iteration path can exhaust walltime. Hotelling's T²
+test stops as soon as the simulated mean is statistically indistinguishable from the target. Our
+pipeline bears this out: the matched Hummel run didn't complete while the Hotelling run did
+(net-ergm-v4plus/slurm_output/*int1e6-sampsize1e6-{hummel,hotelling}).
 :::
 
 ---
@@ -172,36 +178,41 @@ rather than presenting our pipeline's pattern as the only correct one.
 
 ## Example: Adding the out-degree terms {.smallish}
 
-Warm-started, fit with `ergm`'s defaults:
+Warm-started, fit under **Stochastic-Approximation**:
 
 ```r
+sa_control <- control.ergm(main.method = "Stochastic-Approximation",
+                           MCMC.interval = 4096, MCMC.samplesize = 4096)
+
 # steps 1–4 → mixing fit; its simulated network warm-starts step 5
 net_mix <- simulate(fit_mix, nsim = 1)
 
 fit5 <- ergm(net_mix ~ edges +
                 ... +
                odegree(0),
-             target.stats = c(ts_mix, odeg_target(0)), eval.loglik = FALSE)
+             target.stats = c(ts_mix, odeg_target(0)),
+             control = sa_control, eval.loglik = FALSE)
 net5 <- simulate(fit5, nsim = 1)     # in turn, warm-starts step 6
 ```
 
 One simulated network from `fit5` (here, `net5`) becomes the starting network for `fit6`.
 
-(JO: I assume the `{.accent}` below is a mistake?)
 ```r
 fit6 <- ergm(net5 ~ edges +
                 ... +
                odegree(0:1),
-             target.stats = c(ts_mix, odeg_target(0:1)), eval.loglik = FALSE)
+             target.stats = c(ts_mix, odeg_target(0:1)),
+             control = sa_control, eval.loglik = FALSE)
 net6 <- simulate(fit6, nsim = 1)     # warm-starts step 7
 ```
 
-Informally, this workshop describes a simulated network instance from one fit as providing a "warm start" for the next. 
+Informally, this workshop describes a simulated network instance from one fit as providing a "warm start" for the next.
 
 ::: notes
-Default (MCMLE) fitting, warm-started each step. These converge fine on defaults; the
-override only becomes necessary at step 7. `eval.loglik = FALSE` skips the expensive
-log-likelihood — we only need the fit for simulating the next warm start.
+Every degree step uses SA (`sa_control`), warm-started from the previous simulation. MCMLE defaults
+also converge if you cap `MCMLE.maxit`, but SA is far more efficient — seconds vs. potentially hours.
+`eval.loglik = FALSE` skips the expensive log-likelihood; we only need the fit for simulating the
+next warm start.
 :::
 
 ---
@@ -210,11 +221,11 @@ log-likelihood — we only need the fit for simulating the next warm start.
 ## Recap
 
 - Stage the model; **warm-start** each step from the last simulation.
-- Dyad-independent terms fit easily; dyad-dependent degree terms are a harder MCMC problem and can stall.
-- For complex dyadic dependent models, start with defaults. 
-- Escalate only when a step stalls: 
-  * **termination** (`MCMLE.termination`): Hummel → Hotelling helps.
-  * **algorithm** (`main.method`): MCMLE → Stochastic-Approximation for the more complex models.
+- The **mixing block** (dyad-independent) fits on `ergm`'s defaults.
+- The **degree terms** (dyad-dependent) are slow under those defaults at n=1000 — capping
+  `MCMLE.maxit` converges, but **Stochastic-Approximation** (`main.method`) is far more efficient,
+  clearing the whole 5–7 chain in seconds.
+- At **full research scale**, the MCMLE **termination criterion** (Hummel → Hotelling) can matter too.
 
 ::: {.accent}
 In the next module, we assess the quality of these fits.
