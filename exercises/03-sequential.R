@@ -21,6 +21,10 @@ f_mix <- net ~ edges +
 ctrl <- control.ergm(MCMC.interval = 512, MCMC.samplesize = 512,
                      MCMC.effectiveSize = NULL, MCMLE.maxit = 30)
 
+sa_control <- control.ergm(main.method = "Stochastic-Approximation",
+                           MCMC.interval = 4096, MCMC.samplesize = 4096)
+
+
 # ---- Run this: fit the mixing block, then warm-start ------------------------
 
 # 1. Fit the mixing block to its targets.
@@ -32,7 +36,7 @@ net_warm <- simulate(fit_mix, nsim = 1)
 # 3. Add an out-degree term, fitting FROM the warm start (net_warm on the LHS).
 fit5 <- ergm(update(f_mix, net_warm ~ . + odegree(0)),
              target.stats = c(ts_mix, odeg_target(0)),
-             control = ctrl, eval.loglik = FALSE)
+             control = sa_control, eval.loglik = FALSE)
 summary(fit5)
 
 # ---- Your turn: add odegree(0:1) the same way -------------------------------
