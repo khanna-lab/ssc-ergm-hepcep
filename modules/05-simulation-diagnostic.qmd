@@ -179,8 +179,7 @@ jsonlite::write_json(
 
 - The `statnet` team also offers `EpiModel`, an end-to-end suite in R to streamline network modeling within ABMs.^[Jenness, Goodreau & Morris (2018), *Journal of Statistical Software* 84(8), 1–47. doi:10.18637/jss.v084.i08]
 
-- Developed by Professors Samuel Jenness (Emory), Steven Goodreau (Washington), and Martina Morris (Washington)
-.
+- Developed by Professors Samuel Jenness (Emory), Steven Goodreau (Washington), and Martina Morris (Washington).
 
 - Wide userbase and community to co-evolve ABMs and network structure.
 
