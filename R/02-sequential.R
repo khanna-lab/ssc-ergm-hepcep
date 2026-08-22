@@ -19,12 +19,11 @@ mix_stat_names <- names(summary(f_mix))
 print(mix_stat_names)
 stopifnot(length(mix_stat_names) == length(ts_mix))
 
-# Every degree-term step (5-7) needs Stochastic-Approximation, not just step 7.
-# Under ergm's MCMLE defaults, step 5 (+ odegree(0)) does NOT converge at n=1000: the
-# estimating equations stop approaching the tolerance region, ergm keeps enlarging the
-# MCMC sample, and each iteration costs more than the last (measured: >2 hours at 99%
-# CPU, still on MCMLE iteration 7, no convergence). Under SA the whole 5-7 chain fits
-# in ~9 seconds.
+# Every degree-term step (5-7) is far more efficient under Stochastic-Approximation, not just step 7.
+# Under ergm's MCMLE defaults the sampler keeps enlarging the MCMC sample and each iteration costs
+# more than the last -- left unbounded, step 5 (+ odegree(0)) ran >2 hours at 99% CPU without
+# finishing (still on MCMLE iteration 7). Capping MCMLE.maxit does return a convergent fit, just
+# slowly. Under SA the whole 5-7 chain fits in ~9 seconds.
 #
 # Sampling level then matters. Under SA the sampler is governed by the SA.* family, and
 # SA.interval/SA.samplesize DEFAULT to MCMC.interval/MCMC.samplesize -- so those DO tune
