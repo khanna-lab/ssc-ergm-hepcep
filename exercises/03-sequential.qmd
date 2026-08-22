@@ -48,16 +48,14 @@ long time at n = 1000. Therefore, we instead fit these with **Stochastic-Approxi
 based on **moment-matching** (Robbins–Monro).^[Snijders (2002), *Journal of Social Structure* 3(2), 1–40.]  
 
 SA works by simulating networks from the current fit, comparing the simulated
-statistics to the targets, and **nudging all the coefficients together** (a single
-joint vector update) — repeating until the simulated statistics sit at the targets.
+statistics to the targets, and **nudging all the coefficients jointly**. This process is repeated until the simulated statistic vector is close to the targets.
 
-In practice, SA often converges more reliably for dyad-dependent networks.
+In our study, SA often seemed to converge more reliably for dyad-dependent networks, especially at the larger scale.
 
-We set `MCMC.interval`/`samplesize = 4096`. Each SA step still **simulates** networks
+We set `MCMC.interval`/`samplesize = 4096`. Each SA step **simulates** networks
 from the current fit by MCMC to estimate the expected statistics, so these `MCMC.*`
 values govern *that* sampler (under SA they set `SA.interval`/`SA.samplesize`). A larger
-sample gives tighter, less-autocorrelated draws — which is what makes the diagnostics
-and simulated networks in Modules 4–5 trustworthy.
+sample gives tighter, less-autocorrelated draws, improving the quality of the simulated network (see Modules 4–5 on assessment of quality).
 
 ```{r}
 #| label: controls
@@ -87,8 +85,6 @@ fit5 <- ergm(update(f_mix, net_warm ~ . + odegree(0)),
              control = sa_control, eval.loglik = FALSE)
 summary(fit5)
 ```
-
-(Using default convergence for fitting can be a take-home exercise for this module)
 
 ## Your turn: add `odegree(0:1)` the same way
 
@@ -126,5 +122,3 @@ fit6 <- ergm(update(f_mix, net_warm2 ~ . + odegree(0:1)),
 summary(fit6)
 ```
 :::
-
-(have we shown them how to compute the outdegree target? perhaps it should be stated up top so people who don't complete it in a few minutes can still proceed)?
