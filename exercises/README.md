@@ -1,17 +1,18 @@
 # Workshop Exercises
 
-Hands-on companions to the six module decks. Each exercise is a **scaffolded R
-script** we complete during (or after) the corresponding module. Fill in each
-`# TODO`, run the block, and check the result against the slides.
+Hands-on companions to the six module decks. Each exercise is a **scaffolded Quarto
+notebook** (`.qmd`) we complete during (or after) the corresponding module. Fill in
+each `# TODO`, run the chunk, and check the result against the slides.
 
 ## How to use
 
-- Open the exercise for the current module (e.g. `exercises/01-intro.R`) in
+- Open the exercise for the current module (e.g. `exercises/01-intro.qmd`) in
   RStudio / Posit Cloud.
-- Work top to bottom. Each numbered block is a small, self-contained step; run it
-  before moving on.
+- Work top to bottom. Run each code chunk with the green ▶ ("Run current chunk")
+  button before moving on — no rendering needed.
 - `# TODO:` marks a line to be completed. A hint follows in the comment.
-- The full, working version is the matching script in `R/` (noted at the top of each exercise). That's the answer key.
+- Each notebook ends with a collapsible **Solution** callout; the full, working
+  version is the matching script in `R/` (noted at the top of each exercise).
 
 ## Environment
 
@@ -20,12 +21,12 @@ Everything runs in the shared **Posit Cloud** project (a copy of this repo with
 
 | Exercise | Module | Solution key (`R/`) |
 |---|---|---|
-| `01-intro.R` | 1 — Intro to ERGMs | `precompute-intro-fit.R` |
-| `02-targets.R` | 2 — Aggregate summaries → targets | `01-targets.R` |
-| `03-sequential.R` | 3 — Sequential fitting | `02-sequential.R` |
-| `04-failure-modes.R` | 4 — Failure modes & diagnostics | `04-failure-modes.R` |
-| `05-simulation.R` | 5 — Simulation + ABM export | `05a-simulation.R`, `05b-export-abm.R` |
-| `06-geographic.R` | 6 — Geographic extensions | `modules/06-geographic-extensions.qmd` |
+| `01-intro.qmd` | 1 — Intro to ERGMs | `precompute-intro-fit.R` |
+| `02-targets.qmd` | 2 — Aggregate summaries → targets | `01-targets.R` |
+| `03-sequential.qmd` | 3 — Sequential fitting | `02-sequential.R` |
+| `04-failure-modes.qmd` | 4 — Failure modes & diagnostics | `04-failure-modes.R` |
+| `05-simulation.qmd` | 5 — Simulation + ABM export | `05a-simulation.R`, `05b-export-abm.R` |
+| `06-geographic.qmd` | 6 — Geographic extensions | `modules/06-geographic-extensions.qmd` |
 
 Exercises 2–5 rely on `R/00-setup.R` (loads the synthetic network, targets, and
 degree-target helpers); each sources it at the top. Exercise 1 is self-contained
