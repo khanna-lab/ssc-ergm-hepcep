@@ -225,6 +225,7 @@ move from Indicator #3 — into the workflow.
 
 ---
 
+<!-- 
 ## Exercise
 
 Work in the Posit Cloud environment:
@@ -236,4 +237,5 @@ Work in the Posit Cloud environment:
 
 ::: notes
 Steps mirror the run sheet; cap time on any live fit that hangs.
-:::
+::: 
+-->
