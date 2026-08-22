@@ -25,7 +25,11 @@ Everything runs in the shared **Posit Cloud** project (a copy of this repo with
 | `03-sequential.R` | 3 — Sequential fitting | `02-sequential.R` |
 | `04-failure-modes.R` | 4 — Failure modes & diagnostics | `04-failure-modes.R` |
 | `05-simulation.R` | 5 — Simulation + ABM export | `05a-simulation.R`, `05b-export-abm.R` |
+| `06-geographic.R` | 6 — Geographic extensions | `modules/06-geographic-extensions.qmd` |
 
 Exercises 2–5 rely on `R/00-setup.R` (loads the synthetic network, targets, and
 degree-target helpers); each sources it at the top. Exercise 1 is self-contained
-on `faux.magnolia.high`, which is included in the `statnet` R library.
+on `faux.magnolia.high`, which is included in the `statnet` R library. Exercise 6
+is self-contained on a three-node example but needs `ergm.userterms.hepcep`, the
+custom-term package (pre-installed in Posit Cloud; see Module 6 to install it
+locally). Only its "Try at home" items use `R/00-setup.R`.

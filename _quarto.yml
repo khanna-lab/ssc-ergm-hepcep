@@ -5,6 +5,9 @@ project:
 format:
   revealjs:
     theme: simple
+    # Stops the deck from swallowing Cmd/Ctrl chords (e.g. Shift-Option-Command
+    # -Left/Right, which reveal.js otherwise treats as jump-to-first/last-slide).
+    include-after-body: modules/reveal-keyboard.html
     slide-number: true
     chalkboard: false
     code-fold: false

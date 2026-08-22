@@ -18,12 +18,12 @@ Familiarity with logistic regression assumed; R experience preferred. Brief ERGM
 ## Module Structure
 | # | Focus | Key Activity |
 |---|-------|-------------|
-| 1 | Aggregate summaries → network parameters | Convert empirical summaries (mixing, degree distributions) into ERGM target parameters |
-| 2 | Geocoded attributes → social mixing | Walkthrough of custom ERGM terms for geocoded data |
+| 1 | A brief introduction to ERGMs | Fit and simulate on an observed network (`faux.magnolia.high`), building to the targets idea |
+| 2 | Aggregate summaries → network targets | Convert empirical summaries (mixing, degree distributions) into an ordered ERGM target vector |
 | 3 | Sequential ERGM specification | Staged ERGM fitting walkthrough toward convergent model |
 | 4 | Assessing failure modes | Compare non-converged/poorly aligned models |
-| 5 | Simulation as diagnostic | Generate simulated networks and assess vs. targets |
-| 6 | Networks → ABMs | Crosswalk network summaries to ABM inputs |
+| 5 | Simulation as diagnostic | Generate simulated networks, assess vs. targets, crosswalk to ABM inputs |
+| 6 | Geographic extensions | Custom ERGM terms for geocoded data, via the `dnf` distance term |
 
 ## Dataset
 - **Synthetic dataset** (`data/synthetic/`): n=1000 nodes, mirroring HepCEP PWID syringe-sharing network structure
@@ -34,7 +34,10 @@ Familiarity with logistic regression assumed; R experience preferred. Brief ERGM
 ## Reference Repositories
 - `hepcep/net-ergm-v4plus` — source of the full HepCEP ERGM pipeline (main + dnf branches)
 - The workshop pipeline is a pedagogically simplified version of that pipeline
+- `hepcep/ergm.userterms.hepcep` — the custom `dnf`/`dist` geographic terms used in
+  Module 6 (https://github.com/hepcep/ergm.userterms.hepcep). Not on CRAN; installs
+  from GitHub and compiles against `ergm` (>= 4.8.0)
 
 ## Key R Packages
-- `ergm`, `network`, `ergm.userterms`, `ergm.userterms.hepcep` (custom terms for geocoded mixing)
+- `ergm`, `network`, `statnet.common`, `ergm.userterms.hepcep` (custom terms for geocoded mixing)
 - `sna`, `ggplot2`, `dplyr`, `readr`

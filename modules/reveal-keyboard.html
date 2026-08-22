@@ -1,0 +1,21 @@
+<script>
+  // Hand Cmd/Ctrl-modified keystrokes back to the browser and the OS.
+  //
+  // reveal.js whitelists Shift for the arrow keys so that Shift+Left and
+  // Shift+Right jump to the first and last slide. That check never looks at
+  // Cmd or Ctrl, so a chord like Shift-Option-Command-Left still reaches the
+  // handler, jumps the deck, and gets preventDefault()ed on the way out.
+  //
+  // keyboardCondition runs before any of that and before preventDefault, so
+  // returning false leaves the keystroke untouched. reveal.js never binds Cmd
+  // or Ctrl itself, which makes them safe to exclude wholesale.
+  window.addEventListener('load', function () {
+    if (window.Reveal && typeof Reveal.configure === 'function') {
+      Reveal.configure({
+        keyboardCondition: function (event) {
+          return !(event.metaKey || event.ctrlKey);
+        }
+      });
+    }
+  });
+</script>

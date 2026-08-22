@@ -132,6 +132,10 @@ $code-block-font-size: 0.6em !default;
   font-weight: 700;
   font-size: 1.15em;
   text-align: center;
+  // Centered text that wraps tends to strand one word on the last line. Balance
+  // splits the lines evenly instead. Ignored by browsers that don't support it,
+  // which just fall back to normal wrapping.
+  text-wrap: balance;
 }
 
 // Size utilities — revealjs equivalents of LaTeX \small / \tiny.
@@ -157,6 +161,20 @@ $code-block-font-size: 0.6em !default;
 .reveal .center {
   text-align: center;
 }
+
+// Spacing utilities. The deck runs deliberately tight (--r-block-margin above,
+// plus the paragraph margins), so these buy back room in specific spots. Wrap
+// the element that should be pushed down:
+//   ::: {.gap}
+//   The paragraph, list, or table that needs air above it.
+//   :::
+// For a pure spacer with no content, leave the fence empty and set a height:
+//   ::: {style="height: 3em;"}
+//   :::
+// Note that adjacent margins collapse, so the gap is 1em (or 2em) in total
+// rather than that much added on top of the neighbour's existing margin.
+.reveal .gap    { margin-top: 1em; }
+.reveal .gap-lg { margin-top: 2em; }
 
 // Color utilities — color only, no size/weight change (unlike `.punch`).
 // Apply inline: [text]{.accent}   or to a block:  ::: {.accent} ... :::
