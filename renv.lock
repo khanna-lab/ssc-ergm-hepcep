@@ -11,9 +11,9 @@
   "Packages": {
     "DEoptimR": {
       "Package": "DEoptimR",
-      "Version": "1.2-0",
+      "Version": "1.2-1",
       "Source": "Repository",
-      "Date": "2026-06-07",
+      "Date": "2026-08-19",
       "Title": "Differential Evolution Optimization in Pure R",
       "Authors@R": "c( person(c(\"Eduardo\", \"L. T.\"), \"Conceicao\", role = c(\"aut\", \"cre\"), email = \"mail@eduardoconceicao.org\"), person(\"Martin\", \"Maechler\", role = \"ctb\", email = \"maechler@stat.math.ethz.ch\", comment = c(ORCID = \"0000-0002-8685-9910\")) )",
       "URL": "svn://svn.r-forge.r-project.org/svnroot/robustbase/pkg/DEoptimR",
@@ -31,10 +31,10 @@
       "License": "GPL (>= 2)",
       "Author": "Eduardo L. T. Conceicao [aut, cre], Martin Maechler [ctb] (ORCID: <https://orcid.org/0000-0002-8685-9910>)",
       "Maintainer": "Eduardo L. T. Conceicao <mail@eduardoconceicao.org>",
-      "Repository": "CRAN",
+      "Repository": "RSPM",
       "Repository/R-Forge/Project": "robustbase",
-      "Repository/R-Forge/Revision": "1025",
-      "Repository/R-Forge/DateTimeStamp": "2026-06-07 16:58:58",
+      "Repository/R-Forge/Revision": "1030",
+      "Repository/R-Forge/DateTimeStamp": "2026-08-19 18:14:28",
       "NeedsCompilation": "no",
       "Encoding": "UTF-8"
     },
@@ -838,6 +838,37 @@
       "Author": "Pavel N. Krivitsky [aut, cre] (ORCID: <https://orcid.org/0000-0002-9101-3362>), Mark S. Handcock [ctb], David R. Hunter [ctb], Chad Klumb [ctb], Pietro Coletti [ctb], Joyce Cheng [ctb]",
       "Maintainer": "Pavel N. Krivitsky <pavel@statnet.org>",
       "Repository": "CRAN"
+    },
+    "ergm.userterms.hepcep": {
+      "Package": "ergm.userterms.hepcep",
+      "Version": "4.0.0",
+      "Source": "Git",
+      "Date": "2026-08-13",
+      "Title": "User-Specified Geographic Terms for the statnet Suite of Packages (HepCEP)",
+      "Authors@R": "c( person(\"Jonathan\", \"Ozik\", role=c(\"aut\",\"cre\"), email=\"jozik@anl.gov\"), person(\"Aditya S.\", \"Khanna\", role=c(\"aut\")), person(\"Mark S.\", \"Handcock\", role=c(\"ctb\"), email=\"handcock@stat.ucla.edu\"), person(\"David R.\", \"Hunter\", role=c(\"ctb\"), email=\"dhunter@stat.psu.edu\"), person(\"Carter T.\", \"Butts\", role=c(\"ctb\"), email=\"buttsc@uci.edu\"), person(\"Steven M.\", \"Goodreau\", role=c(\"ctb\"), email=\"goodreau@u.washington.edu\"), person(\"Pavel N.\", \"Krivitsky\", role=c(\"ctb\"), email=\"pavel@statnet.org\", comment=c(ORCID=\"0000-0002-9101-3362\")), person(\"Martina\", \"Morris\", role=c(\"ctb\"), email=\"morrism@u.washington.edu\"), person(\"Statnet Commons\", role=c(\"cph\")))",
+      "Depends": [
+        "network (>= 1.19)",
+        "ergm (>= 4.8.0)"
+      ],
+      "Imports": [
+        "statnet.common (>= 4.11.0)"
+      ],
+      "LinkingTo": [
+        "ergm"
+      ],
+      "Description": "A HepCEP project derivative of the 'ergm.userterms' template package, adding geographic distance terms for use in 'ergm' models as part of the Statnet suite of packages. Provides the 'dist' term, counting edges by fixed distance band, and the 'dnf' term, counting near and far edges stratified by a categorical vertex attribute.",
+      "License": "GPL-3 + file LICENSE",
+      "URL": "https://github.com/hepcep/ergm.userterms.hepcep, https://statnet.org",
+      "BugReports": "https://github.com/hepcep/ergm.userterms.hepcep/issues",
+      "Encoding": "UTF-8",
+      "Roxygen": "list(markdown = TRUE)",
+      "RoxygenNote": "7.3.2",
+      "RemoteType": "xgit",
+      "RemoteUrl": "https://github.com/hepcep/ergm.userterms.hepcep.git",
+      "RemoteSha": "f4e7ee127bf1e04c5a769f4e1b32c78bdecb1829",
+      "NeedsCompilation": "yes",
+      "Author": "Jonathan Ozik [aut, cre], Aditya S. Khanna [aut], Mark S. Handcock [ctb], David R. Hunter [ctb], Carter T. Butts [ctb], Steven M. Goodreau [ctb], Pavel N. Krivitsky [ctb] (ORCID: <https://orcid.org/0000-0002-9101-3362>), Martina Morris [ctb], Statnet Commons [cph]",
+      "Maintainer": "Jonathan Ozik <jozik@anl.gov>"
     },
     "evaluate": {
       "Package": "evaluate",
@@ -2587,9 +2618,9 @@
     },
     "stringi": {
       "Package": "stringi",
-      "Version": "1.8.7",
+      "Version": "1.8.9",
       "Source": "Repository",
-      "Date": "2025-03-27",
+      "Date": "2026-07-30",
       "Title": "Fast and Portable Character String Processing Facilities",
       "Description": "A collection of character string/text/natural language processing tools for pattern searching (e.g., with 'Java'-like regular expressions or the 'Unicode' collation algorithm), random string generation, case mapping, string transliteration, concatenation, sorting, padding, wrapping, Unicode normalisation, date-time formatting and parsing, and many more. They are fast, consistent, convenient, and - thanks to 'ICU' (International Components for Unicode) - portable across all locales and platforms. Documentation about 'stringi' is provided via its website at <https://stringi.gagolewski.com/> and the paper by Gagolewski (2022, <doi:10.18637/jss.v103.i02>).",
       "URL": "https://stringi.gagolewski.com/, https://github.com/gagolews/stringi, https://icu.unicode.org/",
@@ -2607,13 +2638,13 @@
       "Biarch": "TRUE",
       "License": "file LICENSE",
       "Authors@R": "c(person(given = \"Marek\", family = \"Gagolewski\", role = c(\"aut\", \"cre\", \"cph\"), email = \"marek@gagolewski.com\", comment = c(ORCID = \"0000-0003-0637-6028\")), person(given = \"Bartek\", family = \"Tartanus\", role = \"ctb\"), person(\"Unicode, Inc. and others\", role=\"ctb\", comment = \"ICU4C source code, Unicode Character Database\") )",
-      "RoxygenNote": "7.3.2",
       "Encoding": "UTF-8",
+      "Config/roxygen2/version": "8.0.0",
       "NeedsCompilation": "yes",
-      "Author": "Marek Gagolewski [aut, cre, cph] (<https://orcid.org/0000-0003-0637-6028>), Bartek Tartanus [ctb], Unicode, Inc. and others [ctb] (ICU4C source code, Unicode Character Database)",
+      "Author": "Marek Gagolewski [aut, cre, cph] (ORCID: <https://orcid.org/0000-0003-0637-6028>), Bartek Tartanus [ctb], Unicode, Inc. and others [ctb] (ICU4C source code, Unicode Character Database)",
       "Maintainer": "Marek Gagolewski <marek@gagolewski.com>",
       "License_is_FOSS": "yes",
-      "Repository": "CRAN"
+      "Repository": "RSPM"
     },
     "stringr": {
       "Package": "stringr",
