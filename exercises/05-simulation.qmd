@@ -1,0 +1,101 @@
+---
+title: "Simulation as Diagnostic"
+subtitle: "SSC 2026 ERGM Workshop · Module 5 — exercise"
+format:
+  html:
+    toc: true
+    toc-depth: 2
+    embed-resources: true
+execute:
+  eval: false     # run the chunks yourself in RStudio / Posit Cloud
+  echo: true
+  warning: false
+  message: false
+---
+
+> **Live concept.** Simulate an ensemble and check whether a target lands inside the
+> simulated spread. Work top to bottom; fill in the `# TODO` chunk. Full worked
+> versions: `R/05a-simulation.R`, `R/05b-export-abm.R`.
+
+## Setup
+
+```{r}
+#| label: setup
+source(here::here("R", "00-setup.R"))
+```
+
+The mixing block (same as Module 3):
+
+```{r}
+#| label: mixing-formula
+f_mix <- net ~ edges +
+  nodemix("sex",      levels2 = -1) +
+  nodemix("young",    levels2 = -1) +
+  nodemix("race.num", levels2 = -1) +
+  nodematch("chicago")
+```
+
+## Controls and a fitted model
+
+Degree terms fit far faster under Stochastic-Approximation at n = 1000 (MCMLE
+defaults run long). Sampling level matters here too: too-low MCMC leaves consecutive
+draws autocorrelated, so the simulated intervals below come out misleadingly narrow;
+4096 gives honest intervals in seconds (see `R/02-sequential.R`).
+
+```{r}
+#| label: fit
+sa_control <- control.ergm(main.method = "Stochastic-Approximation",
+                           MCMC.interval = 4096, MCMC.samplesize = 4096)
+
+# A fitted model to simulate from (mixing block + out-degree; fits in seconds).
+fit <- ergm(update(f_mix, ~ . + odegree(0:1)),
+            target.stats = c(ts_mix, odeg_target(0:1)),
+            control = sa_control, eval.loglik = FALSE)
+```
+
+## Run this: simulate an ensemble, check ONE statistic
+
+```{r}
+#| label: ensemble
+sims <- simulate(fit, nsim = 100)
+
+# Count out-degree-0 nodes in each of the 100 simulated networks:
+sim_odeg0    <- sapply(seq_along(sims), function(i) summary(sims[[i]] ~ odegree(0)))
+target_odeg0 <- odeg_target(0)
+
+# Is the target inside the middle 95% of the simulated distribution?
+quantile(sim_odeg0, c(.025, .975))
+target_odeg0
+target_odeg0 >= quantile(sim_odeg0, .025) & target_odeg0 <= quantile(sim_odeg0, .975)
+```
+
+## Your turn: check a different statistic
+
+Repeat for **out-degree-1**. Is *its* target, `odeg_target(1)`, inside the spread?
+
+```{r}
+#| label: your-turn
+# TODO: sim_odeg1 <- sapply(seq_along(sims), function(i) summary(sims[[i]] ~ odegree(1)))
+# TODO: quantile(sim_odeg1, c(.025, .975)); odeg_target(1)
+```
+
+::: {.callout-note}
+## Try at home
+
+a. Violin plot of every statistic vs. its target: `R/05a-simulation.R`.
+b. Export a simulated network for an ABM (edgelist + vertex table):
+   `R/05b-export-abm.R`.
+:::
+
+::: {.callout-tip collapse="true"}
+## Solution
+
+```r
+sim_odeg1    <- sapply(seq_along(sims), function(i) summary(sims[[i]] ~ odegree(1)))
+target_odeg1 <- odeg_target(1)
+
+quantile(sim_odeg1, c(.025, .975))
+target_odeg1
+target_odeg1 >= quantile(sim_odeg1, .025) & target_odeg1 <= quantile(sim_odeg1, .975)
+```
+:::
