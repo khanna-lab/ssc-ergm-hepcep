@@ -13,9 +13,8 @@ execute:
   message: false
 ---
 
-> **Live concept.** Turn a degree distribution into an edge count. 
-
-> Full worked version: `R/01-targets.R`.
+> **Live concept.** Turn a degree distribution into an edge count. Full worked
+> version: `R/01-targets.R`.
 
 ## Setup
 
