@@ -19,6 +19,9 @@ each `# TODO`, run the chunk, and check the result against the slides.
 Everything runs in the shared **Posit Cloud** project (a copy of this repo with
 `renv` restored and the synthetic data in place). No local install needed.
 
+👉 **Join link:** `<POSIT_CLOUD_JOIN_LINK>`  <!-- TODO: paste the assignment/join link before the workshop -->
+
+
 | Exercise | Module | Solution key (`R/`) |
 |---|---|---|
 | `01-intro.qmd` | 1 — Intro to ERGMs | `precompute-intro-fit.R` |
