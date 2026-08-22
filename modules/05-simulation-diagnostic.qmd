@@ -204,6 +204,8 @@ Module 6: **spatial modeling** — geography as a first-class term.
 
 ---
 
+
+<!-- 
 ## Exercise
 
 Work in the Posit Cloud environment:
@@ -217,3 +219,5 @@ Work in the Posit Cloud environment:
 ::: notes
 Cap time on the live simulation; the pre-baked plot carries the point if it runs long.
 :::
+
+ -->
