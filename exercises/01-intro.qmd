@@ -1,0 +1,119 @@
+---
+title: "A Brief Introduction to ERGMs"
+subtitle: "SSC 2026 ERGM Workshop · Module 1 — take-home exercise"
+format:
+  html:
+    toc: true
+    toc-depth: 2
+    embed-resources: true
+execute:
+  eval: false     # run the chunks yourself in RStudio / Posit Cloud
+  echo: true
+  warning: false
+  message: false
+---
+
+> **Take-home exercise.** This is a take-home exercise, based on the 2008 statnet tutorial, published in Journal of Statistical Software, that we discussed in Module 1.^[Goodreau, S. M., Handcock, M. S., Hunter, D. R., Butts, C. T., & Morris, M. (2008). A statnet Tutorial. *Journal of Statistical Software*, 24(9), 1–26. <https://doi.org/10.18637/jss.v024.i09>] and is self-contained on
+
+> The exercise is based on the `faux.magnolia.high` dataset, included with `statnet` package. 
+
+
+
+## Setup
+
+```{r}
+#| label: setup
+library(statnet)
+
+data("faux.magnolia.high")
+fmh <- faux.magnolia.high
+```
+
+## 1. Describe the network
+
+Get a feel for the data before modelling it: size, who befriends whom by sex, and
+the degree distribution.
+
+```{r}
+#| label: describe
+c(students = network.size(fmh), ties = network.edgecount(fmh))
+mixingmatrix(fmh, "Sex")        # who befriends whom, by sex
+summary(fmh ~ degree(0:5))      # how many friends people have
+```
+
+## 2. Null model: ties form at random
+
+In an `edges`-only ERGM, every tie is equally likely. The coefficient is on the
+**logit** (log-odds) scale — an ERGM coefficient models $\operatorname{logit}(p) = \log\!\frac{p}{1-p}$.
+`plogis()` is its inverse, the logistic function $\operatorname{plogis}(x) = \dfrac{1}{1+e^{-x}}$,
+so `plogis(coef)` turns the coefficient back into a baseline tie probability $p$.
+
+```{r}
+#| label: null-model
+random.m <- ergm(fmh ~ edges)
+plogis(coef(random.m))          # baseline tie probability (inverse-logit of coef)
+```
+
+## 3. Assortative model: add homophily
+
+We add `nodematch` terms so tie probability accounts for group membership. The
+coefficients are again on the **logit scale**; a positive value raises the log-odds
+of a within-group tie, so within-group ties are more likely.
+
+```{r}
+#| label: assortative
+assort.m <- ergm(fmh ~ edges + nodematch("Grade") +
+                   nodematch("Race") + nodematch("Sex"))
+round(coef(assort.m), 2)        # positive = ties more likely within a group
+plot(gof(assort.m, GOF = ~ degree - model))   # does it reproduce the degree dist?
+```
+
+## 4. Friend-of-a-friend: triadic closure via GWESP
+
+The `gwesp` term adds triadic closure with **diminishing returns**. An ERGM with raw
+`triangles` would typically be degenerate — a failure mode we examine in Module 4, and
+one the `statnet` tutorial itself flags (Goodreau et al. 2008). `gwesp` is
+**dyad-dependent**: the probability of a tie between two nodes depends on the other ties
+already present in the network. Fitting such models requires MCMC, so it is slower than
+the dyad-independent case.
+
+```{r}
+#| label: gwesp
+gwesp.m <- ergm(fmh ~ edges + nodematch("Grade") + nodematch("Race") +
+                  nodematch("Sex") + gwesp(0.25, fixed = TRUE))
+round(coef(gwesp.m), 2)
+plot(gof(gwesp.m, GOF = ~ degree - model))    # compare with the assortative GOF
+```
+
+## 5. Simulate from a fit and compare
+
+This is the seed of Module 5: `gof()` automates it, but by hand you draw networks
+from the fitted model and compare a statistic to the observed value.
+
+```{r}
+#| label: simulate-compare
+sims    <- simulate(gwesp.m, nsim = 50)
+obs_deg <- summary(fmh ~ degree(0:5))
+sim_deg <- t(sapply(sims, function(s) summary(s ~ degree(0:5))))
+rbind(observed = obs_deg,
+      sim_mean = round(colMeans(sim_deg), 1))    # observed vs. average simulated
+```
+
+Plot it: simulated spread (boxplots) with the observed counts overlaid in red. A
+reasonable fit = the red points sit inside the simulated boxes.
+
+```{r}
+#| label: degree-gof-plot
+boxplot(sim_deg, names = 0:5, xlab = "degree", ylab = "# of nodes",
+        main = "Degree GOF: observed (red) vs. simulated")
+points(seq_along(obs_deg), obs_deg, col = "red", pch = 19)
+```
+
+::: {.callout-note}
+## Experiments to try
+
+a. Change the GWESP decay: `gwesp(0.5, fixed = TRUE)` vs `gwesp(0.1, ...)`. How
+   does the degree goodness-of-fit change?
+b. Drop one homophily term (e.g. remove `nodematch("Race")`) — does the fit suffer?
+c. Check a different GOF dimension: `gof(gwesp.m, GOF = ~ espartners - model)`.
+:::
