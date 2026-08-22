@@ -14,7 +14,7 @@ f_mix <- net ~ edges +
   nodemix("race.num", levels2 = -1) +
   nodematch("chicago")
 
-# Degree terms need Stochastic-Approximation at n = 1000 (MCMLE defaults stall).
+# Degree terms fit far faster under Stochastic-Approximation at n = 1000 (MCMLE defaults run long).
 # Sampling level matters HERE too: too-low MCMC leaves consecutive draws
 # autocorrelated, so the simulated intervals below come out misleadingly narrow.
 # 4096 gives honest intervals in seconds. (See R/02-sequential.R.)
