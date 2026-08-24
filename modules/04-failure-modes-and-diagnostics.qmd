@@ -67,23 +67,39 @@ unlike non-convergence, isn't fixed by a fitting strategy — it needs respecifi
 
 ## Indicator #1 {.smallish}
 
-- In our **real pipeline** with standard tuning parameters, adding `odegree(0:2)` produced an error: 
+:::: {.columns}
+
+::: {.column width="62%"}
+
+- In our **real pipeline** with standard tuning parameters, adding `odegree(0:2)` produced an error:
+
 ```
 Error in ergm.MCMLE(...):
-  Number of edges in a simulated network exceeds that in the observed by a
-  factor of more than 20. This is a strong indicator of model degeneracy or
-  a very poor starting parameter configuration.
+  Number of edges in a simulated network exceeds that in the
+  observed by a factor of more than 20. This is a strong
+  indicator of model degeneracy or a very poor starting
+  parameter configuration.
 ```
 
-- **Degeneracy:** the fitted model puts almost all its probability on a few **extreme graphs** (near-empty
-  or near-complete).^[Handcock (2003), CSSS Working Paper 39; Schweinberger (2011), *JASA* 106(496), 1361–1370.]
-- Sometimes we see an error; other times the fitting process claims convergence, but the simulated networks are extreme (nearly complete or nearly empty).
+- **Degeneracy:** the fitted model puts almost all its probability on a few **extreme graphs** (near-empty or near-complete).^[Handcock (2003), *Assessing Degeneracy in Statistical Models of Social Networks*, CSSS Working Paper 39. <https://csss.uw.edu/files/working-papers/2003/wp39.pdf>. Schweinberger (2011), *JASA* 106(496), 1361–1370.]
+- Sometimes we see an error; other times the fitting process claims convergence, but the simulated networks are extreme.
+
+:::
+
+::: {.column width="38%"}
+
+![Handcock (2003)](img/handcock-2003-wp39.png){fig-align="center" .caption-center style="border: 4px solid #2563eb; border-radius: 6px; padding: 6px;" fig-alt="Title page of Handcock 2003, Assessing Degeneracy in Statistical Models of Social Networks, CSSS Working Paper no. 39, University of Washington, December 31 2003"}
+
+:::
+
+::::
 
 ---
 
 ## Indicator #1: Degeneracy Causes and Solutions {.smallish}
 
-- Cause: 
+Cause: 
+
     1. Can be scale-dependent: 
     - E.g.,  `odegree(0:2)` fits  at n = 1,000 but not in the full research model.  
     
