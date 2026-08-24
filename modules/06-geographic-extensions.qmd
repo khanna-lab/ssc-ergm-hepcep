@@ -182,15 +182,14 @@ dnf.chicago.1.n + dnf.chicago.1.f + dnf.chicago.2.n + dnf.chicago.2.f  =  edges
 :::
 ::: {.gap}
 With `edges` already in the model, the last cell is determined by the other three.
-Including all four would make the model **non-identifiable**.
 :::
 
 ::: {.punch}
-Same logic as `levels2 = -1` in Module 2. We need a reference cell.
+Same logic as `levels2 = -1` in Module 2.
 :::
 
 ::: {.gap}
-`base` picks *which* cell is the reference.
+`base` picks *which* cell is omitted.
 :::
 
 ::: notes
@@ -198,6 +197,8 @@ Direct callback to the `nodemix` reference-cell discussion. If someone asks whic
 base to choose, pick the cell you care least about interpreting, or the largest one
 for numerical comfort. The fit is equivalent either way.
 :::
+
+# What's involved in creating a custom `ergm` term?
 
 ---
 
@@ -332,6 +333,8 @@ budget time. Have the package pre-installed in the workshop image. The workshop
 repo's own project library does not currently carry it, which is precisely why
 Modules 3-5 use the `nodematch` stand-in.
 :::
+
+# Custom `ergm` terms: trust but verify
 
 ---
 
@@ -468,6 +471,8 @@ confirming the rest stay put. Cheap, and it catches the indexing errors that are
 difficult to debug inside C.
 :::
 
+# Applying the custom `ergm` term to our n = 1,000 network
+
 ---
 
 ## What the term has to overcome {.smallish}
@@ -547,7 +552,7 @@ the same name-matching discipline from Module 2 rather than trusting position.
 
 ## Swapping it into the pipeline {.smallish}
 
-One line changes in the mixing block of `R/02-sequential.R`:
+One line changes in the mixing block of `exercises/03-sequential.qmd`:
 
 ```r
 f_mix <- net ~ edges +
@@ -559,7 +564,8 @@ f_mix <- net ~ edges +
 ts_mix <- c(edges_target, sex_target, age_target, race_target,
             dnf_target)
 
-stopifnot(length(summary(f_mix)) == length(ts_mix))   # 23 becomes 25
+length(summary(f_mix))    # 25 statistics -- was 23 with nodematch("chicago")
+length(ts_mix)            # 25 targets -- the two must match
 ```
 
 - One statistic becomes three, so the target vector grows by two.
@@ -599,7 +605,7 @@ four cutoffs from the paper:
 :::
 
 - `k` breaks give `k + 1` bands, so the three defaults yield four. Every dyad
-  falls in exactly one band, so `edges + dist(1:4)` is collinear. Drop a band
+  falls in exactly one band, so `edges + dist(1:4)` is overdetermined. We drop a band
   to identify the model, same principle as `dnf`'s base cell.
 
 ::: notes
@@ -640,6 +646,9 @@ to consecutive integers from 1 is the preprocessing step, and you find out
 immediately if you haven't.
 :::
  -->
+
+# What did we learn about custom `ergm` terms?
+
 ---
 
 ## The general recipe {.smallish}
