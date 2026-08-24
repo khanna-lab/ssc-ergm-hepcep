@@ -131,7 +131,7 @@ feature types this module builds targets for; Module 3 adds terms incrementally.
 
 
 
-## Degree Distribution {.smaller}
+## Degree Distribution {.smallish}
 
 Modeling distributions of reported synringe-sharing partners
 
@@ -324,7 +324,7 @@ This is the payoff of the module's title. Everything downstream — fitting (3),
 diagnosing failure (4), simulation (5) — takes this vector as input.
 :::
 
----
+
 
 <!-- ## Exercise
 
