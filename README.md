@@ -19,7 +19,7 @@ This workshop focuses on workflow design, diagnostics, and judgment in generatin
 ## Setup
 
 ### Posit Cloud (recommended for workshop)
-**Join link:** <https://posit.cloud/spaces/807716/join?access_code=AaeD4Bo2EEcgQL6-oA2QDCdZFqeHabvuucl8oTu1> — no local installation required
+**Join link:** shared at the start of the workshop (no local installation required)
 
 
 ## Modules
