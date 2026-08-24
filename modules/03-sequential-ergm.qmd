@@ -150,42 +150,38 @@ warm-starting from `net_warm` again."
 
 ---
 
-## Two kinds of warm-starting
+## ERGM for Steps 1-4 {.smallish}
 
-- We are warm-starting the next **network** fit by `simulate`-ing the previous fit.
+- Fit the dyad-independent mixing block to its targets
 
-```r
-net_warm <- simulate(fit_mix, nsim = 1)   # simulated net seeds the next fit
-```
-
-- There is a separate strategy in `ergm` that allows warm-starting by specifying **coefficients** from previous fits.
+- This specification uses the ERGM defaults (fitting algorithm: **MCMLE**)
 
 ```r
-control.ergm(init = coef(prev_fit))   # resume from previous estimates
+fit_mix <- ergm(net ~ edges +
+                  nodemix("sex",      levels2 = -1) +
+                  nodemix("young",    levels2 = -1) +
+                  nodemix("race.num", levels2 = -1) +
+                  nodematch("chicago"),
+                target.stats = ts_mix)
 ```
 
-- In this module, we carry the **network** forward across fits to build our ERGM in stages. 
+- [We then simulate one network from this fit to warm start our dyadic dependent ERGMs]{.smallish}
 
-
-::: notes
-Good discussion prompt: which would participants expect to converge faster,
-and why? No settled answer here — flag it as an open, legitimate design choice
-rather than presenting our pipeline's pattern as the only correct one.
-:::
+```r
+net_mix <- simulate(fit_mix, nsim = 1)
+```
 
 ---
 
+## Step 5: Adding one out-degree term {.smallish}
 
-## Example: Adding the out-degree terms {.smallish}
+The simulated `net_mix` is carried over to "warm start" the incorporation of dyadic dependent degree terms.
 
-Warm-started, fit under **Stochastic-Approximation**:
+We also use **Stochastic-Approximation** so the dyadic dependent ERGM converges more reliably:
 
 ```r
 sa_control <- control.ergm(main.method = "Stochastic-Approximation",
                            MCMC.interval = 4096, MCMC.samplesize = 4096)
-
-# steps 1–4 → mixing fit; its simulated network warm-starts step 5
-net_mix <- simulate(fit_mix, nsim = 1)
 
 fit5 <- ergm(net_mix ~ edges +
                 ... +
@@ -194,6 +190,10 @@ fit5 <- ergm(net_mix ~ edges +
              control = sa_control, eval.loglik = FALSE)
 net5 <- simulate(fit5, nsim = 1)     # in turn, warm-starts step 6
 ```
+
+---
+
+## Steps 6, 7: Adding the remaining out- and in-degree terms {.smallish}
 
 One simulated network from `fit5` (here, `net5`) becomes the starting network for `fit6`.
 
@@ -206,7 +206,15 @@ fit6 <- ergm(net5 ~ edges +
 net6 <- simulate(fit6, nsim = 1)     # warm-starts step 7
 ```
 
-Informally, this workshop describes a simulated network instance from one fit as providing a "warm start" for the next.
+Step 7 adds the **in-degree** terms alongside the out-degree ones — the final model:
+
+```r
+fit_final <- ergm(net6 ~ edges +
+                     ... +
+                    idegree(0:1) + odegree(0:1),
+                  target.stats = c(ts_mix, ideg_target(0:1), odeg_target(0:1)),
+                  control = sa_control, eval.loglik = FALSE)
+```
 
 ::: notes
 Every degree step uses SA (`sa_control`), warm-started from the previous simulation. MCMLE defaults
