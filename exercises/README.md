@@ -4,6 +4,26 @@ Hands-on companions to the six module decks. Each exercise is a **scaffolded Qua
 notebook** (`.qmd`) we complete during (or after) the corresponding module. Fill in
 each `# TODO`, run the chunk, and check the result against the slides.
 
+
+## Environment
+
+Everything runs in the shared **Posit Cloud** project (a copy of this repo with
+`renv` restored and the synthetic data in place). No local install needed.
+
+👉 **Join link:** <https://posit.cloud/spaces/807716/join?access_code=AaeD4Bo2EEcgQL6-oA2QDCdZFqeHabvuucl8oTu1>
+
+
+## Loading and Set-Up
+
+1. Open the **[join link](https://posit.cloud/spaces/807716/join?access_code=AaeD4Bo2EEcgQL6-oA2QDCdZFqeHabvuucl8oTu1)**.
+2. **Sign in** to Posit Cloud (or **sign up** if it's your first time).
+3. The space opens. Click the project to launch it; RStudio loads (first launch takes a moment).
+4. Arrange the panes however you like — we mainly need the **Source qmd file**, **Console** and **Files**.
+5. In the Console, run `renv::restore()` to sync the library. It should report
+   *"already synchronized with the lockfile."* (If prompted about `pandoc`, answer **Y** — harmless.)
+
+
+
 ## How to use
 
 - Open the exercise for the current module (e.g. `exercises/01-intro.qmd`) in
@@ -13,27 +33,3 @@ each `# TODO`, run the chunk, and check the result against the slides.
 - `# TODO:` marks a line to be completed. A hint follows in the comment.
 - Each notebook ends with a collapsible **Solution** callout; the full, working
   version is the matching script in `R/` (noted at the top of each exercise).
-
-## Environment
-
-Everything runs in the shared **Posit Cloud** project (a copy of this repo with
-`renv` restored and the synthetic data in place). No local install needed.
-
-👉 **Join link:** `<POSIT_CLOUD_JOIN_LINK>`  <!-- TODO: paste the assignment/join link before the workshop -->
-
-
-| Exercise | Module | Solution key (`R/`) |
-|---|---|---|
-| `01-intro.qmd` | 1 — Intro to ERGMs | `precompute-intro-fit.R` |
-| `02-targets.qmd` | 2 — Aggregate summaries → targets | `01-targets.R` |
-| `03-sequential.qmd` | 3 — Sequential fitting | `02-sequential.R` |
-| `04-failure-modes.qmd` | 4 — Failure modes & diagnostics | `04-failure-modes.R` |
-| `05-simulation.qmd` | 5 — Simulation + ABM export | `05a-simulation.R`, `05b-export-abm.R` |
-| `06-geographic.qmd` | 6 — Geographic extensions | `modules/06-geographic-extensions.qmd` |
-
-Exercises 2–5 rely on `R/00-setup.R` (loads the synthetic network, targets, and
-degree-target helpers); each sources it at the top. Exercise 1 is self-contained
-on `faux.magnolia.high`, which is included in the `statnet` R library. Exercise 6
-is self-contained on a three-node example but needs `ergm.userterms.hepcep`, the
-custom-term package (pre-installed in Posit Cloud; see Module 6 to install it
-locally). Only its "Try at home" items use `R/00-setup.R`.
