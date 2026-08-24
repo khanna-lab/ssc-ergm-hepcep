@@ -18,9 +18,18 @@ execute:
 
 ## Setup
 
+The setup script loads the objects the fits below use. Run it first, then peek at
+what you have:
+
 ```{r}
 #| label: setup
 source(here::here("R", "00-setup.R"))
+
+# Objects now in your session:
+#   net             the synthetic n = 1000 network
+#   ts_mix          mixing-block targets (edges + nodemix(sex/young/race.num) + nodematch("chicago"))
+#   odeg_target(k)  number of nodes with out-degree k   (ideg_target(k) for in-degree)
+ts_mix              # peek: the mixing-block target vector
 ```
 
 The dyad-independent mixing block (same as Module 3):
