@@ -1,6 +1,9 @@
 project:
   type: default
   output-dir: _output
+  render:
+    - modules/*.qmd
+    - "!modules/archive/"
 
 format:
   revealjs:
