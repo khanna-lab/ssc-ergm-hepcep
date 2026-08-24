@@ -10,12 +10,12 @@ each `# TODO`, run the chunk, and check the result against the slides.
 Everything runs in the shared **Posit Cloud** project (a copy of this repo with
 `renv` restored and the synthetic data in place). No local install needed.
 
-👉 **Join link:** <https://posit.cloud/spaces/807716/join?access_code=AaeD4Bo2EEcgQL6-oA2QDCdZFqeHabvuucl8oTu1>
+👉 **Join link:** the instructors will share it (a short link) at the start of the workshop.
 
 
 ## Loading and Set-Up
 
-1. Open the **[join link](https://posit.cloud/spaces/807716/join?access_code=AaeD4Bo2EEcgQL6-oA2QDCdZFqeHabvuucl8oTu1)**.
+1. Open the **join link** the instructors share at the start of the workshop.
 2. **Sign in** to Posit Cloud (or **sign up** if it's your first time).
 3. The space opens. Click the project to launch it; RStudio loads (first launch takes a moment).
 4. Arrange the panes however you like — we mainly need the **Source qmd file**, **Console** and **Files**.
