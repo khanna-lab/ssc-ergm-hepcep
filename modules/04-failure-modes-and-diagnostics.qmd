@@ -181,18 +181,19 @@ In this case:
 
 ## Indicator #3 (continued) {.smallish}
 
-- But, there are three ways this can go: 
-  1. The MCMC diagnostics and simulated statistics look good.
-  2. The MCMC diagnostics look borderline, but the simulated structures look good relative to the targets. 
-  3. The MCMC diagnostics look borderline, but the simulated network structures do not contain the target. 
+But, there are three ways this can go: 
+
+  1. MCMC diagnostics and simulated statistics both are good.
+  2. MCMC diagnostics: Borderline, Simulated structures <--> Targets align well. 
+  3. MCMC diagnostics: Borderline, Simulated structures <--> Targets don't align well. 
 
 ::: {.accent}
 Considerations:
 :::
 
 1. Great! We are (almost) done!
-2. We often care about the simulated network alignment with the targets. If upon repeating the simulation with different seeds, the simulated networks usually contain the targets, we are (arguably) done, from the networks-for-ABM perspective.
-3. In such a case, we can try further tuning the ERGM controls (Module 3). But, in a practical sense, we might also want to revisit our data sources, our computation of targets, and whether there are potential data quality/alignment issues.     
+2. We often care about the simulated network alignment with the targets. If upon repeating the simulation with different seeds, the simulated networks usually contain the targets, we are (arguably) done.
+3. Further tune the ERGM controls (Module 3). If necessary, revisit data sources, computation of targets, and assess potential data quality/sampling considerations.     
 
 
 
