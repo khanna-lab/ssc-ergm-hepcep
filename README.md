@@ -18,25 +18,22 @@ This workshop focuses on workflow design, diagnostics, and judgment in generatin
 
 ## Setup
 
-### Option A: Posit Cloud (recommended for workshop)
-[Link to be provided] — no local installation required
+### Posit Cloud (recommended for workshop)
+**Join link:** <https://posit.cloud/spaces/807716/join?access_code=AaeD4Bo2EEcgQL6-oA2QDCdZFqeHabvuucl8oTu1> — no local installation required
 
-### Option B: Local R
-1. Clone this repo: `git clone https://github.com/khanna-lab/ssc-ergm-hepcep.git`
-2. Open the project in RStudio
-3. Restore dependencies: `renv::restore()`
-4. Install Quarto: https://quarto.org/docs/get-started/
 
 ## Modules
 
-| Module | File | Focus |
-|--------|------|-------|
-| 1 | `modules/01-ergm-intro.qmd` | Brief ERGM intro (Add Health friendships example) |
-| 2 | `modules/01-network-targets.qmd` | Aggregate summaries → network parameters |
-| 3 | `modules/03-sequential-ergm.qmd` | Sequential ERGM specification |
-| 4 | `modules/04-failure-modes-and-diagnostics.qmd` | Assessing failure modes via diagnostics |
-| 5 | `modules/05-simulation-and-translation-to-abms.qmd` | Simulation and translation to ABMs |
-| 6 | `modules/06-geocoded-mixing.qmd` | Geocoded attributes → social mixing |
+Each module pairs a slide deck (`modules/`) with a hands-on exercise (`exercises/`).
+
+| Module | Deck | Exercise | Focus |
+|--------|------|----------|-------|
+| 1 | `01-ergm-intro.qmd` | `01-intro.qmd` (take-home) | Brief ERGM intro (Add Health friendships example) |
+| 2 | `02-network-targets.qmd` | `02-targets.qmd` | Aggregate summaries → network targets |
+| 3 | `03-sequential-ergm.qmd` | `03-sequential.qmd` | Sequential ERGM specification |
+| 4 | `04-failure-modes-and-diagnostics.qmd` | `04-failure-modes.qmd` | Assessing failure modes via diagnostics |
+| 5 | `05-simulation-diagnostic.qmd` | `05-simulation.qmd` | Simulation as diagnostic + ABM export |
+| 6 | `06-geographic-extensions.qmd` | `06-geographic.qmd` | Geographic extensions (custom `dnf` term) |
 
 ## Data
 
@@ -44,9 +41,8 @@ The workshop uses a synthetic dataset (`data/synthetic/`) designed to mirror the
 
 ## Reference
 
-This workshop pipeline is based on:
-- Boodram et al. (2022). *PLOS ONE*. [DOI: 10.1371/journal.pone.0270052]
-- The `hepcep/net-ergm-v4plus` repository
+A preliminary version of this workflow is published in:
+- Boodram et al. (2022). *PLOS ONE*. [DOI: 10.1371/journal.pone.0248850]
+- Workshop content is being written up as a new manuscript.
 
-The brief ERGM introduction (Module 0) condenses a longer talk, "Modeling Social Relations using ERGMs":
-- [Full slides (Google Slides)](https://docs.google.com/presentation/d/1sF-Py8mq_fNuZViK_IT7bEQB-f5hcjhid-fB4H1JiBg/edit)
+
