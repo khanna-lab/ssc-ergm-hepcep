@@ -206,3 +206,9 @@ $code-block-font-size: 0.6em !default;
   font-size: 1.3em;
   line-height: 1;
 }
+
+// Center a figure's caption even when the figure itself is right/left aligned.
+.reveal figure.caption-center > figcaption,
+.reveal figure:has(img.caption-center) > figcaption {
+  text-align: center;
+}
