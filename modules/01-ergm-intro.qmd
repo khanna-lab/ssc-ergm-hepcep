@@ -451,8 +451,9 @@ round(coef(gwesp.m), 2)
 
 {{< include precomputed/out-gwesp.md >}}
 
-- Dyad-dependent, so this one is fit by **MCMC** (unlike the models above)
-- Precomputed, so the deck renders without re-fitting
+- Dyad-dependent, i.e., the probability of two nodes being connected is dependent on other ties in the network.
+- This one is fit by **MCMC**, unlike the models above, which used MLE.
+
 
 ::: notes
 gwesp decay 0.25, fixed. The gwesp coefficient is strongly positive; log-likelihood
