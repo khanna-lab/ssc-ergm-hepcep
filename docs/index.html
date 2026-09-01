@@ -1,0 +1,254 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>From Aggregate Network Summaries to Synthetic Networked Populations</title>
+<meta name="description" content="Slide decks for the SSC 2026 workshop on generating synthetic networked populations with ERGMs.">
+<style>
+  :root {
+    --brown-primary: #4E3629;
+    --brown-red:     #ED1C24;
+    --brown-navy:    #003C71;
+    --brown-emerald: #00B398;
+    --brown-taupe:   #B7B09C;
+    --bg-tint:       #F1EFEE;
+    --sans: Arial, Helvetica, "Liberation Sans", sans-serif;
+    --serif: Georgia, "Times New Roman", serif;
+  }
+
+  * { box-sizing: border-box; }
+
+  body {
+    margin: 0;
+    padding: 3rem 1.5rem 4rem;
+    background: #fff;
+    color: #1a1a1a;
+    font-family: var(--sans);
+    font-size: 17px;
+    line-height: 1.6;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  .wrap { max-width: 50rem; margin: 0 auto; }
+
+  header { border-bottom: 3px solid var(--brown-primary); padding-bottom: 1.75rem; }
+
+  .eyebrow {
+    font-size: 0.75rem;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--brown-red);
+    font-weight: 700;
+    margin: 0 0 0.75rem;
+  }
+
+  h1 {
+    font-family: var(--serif);
+    color: var(--brown-primary);
+    font-weight: 700;
+    font-size: clamp(1.7rem, 4.5vw, 2.5rem);
+    line-height: 1.2;
+    margin: 0 0 1rem;
+  }
+
+  .authors { margin: 0; color: #444; }
+  .authors span { display: block; font-size: 0.95rem; color: #666; }
+
+  h2 {
+    font-family: var(--serif);
+    color: var(--brown-primary);
+    font-size: 1.25rem;
+    margin: 3rem 0 0.5rem;
+  }
+
+  .section-note { margin: 0 0 1.25rem; color: #666; font-size: 0.92rem; }
+
+  ol.decks { list-style: none; margin: 0; padding: 0; counter-reset: deck; }
+
+  ol.decks li { border-bottom: 1px solid #e4e1de; }
+
+  a.deck {
+    display: grid;
+    grid-template-columns: 2.75rem 1fr;
+    gap: 0 1rem;
+    align-items: baseline;
+    padding: 1.1rem 0.75rem 1.1rem 0.5rem;
+    text-decoration: none;
+    color: inherit;
+    border-radius: 4px;
+    transition: background-color 0.12s ease;
+  }
+
+  a.deck:hover, a.deck:focus-visible {
+    background: var(--bg-tint);
+    outline: none;
+  }
+
+  a.deck:focus-visible { box-shadow: 0 0 0 2px var(--brown-navy); }
+
+  .num {
+    font-family: var(--serif);
+    font-size: 1.35rem;
+    font-weight: 700;
+    color: var(--brown-taupe);
+  }
+
+  a.deck:hover .num { color: var(--brown-red); }
+
+  .deck-title {
+    font-weight: 700;
+    color: var(--brown-navy);
+    font-size: 1.05rem;
+  }
+
+  a.deck:hover .deck-title { text-decoration: underline; }
+
+  .deck-desc { margin: 0.2rem 0 0; color: #555; font-size: 0.92rem; }
+
+  .preamble .num { font-size: 1rem; letter-spacing: 0.04em; }
+
+  footer {
+    margin-top: 3.5rem;
+    padding-top: 1.5rem;
+    border-top: 1px solid #e4e1de;
+    font-size: 0.88rem;
+    color: #666;
+  }
+
+  footer p { margin: 0 0 0.6rem; }
+  footer a { color: var(--brown-navy); }
+
+  .hint {
+    background: var(--bg-tint);
+    border-left: 3px solid var(--brown-emerald);
+    padding: 0.85rem 1rem;
+    margin: 1.5rem 0 0;
+    font-size: 0.9rem;
+    color: #444;
+  }
+
+  kbd {
+    font-family: "JetBrains Mono", "SF Mono", Menlo, monospace;
+    font-size: 0.85em;
+    background: #fff;
+    border: 1px solid #ccc;
+    border-bottom-width: 2px;
+    border-radius: 3px;
+    padding: 0.1em 0.4em;
+  }
+
+  @media (max-width: 30rem) {
+    body { padding-top: 2rem; }
+    a.deck { grid-template-columns: 2rem 1fr; gap: 0 0.6rem; }
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header>
+    <p class="eyebrow">SSC 2026 Workshop</p>
+    <h1>From Aggregate Network Summaries to Synthetic Networked Populations</h1>
+    <p class="authors">
+      Aditya Khanna <span>Brown University School of Public Health</span>
+    </p>
+    <p class="authors" style="margin-top:0.6rem">
+      Jonathan Ozik <span>Argonne National Laboratory / University of Chicago</span>
+    </p>
+  </header>
+
+  <h2>Slides</h2>
+  <p class="section-note">
+    Rendered decks as presented. Six modules, roughly 30 minutes each.
+  </p>
+
+  <ol class="decks">
+    <li class="preamble">
+      <a class="deck" href="00-preamble.html">
+        <span class="num">00</span>
+        <span>
+          <span class="deck-title">Preamble</span>
+          <span class="deck-desc">Workshop overview, setup, and roadmap</span>
+        </span>
+      </a>
+    </li>
+    <li>
+      <a class="deck" href="01-ergm-intro.html">
+        <span class="num">01</span>
+        <span>
+          <span class="deck-title">A Brief Introduction to ERGMs</span>
+          <span class="deck-desc">Core ideas, using the Add Health friendship network</span>
+        </span>
+      </a>
+    </li>
+    <li>
+      <a class="deck" href="02-network-targets.html">
+        <span class="num">02</span>
+        <span>
+          <span class="deck-title">From Aggregate Summaries to Network Targets</span>
+          <span class="deck-desc">Turning published summaries into estimable target statistics</span>
+        </span>
+      </a>
+    </li>
+    <li>
+      <a class="deck" href="03-sequential-ergm.html">
+        <span class="num">03</span>
+        <span>
+          <span class="deck-title">Sequential ERGM Specification</span>
+          <span class="deck-desc">Building a model term by term, with warm starts</span>
+        </span>
+      </a>
+    </li>
+    <li>
+      <a class="deck" href="04-failure-modes-and-diagnostics.html">
+        <span class="num">04</span>
+        <span>
+          <span class="deck-title">Assessing Failure Modes</span>
+          <span class="deck-desc">Degeneracy, non-convergence, and reading MCMC diagnostics</span>
+        </span>
+      </a>
+    </li>
+    <li>
+      <a class="deck" href="05-simulation-diagnostic.html">
+        <span class="num">05</span>
+        <span>
+          <span class="deck-title">Simulation as Diagnostic</span>
+          <span class="deck-desc">Checking the fitted ensemble against targets, and exporting to an ABM</span>
+        </span>
+      </a>
+    </li>
+    <li>
+      <a class="deck" href="06-geographic-extensions.html">
+        <span class="num">06</span>
+        <span>
+          <span class="deck-title">Geographic Extensions</span>
+          <span class="deck-desc">Adding spatial structure with a custom <code>dnf</code> term</span>
+        </span>
+      </a>
+    </li>
+  </ol>
+
+  <p class="hint">
+    Each deck is a self-contained reveal.js file. Press <kbd>?</kbd> for keyboard shortcuts,
+    <kbd>O</kbd> for a slide overview, and <kbd>F</kbd> for fullscreen.
+  </p>
+
+  <footer>
+    <p>
+      Code, exercises, and data:
+      <a href="https://github.com/khanna-lab/ssc-ergm-hepcep">github.com/khanna-lab/ssc-ergm-hepcep</a>
+    </p>
+    <p>
+      A preliminary version of this workflow appears in Boodram et al. (2022),
+      <em>PLOS ONE</em>,
+      <a href="https://doi.org/10.1371/journal.pone.0248850">doi:10.1371/journal.pone.0248850</a>.
+    </p>
+    <p>
+      Supported by the National Institutes of Health (R01AI158666).
+    </p>
+  </footer>
+
+</div>
+</body>
+</html>
