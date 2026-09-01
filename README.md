@@ -45,4 +45,6 @@ A preliminary version of this workflow is published in:
 - Boodram et al. (2022). *PLOS ONE*. [DOI: 10.1371/journal.pone.0248850]
 - Workshop content is being written up as a new manuscript.
 
+## Acknowledgements
 
+This work was supported by the National Institutes of Health (R01AI158666).
