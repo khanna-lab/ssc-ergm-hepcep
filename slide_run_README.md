@@ -14,7 +14,7 @@ quarto render modules/01-ergm-intro.qmd   # or just one
 
 Output is generated in `_output/modules/`. Each deck is self-contained
 (`embed-resources: true` in `_quarto.yml`), so a single `.html` file carries its own
-images, CSS and JS — there are no sidecar asset folders to copy alongside it.
+images, CSS and JS. There are no sidecar asset folders to copy alongside it.
 
 ## Publish
 
@@ -36,7 +36,7 @@ Pages redeploys on push; allow a minute or two.
 Notes on `docs/`:
 
 - `index.html` is the hand-written landing page. Quarto does not generate it, so a
-  re-render will never overwrite it — edit it directly when module titles change.
+  re-render will never overwrite it. Edit it directly when module titles change.
 - `.nojekyll` (empty file) tells Pages to serve the folder as-is instead of running it
   through Jekyll.
 - `00-preamble.html` has no `.qmd` source in this repo, so `quarto render` does not
@@ -49,7 +49,7 @@ Notes on `docs/`:
   which needs a Fortran compiler. R 4.6 ships the pinned version, so nothing compiles.
   [rig](https://github.com/r-lib/rig) is a convenient way to keep several R versions
   side by side: `rig add 4.6.1` then `rig default 4.6`.
-- Nothing executes at render time (`eval: false` in `_quarto.yml`) — the code in the
+- Nothing executes at render time (`eval: false` in `_quarto.yml`). The code in the
   modules is there to be read. Only `knitr`/`rmarkdown` are strictly needed to build
   the decks; the full `renv::restore()` is what you want in order to *run* the
   workshop code.
