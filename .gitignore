@@ -11,3 +11,7 @@ _output/
 # Machine-specific VSCode workspace (local R env paths)
 *.code-workspace
 /local_only/
+
+# Private reference material. Kept locally, not published: the statnet_help
+# thread contains other people's email addresses.
+/correspondence/
