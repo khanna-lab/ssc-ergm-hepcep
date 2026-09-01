@@ -10,8 +10,16 @@ format:
     theme: simple
     # Stops the deck from swallowing Cmd/Ctrl chords (e.g. Shift-Option-Command
     # -Left/Right, which reveal.js otherwise treats as jump-to-first/last-slide).
-    include-after-body: modules/reveal-keyboard.html
+    # reveal-backlink.html adds the "All slides" link back to index.html.
+    include-after-body:
+      - modules/reveal-keyboard.html
+      - modules/reveal-backlink.html
     slide-number: true
+    # Quarto defaults this to true, which pushes every slide change onto the
+    # browser history, so Back steps through slides instead of leaving the deck.
+    # With it off, one Back press returns to wherever you came from (the landing
+    # page). `hash` stays on, so deep links to a given slide still work.
+    history: false
     embed-resources: true   # self-contained HTML (assets inlined) for a portable archive
     chalkboard: false
     code-fold: false

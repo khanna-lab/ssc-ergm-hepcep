@@ -2266,7 +2266,7 @@ window.QuartoSupport = function () {
         respondToHashChanges: true,
 
         // Push each slide change to the browser history
-        history: true,
+        history: false,
 
         // Enable keyboard shortcuts for navigation
         keyboard: true,
@@ -2429,6 +2429,54 @@ window.QuartoSupport = function () {
           });
         }
       });
+    </script>
+    <style>
+
+.deck-backlink {
+position: fixed;
+top: 0.6em;
+left: 0.8em;
+z-index: 40;
+font-family: Arial, Helvetica, sans-serif;
+font-size: 13px;
+line-height: 1;
+color: #8a8378;
+text-decoration: none;
+padding: 0.35em 0.55em;
+border-radius: 4px;
+opacity: 0.55;
+transition: opacity 0.15s ease, background-color 0.15s ease;
+}
+.deck-backlink:hover,
+.deck-backlink:focus-visible {
+opacity: 1;
+color: #003C71;
+background: #F1EFEE;
+}
+
+@media print {
+.deck-backlink { display: none; }
+}
+.reveal.overview ~ .deck-backlink,
+body.print-pdf .deck-backlink {
+display: none;
+}
+</style>
+
+    <a class="deck-backlink" href="index.html" title="Back to the workshop landing page">← All slides</a>
+
+    <script>
+      // The decks render to _output/modules/ but are published alongside index.html
+      // in docs/. Hide the link when there is no sibling index (local preview), so
+      // it never points at a 404.
+      (function () {
+        var link = document.querySelector('.deck-backlink');
+        if (!link) return;
+        if (location.protocol === 'file:') { link.style.display = 'none'; return; }
+        fetch('index.html', { method: 'HEAD' })
+          .then(function (r) { if (!r.ok) link.style.display = 'none'; })
+          .catch(function () { link.style.display = 'none'; });
+      })();
     </script>
     <script id="quarto-html-after-body" type="application/javascript">
       window.document.addEventListener("DOMContentLoaded", function (event) {
