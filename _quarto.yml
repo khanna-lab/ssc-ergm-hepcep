@@ -12,6 +12,7 @@ format:
     # -Left/Right, which reveal.js otherwise treats as jump-to-first/last-slide).
     include-after-body: modules/reveal-keyboard.html
     slide-number: true
+    embed-resources: true   # self-contained HTML (assets inlined) for a portable archive
     chalkboard: false
     code-fold: false
     code-line-numbers: false
