@@ -3,6 +3,8 @@
 **SSC 2026 Workshop**
 Aditya Khanna (Brown University School of Public Health) & Jonathan Ozik (Argonne National Laboratory / University of Chicago)
 
+**Slides:** <https://khanna-lab.github.io/ssc-ergm-hepcep/>
+
 ## Overview
 
 This workshop focuses on workflow design, diagnostics, and judgment in generating networked populations using exponential random graph models (ERGMs) for social simulation. The running example is syringe-sharing networks among people who inject drugs (PWID), used to simulate vaccine interventions in an agent-based modeling framework.
@@ -21,6 +23,17 @@ This workshop focuses on workflow design, diagnostics, and judgment in generatin
 ### Posit Cloud (recommended for workshop)
 **Join link:** shared at the start of the workshop (no local installation required)
 
+
+## Slides
+
+Rendered decks are published at **<https://khanna-lab.github.io/ssc-ergm-hepcep/>**, served by
+GitHub Pages from the `docs/` folder on the `init` branch. Each deck is a single self-contained
+HTML file, so it can also be downloaded and opened offline.
+
+Sources live in `modules/` as `.qmd`. Rendering and republishing are a manual step — see
+[`slide_run_README.md`](slide_run_README.md).
+
+The decks as delivered at the workshop are preserved at the `ssc2026-presented` tag.
 
 ## Modules
 
