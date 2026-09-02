@@ -57,7 +57,7 @@ Our full previous exchange is below, but to summarize: I have an ERGM that I fit
 
 | MCMC interval | MCMC sample size | Convergence detection | Results/outcome | Note |
 |---|---|---|---|---|
-| 1e6 | 1e6 | Hotelling | Closest agreement between simulated and target statistics | [Max. Lik. fit summary and simulation Rout](https://github.com/hepcep/net-ergm-v4plus/commit/777bae726d29dae969f06e0d17b40ee59a01a7fc); [violin plots showing the simulated and target statistics for each parameter](https://github.com/hepcep/net-ergm-v4plus/tree/rhel9-setup/fit-ergms/out) |
+| 1e6 | 1e6 | Hotelling | Closest agreement between simulated and target statistics | [Max. Lik. fit summary and simulation Rout](https://github.com/hepcep/net-ergm-v4plus/commit/777bae726d29dae969f06e0d17b40ee59a01a7fc); [violin plots showing the simulated and target statistics for each parameter](https://github.com/hepcep/net-ergm-v4plus/tree/main/fit-ergms/out) |
 
 But, I found that this was the closest I could get producing simulated statistics that matched the target statistics. In general, any further increasing or decreasing of either the samplesize or interval did not help generate a closer result, i.e., this looked to be some optimum in the fit parameter space. I can provide further details on the results of those fits, which for some configurations didn’t converge, and if they did converge, the goodness-of-fit was worse than what I had with setting the MCMC interval and samplesize to 1e6. Based on your experiences, I was wondering if this is expected? For now, my main question is, are there any suggestions on how I can further tune the fitting parameters to match my targets more closely? I can provide specific details on the outcomes of those fitting processes if that would be helpful. Thanks for your consideration.
 
@@ -101,7 +101,7 @@ Hi Carter,
 
 Thank you so much for your helpful response as always. I have organized my report in terms of the various things you suggest.
 
-Verifying MCMC, [GOF](https://github.com/hepcep/net-ergm-v4plus/blob/rhel9-setup/fit-ergms/out/updated-with-oct12-2024-synthpop-ergmv4-6-all-plosone-terms-increase-mcmc-1e6-hotelling.pdf) and the “second” MCMC: Yes, the ERGM for the model described below does converge, but, despite having converged, the simulated networks don’t seem to statistically capture the targets. I did make the GOF plots as well. Most of the terms look good, though some have peaks that are off from the zero. In general, however, I have come to rely more on actually simulating networks from the fitted ERGM object (what I think you mean by “second MCMC run”) in addition to the GOF plots. Usually I consider my goal fulfilled if the simulated network objects capture the targets, even if the GOF plots don’t look perfect.
+Verifying MCMC, GOF and the “second” MCMC: Yes, the ERGM for the model described below does converge, but, despite having converged, the simulated networks don’t seem to statistically capture the targets. I did make the GOF plots as well. Most of the terms look good, though some have peaks that are off from the zero. In general, however, I have come to rely more on actually simulating networks from the fitted ERGM object (what I think you mean by “second MCMC run”) in addition to the GOF plots. Usually I consider my goal fulfilled if the simulated network objects capture the targets, even if the GOF plots don’t look perfect.
 
 Model Convergence and tightening the MCMC tolerances: In terms of tightening the MCMC tolerances, I did increase the MCMC interval to 1e9, of the order of O(N^2). But this particular specification timed out after 120 hours, and I didn’t try to run it for longer time than that.
 
@@ -163,7 +163,7 @@ Hi Carter and Pavel,
 
 Thank you so much for your helpful suggestions. Following your feedback (and Carter’s numbering scheme below), I report the following:
 
-1. The GOF plot is [here](https://github.com/hepcep/net-ergm-v4plus/blob/rhel9-setup/fit-ergms/out/oct12-2024-int1e6-samp1e6-hotelling_gof_plot.pdf) and the numerical summary is [here](https://gist.github.com/khanna7/f263b14b7bbc09e704ecd99bda8f215d). Based on these, it seems that the model has not converged. When we simulate from our best fit, even though it is not from a
+1. The GOF plot is [here](https://github.com/hepcep/net-ergm-v4plus/blob/main/fit-ergms/out/oct12-2024-int1e6-samp1e6-hotelling_gof_plot.pdf) and the numerical summary is [here](https://gist.github.com/khanna7/f263b14b7bbc09e704ecd99bda8f215d). Based on these, it seems that the model has not converged. When we simulate from our best fit, even though it is not from a
 
 converged model, the simulated networks seem not far off from the mean target statistics.
 
@@ -262,20 +262,3 @@ Beyond that, mostly I think that sampling from target stats distributions is the
 Best,
 
 Steve
-
----
-
-## Omitted messages
-
-Removed from the reconstruction because they carried no technical content:
-
-- Fri, May 17, 2024 at 12:25 AM, Aditya Khanna: Gmail listserv-footer artifact (bare mailman URL)
-- Thu, Sep 26, 2024 at 1:41 AM, Aditya Khanna: empty (forward to a colleague; body was "[Quoted text hidden]")
-- Thu, Sep 26, 2024 at 3:37 AM, Jason Gantenberg: Jason Gantenberg, no technical content
-- Wed, Oct 9, 2024 at 11:05 PM, Aditya Khanna: empty (forward to a colleague; body was "[Quoted text hidden]")
-- Fri, Nov 15, 2024 at 11:06 AM, Aditya Khanna: courtesy only ("Thank you Steve!")
-- Mon, Nov 18, 2024 at 7:39 AM, Steven M. Goodreau: administrative (apology for sending to the wrong list)
-- Mon, Nov 18, 2024 at 7:40 AM, Steven M. Goodreau: administrative (apology for sending to the wrong list)
-- Fri, Dec 6, 2024 at 2:28 AM, Aditya Khanna: empty (forward; body was "[Quoted text hidden]")
-
-The unredacted original is not in this repository.
