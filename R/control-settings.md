@@ -2,7 +2,9 @@
 
 Reference for the `control.ergm()` settings in the workshop pipeline
 (`R/02-sequential.R`) and how they relate to the full HepCEP pipeline. The
-override story comes from the statnet_help thread "Upgrading from ERGM v3.10 to
+override story comes from the statnet_help thread
+[`correspondence/ergm-statnet-2024.md`](../correspondence/ergm-statnet-2024.md),
+"Upgrading from ERGM v3.10 to
 v4.6" (Khanna / Butts / Krivitsky / Goodreau, 2024).
 
 ## Takeaway

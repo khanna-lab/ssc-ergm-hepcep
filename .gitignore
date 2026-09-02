@@ -12,6 +12,7 @@ _output/
 *.code-workspace
 /local_only/
 
-# Private reference material. Kept locally, not published: the statnet_help
-# thread contains other people's email addresses.
-/correspondence/
+# The original Gmail export of the statnet_help thread carries everyone's email
+# addresses, so it stays local. The redacted Markdown reconstruction alongside it
+# (ergm-statnet-2024.md) is tracked and published.
+/correspondence/*.pdf
