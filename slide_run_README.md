@@ -77,9 +77,9 @@ Notes on `docs/`:
   `reveal-backlink.html` adds the "All slides" link back to `index.html`. That link
   only appears where a sibling `index.html` exists, so it shows on the published site
   and hides itself in a local `_output/` preview. That is deliberate, not a bug.
-- `history: false` in `_quarto.yml` keeps slide changes out of the browser history, so
-  Back leaves the deck and returns to the landing page instead of stepping backwards
-  through slides. Quarto defaults this to `true`.
+- `history: true` in `_quarto.yml` is Quarto's default: Back steps backwards through
+  slides rather than leaving the deck. The "All slides" link is the way back to the
+  landing page. Set `history: false` if you would rather Back exit the deck.
 - Current idea is that the code embedded in the modules is for illustrative purposes.
 - If the manual copy step or the growing history ever becomes annoying, see
   "Moving to CI" below.

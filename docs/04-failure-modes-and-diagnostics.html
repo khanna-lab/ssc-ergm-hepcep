@@ -2355,7 +2355,7 @@ window.QuartoSupport = function () {
         respondToHashChanges: true,
 
         // Push each slide change to the browser history
-        history: false,
+        history: true,
 
         // Enable keyboard shortcuts for navigation
         keyboard: true,
@@ -2527,19 +2527,23 @@ top: 0.6em;
 left: 0.8em;
 z-index: 40;
 font-family: Arial, Helvetica, sans-serif;
-font-size: 13px;
+font-size: 14px;
+font-weight: 700;
 line-height: 1;
-color: #8a8378;
+color: #6f6659;
 text-decoration: none;
-padding: 0.35em 0.55em;
-border-radius: 4px;
-opacity: 0.55;
-transition: opacity 0.15s ease, background-color 0.15s ease;
+padding: 0.4em 0.7em;
+border: 1px solid #ddd8d2;
+border-radius: 5px;
+background: rgba(255, 255, 255, 0.85);
+opacity: 0.9;
+transition: opacity 0.15s ease, background-color 0.15s ease, color 0.15s ease;
 }
 .deck-backlink:hover,
 .deck-backlink:focus-visible {
 opacity: 1;
 color: #003C71;
+border-color: #003C71;
 background: #F1EFEE;
 }
 
