@@ -81,5 +81,55 @@ Notes on `docs/`:
   Back leaves the deck and returns to the landing page instead of stepping backwards
   through slides. Quarto defaults this to `true`.
 - Current idea is that the code embedded in the modules is for illustrative purposes.
+- If the manual copy step or the growing history ever becomes annoying, see
+  "Moving to CI" below.
 - I am thinking I will generate student-facing r code files for actually running the analyses.
 - May change later, but that's the current idea.
+
+## Moving to CI (not done, notes for later)
+
+Why bother: removes the forgettable `cp`, and lets `docs/` leave version control so
+renders stop adding megabytes to history.
+
+Repo changes:
+
+- Move `index.html` and `.nojekyll` into a tracked `site/` folder. They are the only
+  hand-written files in `docs/`; everything else is build output.
+- `git rm -r --cached docs/`, then add `/docs/` to `.gitignore`.
+- Note: this stops *future* growth. Blobs already in history stay unless you rewrite it.
+
+Pages setting:
+
+- Settings -> Pages -> Source: switch from "Deploy from a branch" to "GitHub Actions".
+  Until this is changed, the workflow builds but nothing it produces is served.
+
+Workflow sketch (`.github/workflows/publish.yml`):
+
+- Trigger: `push` to `init`, ideally filtered to `modules/**`, `site/**`, `_quarto.yml`.
+- `concurrency: { group: pages, cancel-in-progress: true }` so overlapping pushes do
+  not race.
+- `permissions: { contents: read, pages: write, id-token: write }`.
+- Steps: `actions/checkout` -> `r-lib/actions/setup-r` (4.6.1) -> `quarto-dev/quarto-actions/setup`
+  -> install deps -> `quarto render` -> assemble -> `actions/upload-pages-artifact`
+  -> `actions/deploy-pages`.
+- Assemble = copy `site/*` and `_output/modules/*.html` into one directory, which
+  becomes the artifact root.
+
+Dependencies, the part that decides how painful this is:
+
+- While `eval: false` holds, CI needs only `knitr` and `rmarkdown`. About a minute, no
+  compilation. This is the pragmatic choice.
+- A full `renv::restore()` is the faithful choice: use `r-lib/actions/setup-renv`,
+  which handles the cache. Slower on a cold cache.
+- Either way, `renv::restore()` in CI will build `ergm.userterms.hepcep` from source
+  (Git package, `LinkingTo: ergm`). It is public at `hepcep/ergm.userterms.hepcep` with
+  a pinned `RemoteSha`, so no credentials are needed, but it does need a compiler.
+- If `eval` is ever flipped to `true`, the minimal option stops working and the full
+  restore becomes mandatory.
+
+Smaller points:
+
+- `.nojekyll` is unnecessary with artifact deploys (no Jekyll step), but harmless.
+- Keep a `workflow_dispatch` trigger so the site can be rebuilt without a commit.
+- The `reveal-backlink.html` HEAD check still works: the artifact root has `index.html`
+  as a sibling of the decks, exactly as `docs/` does today.
