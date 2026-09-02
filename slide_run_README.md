@@ -8,7 +8,7 @@ Written using **R 4.6** and **Quarto**.
 git clone git@github.com:khanna-lab/ssc-ergm-hepcep.git
 cd ssc-ergm-hepcep
 Rscript -e 'renv::restore()'              # install the pinned packages
-quarto render                             # all six modules
+quarto render                             # all seven decks
 quarto render modules/01-ergm-intro.qmd   # or just one
 ```
 
@@ -23,24 +23,43 @@ The live site is served by GitHub Pages from `docs/` on the `init` branch:
 <https://khanna-lab.github.io/ssc-ergm-hepcep/>
 
 `_output/` is gitignored, so publishing is a deliberate copy rather than a side effect
-of rendering:
+of rendering. There is no CI: if you skip the copy, the site keeps serving the previous
+decks and nothing warns you. Run the whole block:
 
 ```bash
-quarto render
-cp _output/modules/*.html docs/
-git add docs && git commit -m "Update rendered decks" && git push
+quarto render                    # 1. build into _output/modules/
+cp _output/modules/*.html docs/  # 2. THIS IS THE STEP THAT IS EASY TO FORGET
+git status                       # 3. expect 7 modified .html files under docs/
+git add -A && git commit -m "Update rendered decks" && git push
 ```
 
-Pages redeploys on push; allow a minute or two.
+Then confirm it actually deployed, which is a separate step from the push and takes a
+minute or two:
+
+```bash
+# should print the commit you just pushed
+git log --oneline -1
+
+# should differ from the old build; hard-refresh in the browser to be sure
+curl -s https://khanna-lab.github.io/ssc-ergm-hepcep/02-network-targets.html | wc -c
+```
+
+If the site looks stale, check the `pages build and deployment` run in the Actions tab
+before assuming something is broken locally. Pages serves from its own copy, so a
+successful push is not the same as a successful deploy.
 
 Notes on `docs/`:
 
 - `index.html` is the hand-written landing page. Quarto does not generate it, so a
-  re-render will never overwrite it. Edit it directly when module titles change.
+  re-render will never overwrite it. Edit it directly when module titles change, or
+  when adding a module to the list.
 - `.nojekyll` (empty file) tells Pages to serve the folder as-is instead of running it
   through Jekyll.
-- `00-preamble.html` has no `.qmd` source in this repo, so `quarto render` does not
-  regenerate it. Leave it in place.
+- Every deck in `docs/`, including `00-preamble.html`, is generated from a `.qmd` in
+  `modules/`. Never hand-edit the deck HTML; the next render will overwrite it.
+- Rendered decks are committed to the repo, so each render adds a few MB to history.
+  Tolerable at this size. If it becomes a problem, the fix is a GitHub Action that
+  builds and deploys the site, letting `docs/` drop out of version control.
 
 ## Notes
 
@@ -53,6 +72,14 @@ Notes on `docs/`:
   modules is there to be read. Only `knitr`/`rmarkdown` are strictly needed to build
   the decks; the full `renv::restore()` is what you want in order to *run* the
   workshop code.
+- Two `include-after-body` files in `_quarto.yml` apply to every deck:
+  `reveal-keyboard.html` stops reveal.js from swallowing Cmd/Ctrl chords, and
+  `reveal-backlink.html` adds the "All slides" link back to `index.html`. That link
+  only appears where a sibling `index.html` exists, so it shows on the published site
+  and hides itself in a local `_output/` preview. That is deliberate, not a bug.
+- `history: false` in `_quarto.yml` keeps slide changes out of the browser history, so
+  Back leaves the deck and returns to the landing page instead of stepping backwards
+  through slides. Quarto defaults this to `true`.
 - Current idea is that the code embedded in the modules is for illustrative purposes.
 - I am thinking I will generate student-facing r code files for actually running the analyses.
 - May change later, but that's the current idea.
