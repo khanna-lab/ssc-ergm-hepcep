@@ -39,3 +39,5 @@ execute:
 ##
 
 ![](img/posit-global-options.png){width="62%" fig-align="center" fig-alt="RStudio Global Options dialog showing the Pane Layout panel, with Sidebar on Left, Source, Console, and the Environment/History and Help/Viewer/Presentation panes"}
+
+{{< include _funding.qmd >}}

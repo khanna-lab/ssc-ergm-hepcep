@@ -538,3 +538,5 @@ Hunter, D. R., Butts, C. T., & Morris, M. (2008). A statnet Tutorial. *Journal o
 Statistical Software*, 24(9), 1–26. https://doi.org/10.18637/jss.v024.i09
 Further reading: Robins et al. (2007).
 :::
+
+{{< include _funding.qmd >}}

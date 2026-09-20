@@ -221,3 +221,4 @@ Cap time on the live simulation; the pre-baked plot carries the point if it runs
 :::
 
  -->
+{{< include _funding.qmd >}}

@@ -739,3 +739,5 @@ from Modules 3-5 with the geographic term slotted in. Step 6 is optional. Have a
 pre-baked fit ready for step 4 if convergence eats the clock.
 :::
 -->
+
+{{< include _funding.qmd >}}

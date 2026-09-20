@@ -60,4 +60,9 @@ A preliminary version of this workflow is published in:
 
 ## Acknowledgements
 
-This work was supported by the National Institutes of Health (R01AI158666).
+Research reported in this repository was supported by the National Institute of
+Allergy and Infectious Diseases of the National Institutes of Health under award
+number R01AI158666. This project is financed 100% with federal funds, totaling
+\$684,751; 0% (\$0) is financed by non-governmental sources. The content is solely
+the responsibility of the authors and does not necessarily represent the official
+views of the National Institutes of Health.

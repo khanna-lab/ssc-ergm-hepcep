@@ -239,3 +239,5 @@ next warm start.
 In the next module, we assess the quality of these fits.
 :::
 
+
+{{< include _funding.qmd >}}

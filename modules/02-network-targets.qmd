@@ -341,3 +341,4 @@ Posit Cloud avoids local setup friction; keep it open in a second tab from here
 through Module 5 so participants can run each module's code as we go.
 :::
  -->
+{{< include _funding.qmd >}}

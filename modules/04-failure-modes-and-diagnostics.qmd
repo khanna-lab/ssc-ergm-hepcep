@@ -256,3 +256,5 @@ Work in the Posit Cloud environment:
 Steps mirror the run sheet; cap time on any live fit that hangs.
 ::: 
 -->
+
+{{< include _funding.qmd >}}
