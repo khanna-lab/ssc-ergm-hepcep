@@ -62,7 +62,9 @@ A preliminary version of this workflow is published in:
 
 Research reported in this repository was supported by the National Institute of
 Allergy and Infectious Diseases of the National Institutes of Health under award
-number R01AI158666. This project is financed 100% with federal funds, totaling
-\$684,751; 0% (\$0) is financed by non-governmental sources. The content is solely
+number R01AI158666. This project is financed 100% with federal funds: the FY2026
+total for the prime award to Loyola University Chicago is \$684,751, and Brown
+University's subaward for the current budget period is \$14,846. No portion is
+financed by non-governmental sources (0%, \$0). The content is solely
 the responsibility of the authors and does not necessarily represent the official
 views of the National Institutes of Health.
