@@ -16,3 +16,4 @@ _output/
 # addresses, so it stays local. The redacted Markdown reconstruction alongside it
 # (ergm-statnet-2024.md) is tracked and published.
 /correspondence/*.pdf
+setup_info
