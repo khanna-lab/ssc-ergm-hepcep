@@ -1,6 +1,9 @@
 ---
-title: "Welcome"
-subtitle: "SSC 2026 ERGM Workshop · Preamble"
+title: "From Mixing Data to Networked Populations"
+subtitle: "SSC 2026 ERGM Workshop"
+author:
+  - "Aditya Khanna — Brown University School of Public Health"
+  - "Jonathan Ozik — Argonne National Laboratory / University of Chicago"
 format:
   revealjs:
     theme: [simple, theme.scss]
@@ -24,7 +27,8 @@ execute:
 - We'll have a 15-minute break at the end of module 3
 - The github repo is (and will remain) available:
   <https://github.com/khanna-lab/ssc-ergm-hepcep>
-- The POSIT cloud space (next slide) is active until about September 20
+- The Posit Cloud space (next slide) is available through **October 20, 2026**;
+  after that, run everything locally from the repo above, which stays available
 
 ## POSIT workspace: *[link shared with participants]*
 

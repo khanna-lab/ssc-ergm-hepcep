@@ -1,0 +1,42 @@
+---
+title: "From Aggregate Network Summaries to Synthetic Networked Populations"
+subtitle: "SSC 2026 Workshop"
+author:
+  - "Aditya Khanna — Brown University School of Public Health"
+  - "Jonathan Ozik — Argonne National Laboratory / University of Chicago"
+format:
+  revealjs:
+    theme: [simple, theme.scss]
+    slide-number: true
+execute:
+  eval: false
+  echo: true
+  warning: false
+  message: false
+---
+
+## Structure of the workshop {.smallish}
+
+- **Six modules**, each about **25 minutes**.
+- Per module: **~17 min** of slides, then **~8 min** on a hands-on **exercise**.
+  - Module 1's exercise is take-home — no live coding.
+- A **15-minute break** after Module 3.
+
+::: notes
+Timing is a guide, not a stopwatch. 17 + 8 per module × 6 ≈ 2.5 hours, plus the break.
+:::
+
+---
+
+## Running the code {.smallish}
+
+- **Posit Cloud** — no local install needed. The join link is shared **live** at the
+  start of the session; the space stays active until **~September 20**.
+- To run it **locally** (now or later), the repository is public and will remain available:
+
+::: {.accent}
+<https://github.com/khanna-lab/ssc-ergm-hepcep>
+:::
+
+- Each module has a matching exercise under `exercises/`; a shared Posit project has the
+  environment pre-built (`renv` restored, synthetic data in place).

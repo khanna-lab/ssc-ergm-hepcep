@@ -1,4 +1,4 @@
-# From Aggregate Network Summaries to Synthetic Networked Populations
+# From Mixing Data to Networked Populations
 
 **SSC 2026 Workshop**
 Aditya Khanna (Brown University School of Public Health) & Jonathan Ozik (Argonne National Laboratory / University of Chicago)
